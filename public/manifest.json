@@ -1,0 +1,16 @@
+{
+  "name": "AeroPlan Flight Training",
+  "short_name": "AeroPlan",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "Pilot flight training planner and weather dashboard.",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ]
+}
