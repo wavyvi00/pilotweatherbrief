@@ -33,6 +33,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
         return groupWeatherWindows(windows, profile);
     }, [windows, profile]);
 
+    const [view, setView] = React.useState<any>(Views.WEEK);
+
+    // Responsive View Handler
+    React.useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setView(Views.DAY);
+            } else {
+                setView(Views.WEEK);
+            }
+        };
+
+        // Initial check
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Custom Event Styling
     const eventPropGetter = (event: SmartCalendarEvent) => {
         const status = event.resource.status;
@@ -46,29 +65,30 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
             style: {
                 backgroundColor,
                 border: 'none',
-                borderRadius: '0px',
+                borderRadius: '4px',
                 color: 'white',
-                fontSize: '0.75rem',
+                fontSize: window.innerWidth < 768 ? '0.7rem' : '0.75rem',
                 fontWeight: '600',
                 display: 'flex',
-                flexDirection: 'column' as 'column',
-                alignItems: 'flex-start',
-                padding: '4px 8px',
-                boxShadow: 'none',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2px 4px',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
                 opacity: 0.95
             }
         };
     };
 
     return (
-        <div className="h-[850px] bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="h-[600px] md:h-[850px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6">
             <Calendar
                 localizer={localizer}
                 events={events}
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: '100%' }}
-                defaultView={Views.WEEK}
+                view={view}
+                onView={setView}
                 views={[Views.MONTH, Views.WEEK, Views.DAY]}
                 step={60}
                 showMultiDayTimes
