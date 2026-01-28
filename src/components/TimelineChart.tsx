@@ -13,8 +13,8 @@ interface TimelineChartProps {
 
 export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, onSelectWindow }) => {
     return (
-        <div className="overflow-x-auto pb-4">
-            <div className="flex gap-2 min-w-max">
+        <div className="overflow-x-auto pb-4 custom-scrollbar">
+            <div className="flex gap-2 min-w-max px-2 pt-2">
                 {windows.map((win, idx) => {
                     const result = ScoringEngine.calculateSuitability(win, profile);
                     const timeLabel = format(win.startTime, 'HH:mm');
@@ -22,29 +22,30 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, 
                     const isNewDay = idx === 0 || format(windows[idx - 1].startTime, 'd') !== format(win.startTime, 'd');
 
                     const barColor =
-                        result.status === 'GO' ? 'bg-green-500' :
-                            result.status === 'MARGINAL' ? 'bg-yellow-500' :
-                                'bg-red-500';
+                        result.status === 'GO' ? 'bg-emerald-500 shadow-sm' :
+                            result.status === 'MARGINAL' ? 'bg-amber-500 shadow-sm' :
+                                'bg-rose-500 shadow-sm';
 
                     return (
                         <div key={idx} className="flex flex-col items-center group cursor-pointer" onClick={() => onSelectWindow?.(win)}>
-                            {isNewDay && (
-                                <div className="text-xs text-muted mb-2 font-bold sticky left-0">{dayLabel}</div>
-                            )}
-                            <div className={clsx("w-8 rounded-t transition-all hover:opacity-80 relative", barColor)} style={{ height: `${Math.max(20, result.score)}px` }}>
+                            {isNewDay ? (
+                                <div className="text-xs text-sky-600 mb-2 font-bold sticky left-0 font-display">{dayLabel}</div>
+                            ) : <div className="h-6 mb-2"></div>}
+
+                            <div className={clsx("w-6 rounded-t transition-all hover:opacity-100 opacity-80 relative", barColor)} style={{ height: `${Math.max(20, result.score)}px` }}>
                                 {/* Tooltip on hover */}
-                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-surface border border-slate-600 p-2 rounded text-xs whitespace-nowrap z-10 shadow-xl">
-                                    <div className="font-bold">{dayLabel} {timeLabel}</div>
-                                    <div>Score: {result.score}</div>
-                                    <div className={clsx("text-xs",
-                                        result.status === 'GO' ? 'text-green-400' :
-                                            result.status === 'NO_GO' ? 'text-red-400' : 'text-yellow-400'
+                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white p-3 rounded-lg text-xs whitespace-nowrap z-50 w-32 border border-slate-200 shadow-xl">
+                                    <div className="font-bold text-slate-800 mb-1">{dayLabel} {timeLabel}</div>
+                                    <div className="text-slate-500">Score: <span className="text-slate-900 font-bold">{result.score}</span></div>
+                                    <div className={clsx("text-xs font-bold uppercase mt-1",
+                                        result.status === 'GO' ? 'text-emerald-600' :
+                                            result.status === 'NO_GO' ? 'text-rose-600' : 'text-amber-600'
                                     )}>
                                         {result.status}
                                     </div>
                                 </div>
                             </div>
-                            <div className="text-[10px] text-muted mt-1 rotate-[-45deg] origin-top-left translate-y-4">{timeLabel}</div>
+                            <div className="text-[10px] text-slate-400 group-hover:text-slate-600 mt-2 rotate-[-45deg] origin-top-left translate-y-4 font-mono">{timeLabel}</div>
                         </div>
                     );
                 })}

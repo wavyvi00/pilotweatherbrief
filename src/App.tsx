@@ -2,18 +2,19 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Plane, Calendar, Settings } from 'lucide-react';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
+import { GlassCard } from './components/ui/GlassCard';
 import clsx from 'clsx';
 
 const SettingsPage = () => (
   <div className="container pt-8 animate-fade-in">
-    <div className="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-display font-bold mb-2">Training Profile</h1>
+    <GlassCard className="p-8 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-display font-bold mb-2 text-slate-100">Training Profile</h1>
       <p className="text-slate-400 mb-6">Customize your personal minimums.</p>
 
-      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-200">
+      <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-200">
         Profile Manager coming soon. This will allow you to set custom wind, ceiling, and visibility limits.
       </div>
-    </div>
+    </GlassCard>
   </div>
 );
 
@@ -28,7 +29,7 @@ function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: stri
         "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
         isActive
           ? "bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]"
-          : "text-slate-400 hover:text-white hover:bg-white/5"
+          : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
       )}
     >
       <Icon className="w-4 h-4" />
@@ -39,14 +40,14 @@ function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: stri
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-deep">
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl">
+    <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
+      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-3 font-display font-bold text-xl tracking-tight">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-              <Plane className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+              <Plane className="w-5 h-5 text-white transform -rotate-45" />
             </div>
-            <span className="bg-gradient-to-r from-sky-100 to-sky-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-sky-200 to-indigo-300 bg-clip-text text-transparent">
               AeroPlan
             </span>
           </div>
@@ -56,7 +57,8 @@ function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </nav>
-      <main className="flex-1 py-6">
+      <main className="flex-1 py-6 relative">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none"></div>
         {children}
       </main>
     </div>

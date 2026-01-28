@@ -1,14 +1,10 @@
 import React, { useMemo } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
-import enUS from 'date-fns/locale/en-US';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
 import { ScoringEngine } from '../logic/scoring';
-import clsx from 'clsx';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = {
@@ -29,19 +25,73 @@ interface CalendarViewProps {
     onSelectDay: (date: Date) => void;
 }
 
+interface GroupedEvent {
+    start: Date;
+    end: Date;
+    status: string;
+    scoreSum: number;
+    count: number;
+    resource: any;
+}
+
 export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, onSelectDay }) => {
 
-    // Transform WeatherWindows into Calendar Events
+    // Transform WeatherWindows into Smart Calendar Events (Grouped)
     const events = useMemo(() => {
-        return windows.map(win => {
+        if (!windows.length) return [];
+
+        const sortedWindows = [...windows].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+        const groupedEvents: any[] = [];
+        let currentGroup: GroupedEvent | null = null;
+
+        for (const win of sortedWindows) {
             const result = ScoringEngine.calculateSuitability(win, profile);
-            return {
-                title: `${result.score}`, // Minimal title
+
+            if (currentGroup) {
+                // Check if contiguous (less than 90 mins gap to be safe for hourly) AND same status
+                const isContiguous = (win.startTime.getTime() - currentGroup.end.getTime()) < 90 * 60 * 1000;
+                const isSameStatus = result.status === currentGroup.status;
+
+                if (isContiguous && isSameStatus) {
+                    // Extend group
+                    currentGroup.end = win.endTime;
+                    currentGroup.scoreSum += result.score;
+                    currentGroup.count += 1;
+                    continue;
+                } else {
+                    // Commit previous group
+                    groupedEvents.push({
+                        title: currentGroup.count > 1 ? `${currentGroup.status} (${Math.round(currentGroup.scoreSum / currentGroup.count)})` : `${currentGroup.resource.score}`,
+                        start: currentGroup.start,
+                        end: currentGroup.end,
+                        resource: { ...currentGroup.resource, score: Math.round(currentGroup.scoreSum / currentGroup.count) },
+                    });
+                    currentGroup = null;
+                }
+            }
+
+            // Start new group
+            currentGroup = {
                 start: win.startTime,
                 end: win.endTime,
-                resource: result,
+                status: result.status,
+                scoreSum: result.score,
+                count: 1,
+                resource: result
             };
-        });
+        }
+
+        // Push final group
+        if (currentGroup) {
+            groupedEvents.push({
+                title: currentGroup.count > 1 ? `${currentGroup.status}` : `${currentGroup.resource.score}`,
+                start: currentGroup.start,
+                end: currentGroup.end,
+                resource: { ...currentGroup.resource, score: Math.round(currentGroup.scoreSum / currentGroup.count) },
+            });
+        }
+
+        return groupedEvents;
     }, [windows, profile]);
 
     // Custom Event Styling
@@ -60,7 +110,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
                 borderRadius: '4px',
                 color: 'white',
                 fontSize: '0.8rem',
-                textAlign: 'center',
                 fontWeight: 'bold',
                 display: 'flex',
                 alignItems: 'center',
@@ -70,7 +119,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
     };
 
     return (
-        <div className="h-[850px] bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div className="h-[850px] bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
             <Calendar
                 localizer={localizer}
                 events={events}
