@@ -2,21 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Plane, Calendar, Settings } from 'lucide-react';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
-import { GlassCard } from './components/ui/GlassCard';
+
 import clsx from 'clsx';
 
-const SettingsPage = () => (
-  <div className="container pt-8 animate-fade-in">
-    <GlassCard className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-display font-bold mb-2 text-slate-100">Training Profile</h1>
-      <p className="text-slate-400 mb-6">Customize your personal minimums.</p>
-
-      <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-200">
-        Profile Manager coming soon. This will allow you to set custom wind, ceiling, and visibility limits.
-      </div>
-    </GlassCard>
-  </div>
-);
+import { SettingsPage } from './pages/Settings';
 
 function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: string }) {
   const location = useLocation();

@@ -7,14 +7,16 @@ import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
 import { format } from 'date-fns';
-import { Search, Loader, RefreshCw, AlertCircle, Calendar as CalendarIcon, LayoutList } from 'lucide-react';
+import { Loader, RefreshCw, AlertCircle, Calendar as CalendarIcon, LayoutList } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 import clsx from 'clsx';
-import { InstrumentBadge } from '../components/ui/InstrumentBadge';
+
+
+import { AirportSearch } from '../components/AirportSearch';
 
 export const Dashboard = () => {
     const [stationId, setStationId] = useState('KMCI');
-    const [searchInput, setSearchInput] = useState('KMCI');
+    // searchInput state removed, handled in AirportSearch
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
     const [selectedWindow, setSelectedWindow] = useState<WeatherWindow | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
@@ -24,12 +26,7 @@ export const Dashboard = () => {
 
     const { weatherData, loading, error, refresh } = useWeather(stationId, coords.lat, coords.lon);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchInput.length >= 3) {
-            setStationId(searchInput.toUpperCase());
-        }
-    };
+    // handleSearch removed
 
     const currentWindow = selectedWindow || (weatherData.length > 0 ? weatherData[0] : null);
     const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile) : null;
@@ -41,14 +38,17 @@ export const Dashboard = () => {
             <header className="mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
 
                 {/* Left: Branding & Station */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                    <p className="text-slate-500 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
                     <div className="flex items-baseline gap-4">
-                        <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">
-                            Flight Dashboard
+                        <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">
+                            {stationId}
                         </h1>
-                        <InstrumentBadge variant="info" className="text-sm shadow-sm px-3 py-1">{stationId}</InstrumentBadge>
+                        <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
+                            LIVE
+                        </div>
                     </div>
-                    <p className="text-slate-500 font-medium">
+                    <p className="text-slate-500 font-medium mt-1">
                         Planning for <span className="text-slate-700 font-bold">{activeProfile.name}</span>
                     </p>
                 </div>
@@ -57,16 +57,10 @@ export const Dashboard = () => {
                 <div className="flex flex-wrap items-center gap-4">
 
                     {/* Search */}
-                    <form onSubmit={handleSearch} className="relative group">
-                        <input
-                            type="text"
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            className="bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 w-40 focus:w-56 transition-all outline-none uppercase font-bold text-sm text-slate-800 shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-400"
-                            placeholder="ICAO"
-                        />
-                        <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
-                    </form>
+                    <AirportSearch
+                        currentStation={stationId}
+                        onSelect={setStationId}
+                    />
 
                     {/* Profile Selector */}
                     <div className="relative">
