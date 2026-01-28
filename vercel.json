@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/weather/:path*",
+            "destination": "/api/weather?endpoint=:path*"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
