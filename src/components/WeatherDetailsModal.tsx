@@ -28,7 +28,6 @@ export const WeatherDetailsModal: React.FC<WeatherDetailsModalProps> = ({ window
                 <div className="p-6 bg-white">
                     <SuitabilityCard
                         result={result}
-                        timeLabel="Forecast Details"
                     />
 
                     <div className="grid grid-cols-2 gap-4 mt-6">

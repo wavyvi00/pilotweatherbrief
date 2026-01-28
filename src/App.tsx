@@ -42,7 +42,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
       <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
-        <div className="container flex items-center justify-between py-4">
+        <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between py-4">
           <div className="flex items-center gap-3 font-display font-bold text-xl tracking-tight">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
               <Plane className="w-5 h-5 text-white transform -rotate-45" />

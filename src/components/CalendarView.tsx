@@ -4,7 +4,8 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
-import { ScoringEngine } from '../logic/scoring';
+import { groupWeatherWindows, type SmartCalendarEvent } from '../logic/grouping';
+import { CalendarToolbar } from './CalendarToolbar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = {
@@ -25,77 +26,15 @@ interface CalendarViewProps {
     onSelectDay: (date: Date) => void;
 }
 
-interface GroupedEvent {
-    start: Date;
-    end: Date;
-    status: string;
-    scoreSum: number;
-    count: number;
-    resource: any;
-}
-
 export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, onSelectDay }) => {
 
     // Transform WeatherWindows into Smart Calendar Events (Grouped)
     const events = useMemo(() => {
-        if (!windows.length) return [];
-
-        const sortedWindows = [...windows].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-        const groupedEvents: any[] = [];
-        let currentGroup: GroupedEvent | null = null;
-
-        for (const win of sortedWindows) {
-            const result = ScoringEngine.calculateSuitability(win, profile);
-
-            if (currentGroup) {
-                // Check if contiguous (less than 90 mins gap to be safe for hourly) AND same status
-                const isContiguous = (win.startTime.getTime() - currentGroup.end.getTime()) < 90 * 60 * 1000;
-                const isSameStatus = result.status === currentGroup.status;
-
-                if (isContiguous && isSameStatus) {
-                    // Extend group
-                    currentGroup.end = win.endTime;
-                    currentGroup.scoreSum += result.score;
-                    currentGroup.count += 1;
-                    continue;
-                } else {
-                    // Commit previous group
-                    groupedEvents.push({
-                        title: currentGroup.count > 1 ? `${currentGroup.status} (${Math.round(currentGroup.scoreSum / currentGroup.count)})` : `${currentGroup.resource.score}`,
-                        start: currentGroup.start,
-                        end: currentGroup.end,
-                        resource: { ...currentGroup.resource, score: Math.round(currentGroup.scoreSum / currentGroup.count) },
-                    });
-                    currentGroup = null;
-                }
-            }
-
-            // Start new group
-            currentGroup = {
-                start: win.startTime,
-                end: win.endTime,
-                status: result.status,
-                scoreSum: result.score,
-                count: 1,
-                resource: result
-            };
-        }
-
-        // Push final group
-        if (currentGroup) {
-            groupedEvents.push({
-                title: currentGroup.count > 1 ? `${currentGroup.status}` : `${currentGroup.resource.score}`,
-                start: currentGroup.start,
-                end: currentGroup.end,
-                resource: { ...currentGroup.resource, score: Math.round(currentGroup.scoreSum / currentGroup.count) },
-            });
-        }
-
-        return groupedEvents;
+        return groupWeatherWindows(windows, profile);
     }, [windows, profile]);
 
     // Custom Event Styling
-    const eventPropGetter = (event: any) => {
+    const eventPropGetter = (event: SmartCalendarEvent) => {
         const status = event.resource.status;
         let backgroundColor = '#3b82f6'; // blue
 
@@ -107,19 +46,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
             style: {
                 backgroundColor,
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 color: 'white',
-                fontSize: '0.8rem',
-                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                fontWeight: '600',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                flexDirection: 'column' as 'column',
+                alignItems: 'flex-start',
+                padding: '4px 8px',
+                boxShadow: 'none',
+                opacity: 0.95
             }
         };
     };
 
     return (
-        <div className="h-[850px] bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="h-[850px] bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <Calendar
                 localizer={localizer}
                 events={events}
@@ -135,6 +77,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
                 onSelectSlot={(slotInfo) => onSelectDay(slotInfo.start)}
                 selectable
                 tooltipAccessor={(e: any) => `${e.resource.status} (${e.resource.score})`}
+                components={{
+                    toolbar: CalendarToolbar
+                }}
             />
         </div>
     );
