@@ -6,7 +6,7 @@ import type { TrainingProfile } from '../types/profile';
 
 export type StatusColor = 'green' | 'red' | 'yellow' | 'gray';
 
-export const useMapStatus = (profile: TrainingProfile) => {
+export const useMapStatus = (profile: TrainingProfile, targetDate: Date | null = null) => {
     const [statuses, setStatuses] = useState<Record<string, StatusColor>>({});
     const [loading, setLoading] = useState(false);
 
@@ -15,38 +15,54 @@ export const useMapStatus = (profile: TrainingProfile) => {
             setLoading(true);
             const icaoList = AIRPORTS.map(a => a.icao);
 
-            console.log('[MapDebug] Fetching METARs for:', icaoList);
-
-            // Batch fetch METARs
-            const metars = await AviationWeatherService.getMetars(icaoList);
-            if (metars.length > 0) {
-                console.log('[MapDebug] First Raw METAR:', metars[0]);
-                console.log('[MapDebug] Station ID check:', metars[0].station_id);
-            }
-            console.log('[MapDebug] Received METARs:', metars);
-
             const newStatuses: Record<string, StatusColor> = {};
-
             // Default all to gray first
             icaoList.forEach(id => newStatuses[id] = 'gray');
 
-            // Process fetched
-            metars.forEach(metar => {
-                if (!metar.station_id) return;
+            if (targetDate) {
+                console.log('[MapDebug] Fetching TAFs for Forecast:', targetDate);
+                const tafs = await AviationWeatherService.getTafs(icaoList);
 
-                const window = AviationWeatherService.normalizeMetar(metar);
-                const score = ScoringEngine.calculateSuitability(window, profile);
+                tafs.forEach(taf => {
+                    if (!taf.station_id) return;
 
-                let color: StatusColor = 'gray';
-                if (score.score >= 80) color = 'green';
-                else if (score.score >= 50) color = 'yellow';
-                else color = 'red';
+                    const windows = AviationWeatherService.normalizeTaf(taf);
+                    // Find window covering targetDate
+                    const match = windows.find(w =>
+                        targetDate >= w.startTime && targetDate < w.endTime
+                    );
 
-                const id = metar.station_id.toUpperCase();
-                newStatuses[id] = color;
-            });
+                    if (match) {
+                        const score = ScoringEngine.calculateSuitability(match, profile);
+                        let color: StatusColor = 'gray';
+                        if (score.score >= 80) color = 'green';
+                        else if (score.score >= 50) color = 'yellow';
+                        else color = 'red';
 
-            console.log('[MapDebug] Computed Statuses:', newStatuses);
+                        newStatuses[taf.station_id.toUpperCase()] = color;
+                    }
+                });
+
+            } else {
+                console.log('[MapDebug] Fetching METARs for LIVE');
+                const metars = await AviationWeatherService.getMetars(icaoList);
+
+                metars.forEach(metar => {
+                    if (!metar.station_id) return;
+
+                    const window = AviationWeatherService.normalizeMetar(metar);
+                    const score = ScoringEngine.calculateSuitability(window, profile);
+
+                    let color: StatusColor = 'gray';
+                    if (score.score >= 80) color = 'green';
+                    else if (score.score >= 50) color = 'yellow';
+                    else color = 'red';
+
+                    const id = metar.station_id.toUpperCase();
+                    newStatuses[id] = color;
+                });
+            }
+
             setStatuses(newStatuses);
             setLoading(false);
         };
@@ -57,7 +73,7 @@ export const useMapStatus = (profile: TrainingProfile) => {
         const interval = setInterval(fetchStatuses, 5 * 60 * 1000);
         return () => clearInterval(interval);
 
-    }, [profile]); // Re-run if profile changes (limits change -> colors change)
+    }, [profile, targetDate]);
 
     return { statuses, loading };
 };

@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AIRPORTS } from '../data/airports';
 import { Icon, DivIcon } from 'leaflet';
 import { useMapStatus, type StatusColor } from '../hooks/useMapStatus';
 import { useProfiles } from '../hooks/useProfiles';
+import { Clock } from 'lucide-react';
+import { format } from 'date-fns';
 
 // Keep the default icon setup for generic usage if needed, but we will override with DivIcon
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -53,7 +56,11 @@ interface WeatherMapProps {
 
 export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
     const { activeProfile } = useProfiles();
-    const { statuses } = useMapStatus(activeProfile);
+
+    const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+    const [isLive, setIsLive] = useState(true);
+
+    const { statuses, loading } = useMapStatus(activeProfile, isLive ? null : selectedTime);
     const activeAirport = AIRPORTS.find(a => a.icao === currentStation) || AIRPORTS[0];
 
     return (
@@ -102,6 +109,49 @@ export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
                     );
                 })}
             </MapContainer>
+
+            {/* Time Controls Overlay */}
+            <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur shadow-lg rounded-xl border border-slate-200 p-2 flex flex-col gap-2 min-w-[160px] max-w-[200px]">
+                {/* Live Toggle */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-1 mb-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mode</span>
+                    <button
+                        onClick={() => {
+                            setIsLive(!isLive);
+                            if (!isLive) setSelectedTime(null);
+                        }}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors ${isLive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                    >
+                        {isLive ? '● LIVE' : '○ FCST'}
+                    </button>
+                </div>
+
+                {/* Date/Time Picker */}
+                {!isLive && (
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[9px] uppercase font-bold text-slate-300">Target Time</label>
+                        <input
+                            type="datetime-local"
+                            className="text-xs border border-slate-200 rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-sky-500 w-full"
+                            onChange={(e) => {
+                                if (e.target.value) setSelectedTime(new Date(e.target.value));
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* Current Map Time Display */}
+                <div className="flex items-center gap-1.5 text-slate-700 pt-0.5">
+                    <Clock className="w-3.5 h-3.5 text-sky-500" />
+                    <span className="font-mono font-bold text-xs">
+                        {isLive
+                            ? format(new Date(), 'HH:mm') // System time in 24h
+                            : selectedTime ? format(selectedTime, 'HH:mm') : '--:--'}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">{isLive ? 'LOCAL' : 'LOCAL'}</span>
+                </div>
+                {loading && <div className="text-[9px] text-sky-500 animate-pulse font-medium">Updating...</div>}
+            </div>
 
             {/* Legend */}
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-md border border-slate-200 z-[1000] text-xs space-y-2">

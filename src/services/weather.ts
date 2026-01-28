@@ -76,13 +76,53 @@ export const AviationWeatherService = {
                 }
             });
             if (response.data && response.data.length > 0) {
-                return response.data[0];
+                return this.mapRawToTaf(response.data[0]);
             }
             return null;
         } catch (error) {
             console.error('Failed to fetch TAF:', error);
             return null;
         }
+    },
+
+    async getTafs(stationIds: string[]): Promise<Taf[]> {
+        if (stationIds.length === 0) return [];
+        try {
+            const response = await axios.get(`${BASE_URL}/taf`, {
+                params: {
+                    ids: stationIds.join(','),
+                    format: 'json'
+                }
+            });
+            if (!Array.isArray(response.data)) return [];
+            return response.data.map(this.mapRawToTaf).filter((t): t is Taf => t !== null);
+        } catch (error) {
+            console.error('Failed to fetch TAFs:', error);
+            return [];
+        }
+    },
+
+    mapRawToTaf(raw: any): Taf {
+        return {
+            station_id: raw.icaoId || raw.station_id || 'UNKNOWN',
+            raw_text: raw.rawTAF || raw.raw_text || '',
+            issue_time: raw.issueTime || raw.issue_time || new Date().toISOString(),
+            bulletin_time: raw.bulletinTime || raw.bulletin_time || new Date().toISOString(),
+            valid_time_from: raw.validTimeFrom || raw.valid_time_from || new Date().toISOString(),
+            valid_time_to: raw.validTimeTo || raw.valid_time_to || new Date().toISOString(),
+            forecast: (raw.fcsts || []).map((f: any) => ({
+                fcst_time_from: f.timeFrom,
+                fcst_time_to: f.timeTo,
+                wind_dir_degrees: f.wdir,
+                wind_speed_kt: f.wspd,
+                wind_gust_kt: f.wgst,
+                visibility_statute_mi: f.visib === '+' ? 10 : parseFloat(f.visib || '10'),
+                sky_condition: (f.clouds || []).map((c: any) => ({
+                    sky_cover: c.cover,
+                    cloud_base_ft_agl: c.base
+                }))
+            }))
+        } as Taf;
     },
 
     /**
