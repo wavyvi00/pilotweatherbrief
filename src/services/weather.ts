@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { Metar, Taf, WeatherWindow } from '../types/weather';
 import { addHours, parseISO } from 'date-fns';
 
-const BASE_URL = 'https://aviationweather.gov/api/data';
+const BASE_URL = '/api/weather';
 
 export const AviationWeatherService = {
     async getMetar(stationId: string): Promise<Metar | null> {
@@ -11,17 +11,60 @@ export const AviationWeatherService = {
                 params: {
                     ids: stationId,
                     format: 'json',
-                    taf: false // Ensure we only get METAR
+                    taf: false
                 }
             });
             if (response.data && response.data.length > 0) {
-                return response.data[0];
+                return this.mapRawToMetar(response.data[0]);
             }
             return null;
         } catch (error) {
             console.error('Failed to fetch METAR:', error);
             return null;
         }
+    },
+
+    async getMetars(stationIds: string[]): Promise<Metar[]> {
+        if (stationIds.length === 0) return [];
+        try {
+            const response = await axios.get(`${BASE_URL}/metar`, {
+                params: {
+                    ids: stationIds.join(','),
+                    format: 'json',
+                    taf: false
+                }
+            });
+
+            if (!Array.isArray(response.data)) return [];
+            return response.data.map(this.mapRawToMetar).filter((m): m is Metar => m !== null);
+        } catch (error) {
+            console.error('Failed to fetch METARs:', error);
+            return [];
+        }
+    },
+
+    // Helper to map raw API fields to our internal Metar interface
+    mapRawToMetar(raw: any): Metar {
+        // Handle Cloud Layers
+        const sky_condition = (raw.clouds || []).map((c: any) => ({
+            sky_cover: c.cover,
+            cloud_base_ft_agl: c.base
+        }));
+
+        return {
+            raw_text: raw.rawOb || raw.raw_text || '',
+            station_id: raw.icaoId || raw.station_id || 'UNKNOWN',
+            observation_time: raw.reportTime || raw.observation_time || new Date().toISOString(),
+            temp_c: raw.temp,
+            dewpoint_c: raw.dewp,
+            wind_dir_degrees: raw.wdir,
+            wind_speed_kt: raw.wspd,
+            wind_gust_kt: raw.wgst,
+            visibility_statute_mi: raw.visib === '+' ? 10 : parseFloat(raw.visib || '10'), // Handle '10+' or similar strings if needed
+            altim_in_hg: raw.altim,
+            flight_category: raw.flightCategory || 'VFR', // API might not verify this, we calc on front end anyway? But mapping if present.
+            sky_condition
+        } as Metar;
     },
 
     async getTaf(stationId: string): Promise<Taf | null> {
@@ -56,9 +99,16 @@ export const AviationWeatherService = {
             }
         }
 
+        if (!metar) {
+            console.error('[Weather] normalizeMetar called with null');
+            return null as any; // Safe fallback logic handled by caller usually
+        }
+
+        const validTime = metar.observation_time || new Date().toISOString();
+
         return {
-            startTime: parseISO(metar.observation_time),
-            endTime: addHours(parseISO(metar.observation_time), 1),
+            startTime: parseISO(validTime),
+            endTime: addHours(parseISO(validTime), 1),
             isForecast: false,
             wind: {
                 direction: metar.wind_dir_degrees || 0,

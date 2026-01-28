@@ -1,6 +1,6 @@
 {
-  "name": "AeroPlan Flight Training",
-  "short_name": "AeroPlan",
+  "name": "FlightSolo Flight Training",
+  "short_name": "FlightSolo",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",

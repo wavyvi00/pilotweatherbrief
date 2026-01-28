@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Plane, Calendar, Settings } from 'lucide-react';
+import { Calendar, Settings } from 'lucide-react';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
 
 import clsx from 'clsx';
 
 import { SettingsPage } from './pages/Settings';
+
+import flightSoloLogo from './assets/flightsolo_logo.png';
 
 function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: string }) {
   const location = useLocation();
@@ -33,11 +35,9 @@ function Layout({ children }: { children: React.ReactNode }) {
       <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
         <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between py-4">
           <div className="flex items-center gap-3 font-display font-bold text-xl tracking-tight">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-              <Plane className="w-5 h-5 text-white transform -rotate-45" />
-            </div>
+            <img src={flightSoloLogo} alt="FlightSolo" className="w-8 h-8 object-contain" />
             <span className="bg-gradient-to-r from-sky-200 to-indigo-300 bg-clip-text text-transparent">
-              AeroPlan
+              FlightSolo
             </span>
           </div>
           <div className="flex gap-2">

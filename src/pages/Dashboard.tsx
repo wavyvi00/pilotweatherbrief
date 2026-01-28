@@ -6,20 +6,22 @@ import { SuitabilityCard } from '../components/SuitabilityCard';
 import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
+
+import { AirportSearch } from '../components/AirportSearch';
+import { WeatherMap } from '../components/WeatherMap';
 import { format } from 'date-fns';
-import { Loader, RefreshCw, AlertCircle, Calendar as CalendarIcon, LayoutList } from 'lucide-react';
+import { Loader, RefreshCw, AlertCircle, Calendar as CalendarIcon, LayoutList, Map } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 import clsx from 'clsx';
 
-
-import { AirportSearch } from '../components/AirportSearch';
+type ViewMode = 'timeline' | 'calendar' | 'map';
 
 export const Dashboard = () => {
     const [stationId, setStationId] = useState('KMCI');
     // searchInput state removed, handled in AirportSearch
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
     const [selectedWindow, setSelectedWindow] = useState<WeatherWindow | null>(null);
-    const [showCalendar, setShowCalendar] = useState(false);
+    const [viewMode, setViewMode] = useState<ViewMode>('timeline');
 
     // Demo coords
     const [coords] = useState({ lat: 39.2976, lon: -94.7139 });
@@ -81,20 +83,28 @@ export const Dashboard = () => {
                     {/* View Toggles */}
                     <div className="flex bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
                         <button
-                            onClick={() => setShowCalendar(false)}
+                            onClick={() => setViewMode('timeline')}
                             className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                                !showCalendar ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
+                                viewMode === 'timeline' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
                             title="Timeline View"
                         >
                             <LayoutList className="w-4 h-4" />
                         </button>
                         <button
-                            onClick={() => setShowCalendar(true)}
+                            onClick={() => setViewMode('calendar')}
                             className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                                showCalendar ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
+                                viewMode === 'calendar' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
                             title="Calendar View"
                         >
                             <CalendarIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('map')}
+                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
+                                viewMode === 'map' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
+                            title="Map View"
+                        >
+                            <Map className="w-4 h-4" />
                         </button>
                     </div>
 
@@ -134,7 +144,7 @@ export const Dashboard = () => {
 
                     {/* Main Content: Calendar / Timeline */}
                     <div className="xl:col-span-3">
-                        {showCalendar ? (
+                        {viewMode === 'calendar' ? (
                             <CalendarView
                                 windows={weatherData}
                                 profile={activeProfile}
@@ -147,6 +157,15 @@ export const Dashboard = () => {
                                         const closeWin = weatherData.find(w => Math.abs(w.startTime.getTime() - date.getTime()) < 60 * 60 * 1000);
                                         if (closeWin) setSelectedWindow(closeWin);
                                     }
+                                }}
+                            />
+                        ) : viewMode === 'map' ? (
+                            <WeatherMap
+                                currentStation={stationId}
+                                onSelect={(icao) => {
+                                    setStationId(icao);
+                                    // Optionally switch back to timeline after selection, or stay on map?
+                                    // Let's stay on map for now.
                                 }}
                             />
                         ) : (
