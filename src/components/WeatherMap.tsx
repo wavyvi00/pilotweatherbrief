@@ -91,17 +91,27 @@ const ViewportFilter = ({ allAirports, setVisible, maxMarkers }: ViewportFilterP
 // Component to recenter map when station changes
 const RecenterMap = ({ lat, lon }: { lat: number; lon: number }) => {
     const map = useMap();
-    map.flyTo([lat, lon], 9, { animate: true });
+
+    useEffect(() => {
+        map.flyTo([lat, lon], 9, { animate: true });
+    }, [lat, lon, map]);
+
     return null;
 };
 
 // Component to fit bounds for route
 const RouteFitter = ({ from, to }: { from: { lat: number, lon: number }, to: { lat: number, lon: number } }) => {
     const map = useMap();
-    map.fitBounds([
-        [from.lat, from.lon],
-        [to.lat, to.lon]
-    ], { padding: [50, 50] });
+
+    useEffect(() => {
+        if (from && to) {
+            map.fitBounds([
+                [from.lat, from.lon],
+                [to.lat, to.lon]
+            ], { padding: [50, 50] });
+        }
+    }, [from, to, map]);
+
     return null;
 };
 

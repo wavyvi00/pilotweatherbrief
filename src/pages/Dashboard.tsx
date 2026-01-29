@@ -8,6 +8,7 @@ import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
 import { RawWxViewer } from '../components/RawWxViewer';
+import { RunwayWindCalculator } from '../components/RunwayWindCalculator';
 import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
@@ -216,6 +217,10 @@ export const Dashboard = () => {
                         <SuitabilityCard
                             result={currentResult}
                         />
+
+                        {/* Runway Wind Tool */}
+                        <RunwayWindCalculator wind={currentWindow.wind} />
+
                         {/* Placeholder for future widgets (e.g. Airport Info) */}
                         <div className="hidden xl:block p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 text-center">
                             Select a time block to view specific conditions.

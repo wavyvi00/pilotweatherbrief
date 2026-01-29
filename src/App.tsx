@@ -7,7 +7,7 @@ import clsx from 'clsx';
 
 import { SettingsPage } from './pages/Settings';
 
-import flightSoloLogo from './assets/flightsolo_logo.png';
+import flightSoloLogo from './assets/flightsolo_icon.png';
 
 function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: string }) {
   const location = useLocation();
