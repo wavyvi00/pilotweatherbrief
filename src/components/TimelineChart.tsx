@@ -34,12 +34,12 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, 
 
                             <div className={clsx("w-6 rounded-t transition-all hover:opacity-100 opacity-80 relative", barColor)} style={{ height: `${Math.max(20, result.score)}px` }}>
                                 {/* Tooltip on hover */}
-                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white p-3 rounded-lg text-xs whitespace-nowrap z-50 w-32 border border-slate-200 shadow-xl">
-                                    <div className="font-bold text-slate-800 mb-1">{dayLabel} {timeLabel}</div>
-                                    <div className="text-slate-500">Score: <span className="text-slate-900 font-bold">{result.score}</span></div>
+                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white dark:bg-slate-800 p-3 rounded-lg text-xs whitespace-nowrap z-50 w-32 border border-slate-200 dark:border-slate-700 shadow-xl">
+                                    <div className="font-bold text-slate-800 dark:text-slate-200 mb-1">{dayLabel} {timeLabel}</div>
+                                    <div className="text-slate-500 dark:text-slate-400">Score: <span className="text-slate-900 dark:text-slate-100 font-bold">{result.score}</span></div>
                                     <div className={clsx("text-xs font-bold uppercase mt-1",
-                                        result.status === 'GO' ? 'text-emerald-600' :
-                                            result.status === 'NO_GO' ? 'text-rose-600' : 'text-amber-600'
+                                        result.status === 'GO' ? 'text-emerald-600 dark:text-emerald-400' :
+                                            result.status === 'NO_GO' ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'
                                     )}>
                                         {result.status}
                                     </div>

@@ -80,7 +80,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, on
     };
 
     return (
-        <div className="h-[600px] md:h-[850px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6">
+        <div className="h-[600px] md:h-[850px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-6 transition-colors">
             <Calendar
                 localizer={localizer}
                 events={events}

@@ -41,18 +41,18 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
     const isWindFromRight = angleDiff > 0 && angleDiff < 180;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mt-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mt-4 transition-colors">
             <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-slate-700 font-bold">
+                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
                     <Wind className="w-5 h-5 text-sky-500" />
                     <span>Runway Winds</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-400 uppercase">Runway</span>
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Runway</span>
                     <input
                         type="number"
                         placeholder="XX"
-                        className="w-12 text-center border border-slate-300 rounded font-mono font-bold text-slate-900 bg-slate-50 focus:ring-2 focus:ring-sky-500 outline-none"
+                        className="w-12 text-center border border-slate-300 dark:border-slate-600 rounded font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-sky-500 outline-none transition-colors"
                         value={runway}
                         onChange={(e) => {
                             const val = e.target.value;
@@ -65,9 +65,9 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
             {runway && runway.length >= 1 ? (
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                     {/* Visualizer (Simple SVG) */}
-                    <div className="relative w-32 h-32 bg-slate-50 rounded-full border border-slate-200 flex items-center justify-center">
+                    <div className="relative w-32 h-32 bg-slate-50 dark:bg-slate-900/50 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center">
                         {/* Runway Strip */}
-                        <div className="absolute w-4 h-28 bg-slate-800 rounded-sm"></div>
+                        <div className="absolute w-4 h-28 bg-slate-800 dark:bg-slate-600 rounded-sm"></div>
                         <div className="absolute bottom-2 text-[10px] font-bold text-white z-10">{runway}</div>
                         {/* Wind Arrow */}
                         <div
@@ -78,14 +78,7 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
                                 height: '50%'
                             }}
                         >
-                            {/* Make the arrow originate from center pointing INTO the wind? 
-                                No, wind direction is "FROM".
-                                If Wind is 270 (Left), it blows TOWARDS 90.
-                                Runway is 360 (Up).
-                                Simple: Rotate wrapper to Wind Direction relative to Runway.
-                                Runway is always UP (0 deg) in visual.
-                                Wind vector angle relative to runway = (Wind - Runway).
-                            */}
+                            {/* Wind Vector */}
                         </div>
                         {/* Correct Visual: Wind Arrow blowing ONTO the runway center */}
                         <div
@@ -98,29 +91,29 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
 
                     {/* Data Display */}
                     <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">
                                 {isHeadwind ? 'Headwind' : 'Tailwind'}
                             </span>
                             <div className={`text-2xl font-bold font-mono ${isHeadwind ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 {Math.abs(headwind)}
-                                <span className="text-xs font-normal text-slate-400 ml-1">kt</span>
+                                <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">kt</span>
                             </div>
                         </div>
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
+                        <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1 flex items-center gap-1">
                                 Crosswind
                                 {Math.abs(crosswind) > 0 && (isWindFromRight ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />)}
                             </span>
-                            <div className={`text-2xl font-bold font-mono ${Math.abs(crosswind) > 12 ? 'text-amber-500' : 'text-slate-700'}`}>
+                            <div className={`text-2xl font-bold font-mono ${Math.abs(crosswind) > 12 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-200'}`}>
                                 {Math.abs(crosswind)}
-                                <span className="text-xs font-normal text-slate-400 ml-1">kt</span>
+                                <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">kt</span>
                             </div>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="text-center text-xs text-slate-400 py-4 italic">
+                <div className="text-center text-xs text-slate-400 dark:text-slate-500 py-4 italic">
                     Enter runway number (e.g. 27) to calculate components.
                 </div>
             )}

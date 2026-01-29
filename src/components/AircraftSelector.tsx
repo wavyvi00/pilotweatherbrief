@@ -33,7 +33,7 @@ export const AircraftSelector = ({ fleet, activeId, onSelect, onManage }: Aircra
                         ))}
                     </optgroup>
                     <optgroup label="Actions">
-                        <option value="manage">⚙ Manage Fleet...</option>
+                        <option value="manage">Manage Fleet...</option>
                     </optgroup>
                 </select>
                 <div className="pointer-events-none text-slate-400 pl-2">

@@ -24,7 +24,7 @@ export const RawWxViewer = ({ stationId, weatherData }: RawWxViewerProps) => {
 
     return (
         <div className="mt-6">
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Raw Station Data ({stationId})</h3>
+            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Raw Station Data ({stationId})</h3>
             <div className="bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-700">
 
                 {/* METAR */}

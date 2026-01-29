@@ -42,6 +42,22 @@
   --font-body: 'Inter', sans-serif;
 }
 
+.dark {
+  /* Dark Mode Palette */
+  --bg-deep: #0f172a;
+  /* Slate 900 */
+  --bg-surface: #1e293b;
+  /* Slate 800 */
+  --bg-glass: rgba(30, 41, 59, 0.7);
+
+  --text-main: #f8fafc;
+  /* Slate 50 */
+  --text-body: #cbd5e1;
+  /* Slate 300 */
+  --text-muted: #94a3b8;
+  /* Slate 400 */
+}
+
 body {
   background-color: var(--bg-deep);
   color: var(--text-main);
@@ -51,6 +67,13 @@ body {
     radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.05), transparent 25%),
     radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.05), transparent 25%);
   background-attachment: fixed;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.1), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.1), transparent 25%);
 }
 
 h1,
@@ -71,21 +94,28 @@ h4,
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
+.dark .glass-panel {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .glass-card {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--bg-surface);
+  /* Use variable instead of hardcoded white */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.8);
-  /* Slate-200 */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dark .glass-card {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   border-color: rgba(14, 165, 233, 0.3);
-  /* Sky Blue Border */
 }
 
 /* Custom Scrollbar */

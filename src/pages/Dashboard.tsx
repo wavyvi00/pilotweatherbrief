@@ -15,7 +15,7 @@ import { TimelineChart } from '../components/TimelineChart';
 
 import { WeatherMap } from '../components/WeatherMap';
 import { format } from 'date-fns';
-import { Loader, AlertCircle } from 'lucide-react';
+import { Loader, AlertCircle, Plane } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
 type ViewMode = 'timeline' | 'calendar' | 'map';
@@ -43,34 +43,34 @@ export const Dashboard = () => {
     const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile) : null;
 
     return (
-        <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 py-8 min-h-screen text-slate-800 animate-fade-in relative">
+        <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 py-8 min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in relative transition-colors">
 
             {/* Unified Header & Toolbar */}
             <header className="mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
 
                 {/* Left: Branding & Station */}
                 <div className="flex flex-col gap-1">
-                    <p className="text-slate-500 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
                     <div className="flex items-baseline gap-4">
-                        <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                        <h1 className="text-4xl font-display font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
                             {searchMode === 'single' ? (
                                 stationId
                             ) : (
                                 <>
                                     <span>{route.from}</span>
-                                    <span className="text-slate-300 text-3xl">✈</span>
-                                    <span className={route.to ? "text-slate-900" : "text-slate-300"}>
+                                    <span className="text-slate-300 dark:text-slate-600 text-3xl"><Plane className="w-8 h-8 animate-pulse" /></span>
+                                    <span className={route.to ? "text-slate-900 dark:text-slate-100" : "text-slate-300 dark:text-slate-600"}>
                                         {route.to || '???'}
                                     </span>
                                 </>
                             )}
                         </h1>
-                        <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
+                        <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
                             LIVE
                         </div>
                     </div>
-                    <p className="text-slate-500 font-medium mt-1">
-                        Planning for <span className="text-slate-700 font-bold">{activeProfile.name}</span>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                        Planning for <span className="text-slate-700 dark:text-slate-300 font-bold">{activeProfile.name}</span>
                     </p>
                 </div>
 
@@ -115,12 +115,12 @@ export const Dashboard = () => {
 
             {
                 loading && weatherData.length === 0 ? (
-                    <div className="py-20 text-center text-slate-400 flex flex-col items-center">
+                    <div className="py-20 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center">
                         <Loader className="w-10 h-10 animate-spin mb-4 text-sky-500" />
                         <p className="font-medium animate-pulse">Fetching latest METARs & TAFs...</p>
                     </div>
                 ) : error ? (
-                    <div className="p-6 bg-red-50 border border-red-100 rounded-xl flex items-center gap-4 text-red-600">
+                    <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl flex items-center gap-4 text-red-600 dark:text-red-400">
                         <AlertCircle className="w-6 h-6 text-red-500" />
                         {error}
                     </div>
@@ -137,7 +137,7 @@ export const Dashboard = () => {
                             <RunwayWindCalculator wind={currentWindow.wind} />
 
                             {/* Placeholder for future widgets (e.g. Airport Info) */}
-                            <div className="hidden xl:block p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 text-center">
+                            <div className="hidden xl:block p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500 text-center">
                                 Select a time block to view specific conditions.
                             </div>
                         </div>
@@ -170,8 +170,8 @@ export const Dashboard = () => {
                                     route={searchMode === 'route' ? route : undefined}
                                 />
                             ) : (
-                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
-                                    <h3 className="text-lg font-bold text-slate-800 mb-6 font-display">48-Hour Training Outlook</h3>
+                                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>
                                     <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
                                 </div>
                             )}
@@ -196,6 +196,7 @@ export const Dashboard = () => {
                     <WeatherDetailsModal
                         window={selectedWindow}
                         result={currentResult}
+                        stationId={stationId}
                         onClose={() => setSelectedWindow(null)}
                     />
                 )

@@ -5,7 +5,7 @@ import { AIRPORTS } from '../data/airports';
 import { Icon, DivIcon } from 'leaflet';
 import { useMapStatus, type StatusColor } from '../hooks/useMapStatus';
 import { useProfiles } from '../hooks/useProfiles';
-import { Clock } from 'lucide-react';
+import { Clock, Radio, Circle } from 'lucide-react';
 import { format } from 'date-fns';
 
 // Keep the default icon setup for generic usage if needed, but we will override with DivIcon
@@ -254,7 +254,11 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
                         }}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors ${isLive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                     >
-                        {isLive ? '● LIVE' : '○ FCST'}
+                        {isLive ? (
+                            <div className="flex items-center gap-1.5"><Radio className="w-3 h-3 animate-pulse" /> LIVE</div>
+                        ) : (
+                            <div className="flex items-center gap-1.5"><Circle className="w-3 h-3" /> FCST</div>
+                        )}
                     </button>
                 </div>
 

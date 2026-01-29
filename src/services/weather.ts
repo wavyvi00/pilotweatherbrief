@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Metar, Taf, WeatherWindow } from '../types/weather';
+import type { Metar, Taf, WeatherWindow, Notam } from '../types/weather';
 import { addHours, parseISO } from 'date-fns';
 
 const BASE_URL = '/api/weather';
@@ -52,19 +52,48 @@ export const AviationWeatherService = {
         }));
 
         return {
-            raw_text: raw.rawOb || raw.raw_text || '',
-            station_id: raw.icaoId || raw.station_id || 'UNKNOWN',
-            observation_time: raw.reportTime || raw.observation_time || new Date().toISOString(),
+            raw_text: raw.rawOb,
+            station_id: raw.icaoId,
+            observation_time: raw.obsTime || new Date().toISOString(), // Fallback
             temp_c: raw.temp,
             dewpoint_c: raw.dewp,
             wind_dir_degrees: raw.wdir,
             wind_speed_kt: raw.wspd,
             wind_gust_kt: raw.wgst,
-            visibility_statute_mi: raw.visib === '+' ? 10 : parseFloat(raw.visib || '10'), // Handle '10+' or similar strings if needed
+            visibility_statute_mi: raw.visib,
             altim_in_hg: raw.altim,
-            flight_category: raw.flightCategory || 'VFR', // API might not verify this, we calc on front end anyway? But mapping if present.
-            sky_condition
-        } as Metar;
+            sea_level_pressure_mb: raw.slp,
+            flight_category: raw.flightCat, // VFR, MVFR, IFR, LIFR
+            sky_condition: sky_condition,
+        };
+    },
+
+    async getNotams(stationId: string): Promise<Notam[]> {
+        try {
+            // Proxy: /api/weather -> https://aviationweather.gov/api/data
+            // Endpoint: /notam?ids=KMCI&format=json
+            const response = await axios.get(`${BASE_URL}/notam`, {
+                params: {
+                    ids: stationId,
+                    format: 'json'
+                }
+            });
+            if (Array.isArray(response.data)) {
+                return response.data.map((n: any) => ({
+                    id: n.notamNumber || Math.random().toString(36), // Fallback ID
+                    entity: n.icaoId,
+                    type: n.type, // NOTAMN, NOTAMC, etc.
+                    text: n.rawNotam || n.text, // API varies
+                    date: n.issueTime,
+                    startDate: n.startDate,
+                    endDate: n.endDate
+                }));
+            }
+            return [];
+        } catch (error) {
+            console.error('Failed to fetch NOTAMs:', error);
+            return [];
+        }
     },
 
     async getTaf(stationId: string): Promise<Taf | null> {

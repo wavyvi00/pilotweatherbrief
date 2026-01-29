@@ -9,11 +9,22 @@ export interface Metar {
     wind_gust_kt?: number;
     visibility_statute_mi: number;
     altim_in_hg: number;
+    sea_level_pressure_mb?: number; // Added
     flight_category: 'VFR' | 'MVFR' | 'IFR' | 'LIFR';
     sky_condition: {
         sky_cover: string; // CLR, SKC, FEW, SCT, BKN, OVC
         cloud_base_ft_agl?: number;
     }[];
+}
+
+export interface Notam {
+    id: string;
+    entity: string; // e.g. KMCI
+    type: string; // e.g. NOTAMN
+    text: string; // The full text
+    date: string; // ISO date
+    startDate?: string;
+    endDate?: string;
 }
 
 export interface Taf {

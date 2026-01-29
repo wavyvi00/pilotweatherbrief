@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Calendar, Settings } from 'lucide-react';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
+import { Footer } from './components/Footer';
 
 import clsx from 'clsx';
 
@@ -49,6 +50,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 py-6 relative">
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none"></div>
         {children}
+        <Footer />
       </main>
     </div>
   );
