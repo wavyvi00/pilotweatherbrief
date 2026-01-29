@@ -3,22 +3,20 @@ import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
-import { AircraftSelector } from '../components/AircraftSelector';
 import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
 import { RawWxViewer } from '../components/RawWxViewer';
 import { RunwayWindCalculator } from '../components/RunwayWindCalculator';
+import { DashboardToolbar } from '../components/DashboardToolbar';
 import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
 
-import { AirportSearch } from '../components/AirportSearch';
 import { WeatherMap } from '../components/WeatherMap';
 import { format } from 'date-fns';
-import { Loader, RefreshCw, AlertCircle, Calendar as CalendarIcon, LayoutList, Map } from 'lucide-react';
+import { Loader, AlertCircle } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
-import clsx from 'clsx';
 
 type ViewMode = 'timeline' | 'calendar' | 'map';
 
@@ -77,209 +75,131 @@ export const Dashboard = () => {
                 </div>
 
                 {/* Right: Controls (Search + Profile + View) */}
-                <div className="flex flex-wrap items-center gap-4">
-
-                    {/* New Route vs Station Toggle */}
-                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                        <button
-                            onClick={() => setSearchMode('single')}
-                            className={clsx("px-3 py-1.5 rounded-md text-xs font-bold transition-all",
-                                searchMode === 'single' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700')}
-                        >
-                            Single
-                        </button>
-                        <button
-                            onClick={() => setSearchMode('route')}
-                            className={clsx("px-3 py-1.5 rounded-md text-xs font-bold transition-all",
-                                searchMode === 'route' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700')}
-                        >
-                            Route
-                        </button>
-                    </div>
-
-                    {/* Search Components */}
-                    {searchMode === 'single' ? (
-                        <AirportSearch
-                            currentStation={stationId}
-                            onSelect={setStationId}
-                        />
-                    ) : (
-                        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-                            <div className="relative">
-                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">FROM</span>
-                                <AirportSearch
-                                    currentStation={route.from}
-                                    onSelect={(icao) => {
-                                        setRoute(prev => ({ ...prev, from: icao }));
-                                        setStationId(icao); // Also update main station
-                                    }}
-                                    compact
-                                />
-                            </div>
-                            <div className="text-slate-300">→</div>
-                            <div className="relative">
-                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">TO</span>
-                                <AirportSearch
-                                    currentStation={route.to || ''}
-                                    onSelect={(icao) => setRoute(prev => ({ ...prev, to: icao }))}
-                                    compact
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Aircraft Selector */}
-                    <AircraftSelector
+                {/* Toolbar Replaced Content */}
+                <div className="mb-6">
+                    <DashboardToolbar
+                        searchMode={searchMode}
+                        setSearchMode={setSearchMode}
+                        stationId={stationId}
+                        setStationId={setStationId}
+                        route={route}
+                        setRoute={setRoute}
                         fleet={fleet}
-                        activeId={activeAircraftId}
-                        onSelect={setActiveAircraftId}
-                        onManage={() => setIsAircraftManagerOpen(true)}
+                        activeAircraftId={activeAircraftId}
+                        setActiveAircraftId={setActiveAircraftId}
+                        setIsAircraftManagerOpen={setIsAircraftManagerOpen}
+                        profiles={profiles}
+                        activeProfileId={activeProfile.id}
+                        setActiveProfileId={setActiveProfileId}
+                        viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        onRefresh={refresh}
                     />
-
-                    {/* Profile Selector */}
-                    <div className="relative">
-                        <select
-                            className="appearance-none bg-white border border-gray-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-bold text-slate-700 shadow-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer hover:border-gray-300 transition-all min-w-[200px]"
-                            value={activeProfile.id}
-                            onChange={(e) => setActiveProfileId(e.target.value)}
-                        >
-                            {profiles.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-3 top-3 pointer-events-none text-slate-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                        </div>
-                    </div>
-
-                    {/* View Toggles */}
-                    <div className="flex bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
-                        <button
-                            onClick={() => setViewMode('timeline')}
-                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                                viewMode === 'timeline' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
-                            title="Timeline View"
-                        >
-                            <LayoutList className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('calendar')}
-                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                                viewMode === 'calendar' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
-                            title="Calendar View"
-                        >
-                            <CalendarIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('map')}
-                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                                viewMode === 'map' ? 'bg-slate-100 text-sky-600 font-bold' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50')}
-                            title="Map View"
-                        >
-                            <Map className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    {/* Refresh */}
-                    <button onClick={refresh} className="p-2.5 bg-white border border-gray-200 shadow-sm text-slate-500 hover:text-sky-600 hover:border-sky-500 rounded-lg transition-all" title="Refresh Data">
-                        <RefreshCw className={loading ? "animate-spin w-4 h-4" : "w-4 h-4"} />
-                    </button>
-
                 </div>
 
-            </header>
+
+
+            </header >
 
             {/* Route Briefing Panel */}
-            {searchMode === 'route' && route.to && (
-                <RouteBriefing
-                    from={route.from}
-                    to={route.to}
-                    profile={activeProfile}
-                    aircraft={activeAircraft}
-                />
-            )}
+            {
+                searchMode === 'route' && route.to && (
+                    <RouteBriefing
+                        from={route.from}
+                        to={route.to}
+                        profile={activeProfile}
+                        aircraft={activeAircraft}
+                    />
+                )
+            }
 
-            {loading && weatherData.length === 0 ? (
-                <div className="py-20 text-center text-slate-400 flex flex-col items-center">
-                    <Loader className="w-10 h-10 animate-spin mb-4 text-sky-500" />
-                    <p className="font-medium animate-pulse">Fetching latest METARs & TAFs...</p>
-                </div>
-            ) : error ? (
-                <div className="p-6 bg-red-50 border border-red-100 rounded-xl flex items-center gap-4 text-red-600">
-                    <AlertCircle className="w-6 h-6 text-red-500" />
-                    {error}
-                </div>
-            ) : weatherData.length > 0 && currentWindow && currentResult ? (
-                <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-
-                    {/* Sidebar: Detail Panel */}
-                    <div className="xl:col-span-1 space-y-6 xl:sticky xl:top-24">
-                        <SuitabilityCard
-                            result={currentResult}
-                        />
-
-                        {/* Runway Wind Tool */}
-                        <RunwayWindCalculator wind={currentWindow.wind} />
-
-                        {/* Placeholder for future widgets (e.g. Airport Info) */}
-                        <div className="hidden xl:block p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 text-center">
-                            Select a time block to view specific conditions.
-                        </div>
+            {
+                loading && weatherData.length === 0 ? (
+                    <div className="py-20 text-center text-slate-400 flex flex-col items-center">
+                        <Loader className="w-10 h-10 animate-spin mb-4 text-sky-500" />
+                        <p className="font-medium animate-pulse">Fetching latest METARs & TAFs...</p>
                     </div>
+                ) : error ? (
+                    <div className="p-6 bg-red-50 border border-red-100 rounded-xl flex items-center gap-4 text-red-600">
+                        <AlertCircle className="w-6 h-6 text-red-500" />
+                        {error}
+                    </div>
+                ) : weatherData.length > 0 && currentWindow && currentResult ? (
+                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
 
-                    {/* Main Content: Calendar / Timeline */}
-                    <div className="xl:col-span-3">
-                        {viewMode === 'calendar' ? (
-                            <CalendarView
-                                windows={weatherData}
-                                profile={activeProfile}
-                                onSelectDay={(date) => {
-                                    // Find exact match or closest window
-                                    const win = weatherData.find(w => format(w.startTime, 'yyyy-MM-dd HH:mm') === format(date, 'yyyy-MM-dd HH:mm'));
-                                    if (win) {
-                                        setSelectedWindow(win);
-                                    } else {
-                                        const closeWin = weatherData.find(w => Math.abs(w.startTime.getTime() - date.getTime()) < 60 * 60 * 1000);
-                                        if (closeWin) setSelectedWindow(closeWin);
-                                    }
-                                }}
+                        {/* Sidebar: Detail Panel */}
+                        <div className="xl:col-span-1 space-y-6 xl:sticky xl:top-24">
+                            <SuitabilityCard
+                                result={currentResult}
                             />
-                        ) : viewMode === 'map' ? (
-                            <WeatherMap
-                                currentStation={stationId}
-                                onSelect={(icao) => {
-                                    setStationId(icao);
-                                    // Optionally switch back to timeline after selection, or stay on map?
-                                    // Let's stay on map for now.
-                                }}
-                                route={searchMode === 'route' ? route : undefined}
-                            />
-                        ) : (
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
-                                <h3 className="text-lg font-bold text-slate-800 mb-6 font-display">48-Hour Training Outlook</h3>
-                                <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
+
+                            {/* Runway Wind Tool */}
+                            <RunwayWindCalculator wind={currentWindow.wind} />
+
+                            {/* Placeholder for future widgets (e.g. Airport Info) */}
+                            <div className="hidden xl:block p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 text-center">
+                                Select a time block to view specific conditions.
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                </div>
-            ) : null}
+                        {/* Main Content: Calendar / Timeline */}
+                        <div className="xl:col-span-3">
+                            {viewMode === 'calendar' ? (
+                                <CalendarView
+                                    windows={weatherData}
+                                    profile={activeProfile}
+                                    onSelectDay={(date) => {
+                                        // Find exact match or closest window
+                                        const win = weatherData.find(w => format(w.startTime, 'yyyy-MM-dd HH:mm') === format(date, 'yyyy-MM-dd HH:mm'));
+                                        if (win) {
+                                            setSelectedWindow(win);
+                                        } else {
+                                            const closeWin = weatherData.find(w => Math.abs(w.startTime.getTime() - date.getTime()) < 60 * 60 * 1000);
+                                            if (closeWin) setSelectedWindow(closeWin);
+                                        }
+                                    }}
+                                />
+                            ) : viewMode === 'map' ? (
+                                <WeatherMap
+                                    currentStation={stationId}
+                                    onSelect={(icao) => {
+                                        setStationId(icao);
+                                        // Optionally switch back to timeline after selection, or stay on map?
+                                        // Let's stay on map for now.
+                                    }}
+                                    route={searchMode === 'route' ? route : undefined}
+                                />
+                            ) : (
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
+                                    <h3 className="text-lg font-bold text-slate-800 mb-6 font-display">48-Hour Training Outlook</h3>
+                                    <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                ) : null
+            }
 
             {/* Raw Weather Text */}
-            {!loading && weatherData.length > 0 && searchMode !== 'route' && (
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-                    <RawWxViewer stationId={stationId} weatherData={weatherData} />
-                </div>
-            )}
+            {
+                !loading && weatherData.length > 0 && searchMode !== 'route' && (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+                        <RawWxViewer stationId={stationId} weatherData={weatherData} />
+                    </div>
+                )
+            }
 
             {/* Detail Modal */}
-            {selectedWindow && currentResult && (
-                <WeatherDetailsModal
-                    window={selectedWindow}
-                    result={currentResult}
-                    onClose={() => setSelectedWindow(null)}
-                />
-            )}
+            {
+                selectedWindow && currentResult && (
+                    <WeatherDetailsModal
+                        window={selectedWindow}
+                        result={currentResult}
+                        onClose={() => setSelectedWindow(null)}
+                    />
+                )
+            }
             {/* Aircraft Manager Modal */}
             <AircraftManager
                 isOpen={isAircraftManagerOpen}
@@ -288,6 +208,6 @@ export const Dashboard = () => {
                 onAdd={addAircraft}
                 onDelete={deleteAircraft}
             />
-        </div>
+        </div >
     );
 };
