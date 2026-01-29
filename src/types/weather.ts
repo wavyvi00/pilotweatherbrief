@@ -52,4 +52,5 @@ export interface WeatherWindow {
     flightCategory: 'VFR' | 'MVFR' | 'IFR' | 'LIFR';
     precipitationProbability: number; // 0-100
     source: 'METAR' | 'TAF' | 'MOS' | 'OPEN_METEO';
+    rawText?: string;
 }

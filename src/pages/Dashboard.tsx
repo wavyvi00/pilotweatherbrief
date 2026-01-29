@@ -7,6 +7,7 @@ import { AircraftSelector } from '../components/AircraftSelector';
 import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
+import { RawWxViewer } from '../components/RawWxViewer';
 import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
@@ -258,6 +259,13 @@ export const Dashboard = () => {
 
                 </div>
             ) : null}
+
+            {/* Raw Weather Text */}
+            {!loading && weatherData.length > 0 && searchMode !== 'route' && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+                    <RawWxViewer stationId={stationId} weatherData={weatherData} />
+                </div>
+            )}
 
             {/* Detail Modal */}
             {selectedWindow && currentResult && (

@@ -159,7 +159,8 @@ export const AviationWeatherService = {
             visibility: metar.visibility_statute_mi || 10,
             flightCategory: metar.flight_category || 'VFR', // Fallback, normally provided
             precipitationProbability: 0, // METAR doesn't usually give prob, but we could parse distinct codes
-            source: 'METAR'
+            source: 'METAR',
+            rawText: metar.raw_text
         };
     },
 
@@ -209,7 +210,8 @@ export const AviationWeatherService = {
                 visibility: vis,
                 flightCategory,
                 precipitationProbability: 0,
-                source: 'TAF'
+                source: 'TAF',
+                rawText: taf.raw_text // The full TAF string
             };
         });
     }
