@@ -155,6 +155,16 @@ export const DashboardToolbar = ({
                     </button>
                 </div>
 
+                {/* Date Picker (Visual Only for now) */}
+                <div className="hidden xl:flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 shadow-sm">
+                    <input
+                        type="datetime-local"
+                        className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent outline-none border-none p-0 cursor-pointer"
+                        defaultValue={new Date().toISOString().slice(0, 16)}
+                    // Functionality to be connected to global time context later
+                    />
+                </div>
+
                 <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
                 <button

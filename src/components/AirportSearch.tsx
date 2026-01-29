@@ -74,7 +74,7 @@ export const AirportSearch = ({ onSelect, currentStation, compact }: AirportSear
                     onChange={handleInput}
                     onFocus={() => inputValue.length > 0 && setIsOpen(true)}
                     className={`bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg transition-all outline-none uppercase font-bold text-sm text-slate-800 dark:text-slate-200 shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-400
-                        ${compact ? 'w-24 pl-10 pr-2 py-2 text-xs md:w-28' : 'pl-10 pr-4 py-2.5 w-full md:w-40 md:focus:w-64'}
+                        ${compact ? 'w-full pl-10 pr-2 py-2 text-xs' : 'pl-10 pr-4 py-2.5 w-full md:w-40 md:focus:w-64'}
                     `}
                     placeholder={compact ? "..." : "Search Airport..."}
                 />
