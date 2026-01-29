@@ -111,8 +111,8 @@ export const AviationWeatherService = {
             valid_time_from: raw.validTimeFrom || raw.valid_time_from || new Date().toISOString(),
             valid_time_to: raw.validTimeTo || raw.valid_time_to || new Date().toISOString(),
             forecast: (raw.fcsts || []).map((f: any) => ({
-                fcst_time_from: f.timeFrom,
-                fcst_time_to: f.timeTo,
+                fcst_time_from: (typeof f.timeFrom === 'string' && f.timeFrom) ? f.timeFrom : new Date().toISOString(),
+                fcst_time_to: (typeof f.timeTo === 'string' && f.timeTo) ? f.timeTo : new Date().toISOString(),
                 wind_dir_degrees: f.wdir,
                 wind_speed_kt: f.wspd,
                 wind_gust_kt: f.wgst,
@@ -144,7 +144,7 @@ export const AviationWeatherService = {
             return null as any; // Safe fallback logic handled by caller usually
         }
 
-        const validTime = metar.observation_time || new Date().toISOString();
+        const validTime = typeof metar.observation_time === 'string' ? metar.observation_time : new Date().toISOString();
 
         return {
             startTime: parseISO(validTime),
@@ -192,9 +192,13 @@ export const AviationWeatherService = {
                 flightCategory = 'MVFR';
             }
 
+            // Defensive date parsing
+            const startTimeStr = typeof block.fcst_time_from === 'string' ? block.fcst_time_from : new Date().toISOString();
+            const endTimeStr = typeof block.fcst_time_to === 'string' ? block.fcst_time_to : new Date().toISOString();
+
             return {
-                startTime: parseISO(block.fcst_time_from),
-                endTime: parseISO(block.fcst_time_to),
+                startTime: parseISO(startTimeStr),
+                endTime: parseISO(endTimeStr),
                 isForecast: true,
                 wind: {
                     direction: block.wind_dir_degrees || 0,
