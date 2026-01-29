@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline, CircleMarker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AIRPORTS } from '../data/airports';
 import { Icon, DivIcon } from 'leaflet';
@@ -42,6 +42,52 @@ const createStatusIcon = (status: StatusColor, isSelected: boolean) => {
     });
 };
 
+// --- OPTIMIZATION COMPONENTS ---
+
+interface ViewportFilterProps {
+    allAirports: typeof AIRPORTS;
+    setVisible: (airports: typeof AIRPORTS) => void;
+    maxMarkers: number;
+}
+
+const ViewportFilter = ({ allAirports, setVisible, maxMarkers }: ViewportFilterProps) => {
+    const map = useMapEvents({
+        moveend: () => {
+            const bounds = map.getBounds();
+            const zoom = map.getZoom();
+
+            // Very rough optimization: If zoom is very low (country view), show minimal set 
+            // Or primarily rely on maxMarkers slice.
+            if (zoom < 6) {
+                setVisible(allAirports.slice(0, 50)); // Just 50 arbitrary, or major hubs if we had them
+                return;
+            }
+
+            // Filter
+            const visible = allAirports.filter(a =>
+                bounds.contains([a.lat, a.lon])
+            );
+
+            // Cap
+            setVisible(visible.slice(0, maxMarkers));
+        }
+    });
+
+    // Initial load trigger
+    useEffect(() => {
+        // Trigger once on mount usually? Or rely on map events.
+        // Map events might not fire on mount.
+        // We set initial state in parent to "some" or "all" then filter.
+        // Actually, let's force a filter.
+        const t = setTimeout(() => {
+            map.fire('moveend');
+        }, 500);
+        return () => clearTimeout(t);
+    }, [map]);
+
+    return null;
+};
+
 // Component to recenter map when station changes
 const RecenterMap = ({ lat, lon }: { lat: number; lon: number }) => {
     const map = useMap();
@@ -71,6 +117,9 @@ interface WeatherMapProps {
 export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps) => {
     const { activeProfile } = useProfiles();
 
+    // Optimisation: Only render visible airports
+    const [visibleAirports, setVisibleAirports] = useState<typeof AIRPORTS>([]);
+
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
     const [isLive, setIsLive] = useState(true);
 
@@ -89,10 +138,17 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
                 zoom={9}
                 scrollWheelZoom={true}
                 style={{ height: '100%', width: '100%' }}
+                preferCanvas={true}
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                <ViewportFilter
+                    allAirports={AIRPORTS}
+                    setVisible={setVisibleAirports}
+                    maxMarkers={150} // Hard cap for performance
                 />
 
                 {!hasRoute && <RecenterMap lat={activeAirport.lat} lon={activeAirport.lon} />}
@@ -109,42 +165,71 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
                     />
                 )}
 
-                {AIRPORTS.map((airport) => {
+                {/* Render Optimised Markers */}
+                {visibleAirports.map((airport) => {
                     const status = statuses[airport.icao] || 'gray';
                     const isSelected = airport.icao === currentStation;
-
-                    // Highlight Start/End of route
                     const isStart = route?.from === airport.icao;
                     const isEnd = route?.to === airport.icao;
+                    const isImportant = isSelected || isStart || isEnd;
 
+                    // Color Mapping
+                    let fillColor = '#cbd5e1'; // slate-300
+                    let borderColor = '#94a3b8'; // slate-400
+                    if (status === 'green') { fillColor = '#10b981'; borderColor = '#059669'; }
+                    if (status === 'yellow') { fillColor = '#fbbf24'; borderColor = '#d97706'; }
+                    if (status === 'red') { fillColor = '#f43f5e'; borderColor = '#e11d48'; }
+
+                    // High Priority: Render as detailed DOM Marker
+                    if (isImportant) {
+                        return (
+                            <Marker
+                                key={airport.icao}
+                                position={[airport.lat, airport.lon]}
+                                icon={createStatusIcon(status, true)}
+                                eventHandlers={{ click: () => onSelect(airport.icao) }}
+                                zIndexOffset={1000}
+                            >
+                                <Popup>
+                                    <div className="p-1 min-w-[120px] text-center">
+                                        <h3 className="font-bold text-slate-900 text-lg">{airport.icao}</h3>
+                                        <p className="text-xs text-slate-500 mb-2">{airport.name}</p>
+                                        <div className={`text-xs font-bold px-2 py-1 rounded inline-block uppercase ${status === 'green' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                                            {status.toUpperCase()}
+                                        </div>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        );
+                    }
+
+                    // Low Priority: Render as Canvas CircleMarker
                     return (
-                        <Marker
+                        <CircleMarker
                             key={airport.icao}
-                            position={[airport.lat, airport.lon]}
-                            icon={createStatusIcon(status, isSelected || isStart || isEnd)}
-                            eventHandlers={{
-                                click: () => onSelect(airport.icao),
+                            center={[airport.lat, airport.lon]}
+                            radius={5}
+                            pathOptions={{
+                                fillColor: fillColor,
+                                color: borderColor,
+                                weight: 1,
+                                fillOpacity: 0.8
                             }}
+                            eventHandlers={{ click: () => onSelect(airport.icao) }}
                         >
                             <Popup>
-                                <div className="p-1 min-w-[120px] text-center">
-                                    <h3 className="font-bold text-slate-900 text-lg">{airport.icao}</h3>
-                                    <p className="text-xs text-slate-500 mb-2">{airport.name}</p>
-
-                                    <div className={`text-xs font-bold px-2 py-1 rounded inline-block uppercase
-                                        ${status === 'green' ? 'bg-emerald-100 text-emerald-700' :
-                                            status === 'red' ? 'bg-rose-100 text-rose-700' :
-                                                status === 'yellow' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}
-                                    `}>
-                                        {status === 'green' ? 'GO' : status === 'red' ? 'NO-GO' : status === 'yellow' ? 'MARGINAL' : 'NO DATA'}
-                                    </div>
-                                    {(isStart) && <div className="mt-1 text-xs font-bold text-sky-600">DEPARTURE</div>}
-                                    {(isEnd) && <div className="mt-1 text-xs font-bold text-indigo-600">DESTINATION</div>}
+                                <div className="p-1 min-w-[100px] text-center">
+                                    <h3 className="font-bold text-slate-900">{airport.icao}</h3>
+                                    <div className="text-[10px] text-slate-500">{airport.name}</div>
                                 </div>
                             </Popup>
-                        </Marker>
+                        </CircleMarker>
                     );
                 })}
+
+                {/* Always render Route Endpoints even if culled (Safety) */}
+                {/* (Optional: logic to ensure start/end are always in visibleAirports or rendered separately. For simplicity, we rely on them likely being in view if routing, or RecenterMap handles it.) */}
+
             </MapContainer>
 
             {/* Time Controls Overlay */}

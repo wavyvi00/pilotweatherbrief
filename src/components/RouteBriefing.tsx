@@ -7,15 +7,17 @@ import { AviationWeatherService } from '../services/weather';
 import { ScoringEngine } from '../logic/scoring';
 import type { TrainingProfile } from '../types/profile';
 import type { WeatherWindow } from '../types/weather';
+import type { Aircraft } from '../types/aircraft';
 import { Clock, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface RouteBriefingProps {
     from: string;
     to: string;
-    profile: TrainingProfile;
+    profile: TrainingProfile; // Still needed for scoring
+    aircraft: Aircraft; // New: For Speed/Fuel
 }
 
-export const RouteBriefing = ({ from, to, profile }: RouteBriefingProps) => {
+export const RouteBriefing = ({ from, to, profile, aircraft }: RouteBriefingProps) => {
     const [stats, setStats] = useState<{ dist: number, ete: number, eta: Date } | null>(null);
     const [destWeather, setDestWeather] = useState<{ status: 'green' | 'yellow' | 'red', window: WeatherWindow } | null>(null);
     const [loading, setLoading] = useState(false);
@@ -28,7 +30,8 @@ export const RouteBriefing = ({ from, to, profile }: RouteBriefingProps) => {
 
         // 1. Calc Geo Stats
         const dist = calculateDistance(origin.lat, origin.lon, dest.lat, dest.lon);
-        const eteHours = calculateETE(dist, profile.aircraft.cruiseSpeed);
+        const speed = aircraft.performance.cruiseSpeed || 100; // Fallback
+        const eteHours = calculateETE(dist, speed);
         const eta = addMinutes(new Date(), eteHours * 60);
 
         setStats({ dist, ete: eteHours, eta });
@@ -68,7 +71,7 @@ export const RouteBriefing = ({ from, to, profile }: RouteBriefingProps) => {
 
         fetchForecast();
 
-    }, [from, to, profile]);
+    }, [from, to, profile, aircraft]);
 
     if (!stats) return null;
 

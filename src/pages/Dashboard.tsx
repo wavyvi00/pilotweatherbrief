@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
+import { useAircraft } from '../hooks/useAircraft';
+import { AircraftSelector } from '../components/AircraftSelector';
+import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
 import { CalendarView } from '../components/CalendarView';
@@ -23,6 +26,9 @@ export const Dashboard = () => {
     const [route, setRoute] = useState<{ from: string, to: string | null }>({ from: 'KMCI', to: null });
     // searchInput state removed, handled in AirportSearch
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
+    const { fleet, activeAircraft, activeAircraftId, setActiveAircraftId, addAircraft, deleteAircraft } = useAircraft();
+    const [isAircraftManagerOpen, setIsAircraftManagerOpen] = useState(false);
+
     const [selectedWindow, setSelectedWindow] = useState<WeatherWindow | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('timeline');
 
@@ -120,6 +126,14 @@ export const Dashboard = () => {
                         </div>
                     )}
 
+                    {/* Aircraft Selector */}
+                    <AircraftSelector
+                        fleet={fleet}
+                        activeId={activeAircraftId}
+                        onSelect={setActiveAircraftId}
+                        onManage={() => setIsAircraftManagerOpen(true)}
+                    />
+
                     {/* Profile Selector */}
                     <div className="relative">
                         <select
@@ -179,13 +193,14 @@ export const Dashboard = () => {
                     from={route.from}
                     to={route.to}
                     profile={activeProfile}
+                    aircraft={activeAircraft}
                 />
             )}
 
             {loading && weatherData.length === 0 ? (
                 <div className="py-20 text-center text-slate-400 flex flex-col items-center">
                     <Loader className="w-10 h-10 animate-spin mb-4 text-sky-500" />
-                    <p className="font-medium text-slate-500">Scanning Atmosphere...</p>
+                    <p className="font-medium animate-pulse">Fetching latest METARs & TAFs...</p>
                 </div>
             ) : error ? (
                 <div className="p-6 bg-red-50 border border-red-100 rounded-xl flex items-center gap-4 text-red-600">
@@ -252,6 +267,14 @@ export const Dashboard = () => {
                     onClose={() => setSelectedWindow(null)}
                 />
             )}
+            {/* Aircraft Manager Modal */}
+            <AircraftManager
+                isOpen={isAircraftManagerOpen}
+                onClose={() => setIsAircraftManagerOpen(false)}
+                fleet={fleet}
+                onAdd={addAircraft}
+                onDelete={deleteAircraft}
+            />
         </div>
     );
 };
