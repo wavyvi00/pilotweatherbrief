@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AIRPORTS } from '../data/airports';
 import { Icon, DivIcon } from 'leaflet';
@@ -45,16 +45,30 @@ const createStatusIcon = (status: StatusColor, isSelected: boolean) => {
 // Component to recenter map when station changes
 const RecenterMap = ({ lat, lon }: { lat: number; lon: number }) => {
     const map = useMap();
-    map.flyTo([lat, lon], 10, { animate: true });
+    map.flyTo([lat, lon], 9, { animate: true });
+    return null;
+};
+
+// Component to fit bounds for route
+const RouteFitter = ({ from, to }: { from: { lat: number, lon: number }, to: { lat: number, lon: number } }) => {
+    const map = useMap();
+    map.fitBounds([
+        [from.lat, from.lon],
+        [to.lat, to.lon]
+    ], { padding: [50, 50] });
     return null;
 };
 
 interface WeatherMapProps {
     currentStation: string;
     onSelect: (icao: string) => void;
+    route?: {
+        from: string;
+        to: string | null;
+    };
 }
 
-export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
+export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps) => {
     const { activeProfile } = useProfiles();
 
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
@@ -62,6 +76,11 @@ export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
 
     const { statuses, loading } = useMapStatus(activeProfile, isLive ? null : selectedTime);
     const activeAirport = AIRPORTS.find(a => a.icao === currentStation) || AIRPORTS[0];
+
+    // Route logic
+    const fromAirport = route?.from ? AIRPORTS.find(a => a.icao === route.from) : null;
+    const toAirport = route?.to ? AIRPORTS.find(a => a.icao === route.to) : null;
+    const hasRoute = !!(fromAirport && toAirport);
 
     return (
         <div className="h-[400px] md:h-[600px] w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 z-0 relative bg-slate-100">
@@ -76,17 +95,33 @@ export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                <RecenterMap lat={activeAirport.lat} lon={activeAirport.lon} />
+                {!hasRoute && <RecenterMap lat={activeAirport.lat} lon={activeAirport.lon} />}
+                {hasRoute && <RouteFitter from={fromAirport!} to={toAirport!} />}
+
+                {/* Draw Route Line */}
+                {hasRoute && (
+                    <Polyline
+                        positions={[
+                            [fromAirport!.lat, fromAirport!.lon],
+                            [toAirport!.lat, toAirport!.lon]
+                        ]}
+                        pathOptions={{ color: '#0ea5e9', weight: 4, opacity: 0.6, dashArray: '10, 10' }}
+                    />
+                )}
 
                 {AIRPORTS.map((airport) => {
                     const status = statuses[airport.icao] || 'gray';
                     const isSelected = airport.icao === currentStation;
 
+                    // Highlight Start/End of route
+                    const isStart = route?.from === airport.icao;
+                    const isEnd = route?.to === airport.icao;
+
                     return (
                         <Marker
                             key={airport.icao}
                             position={[airport.lat, airport.lon]}
-                            icon={createStatusIcon(status, isSelected)}
+                            icon={createStatusIcon(status, isSelected || isStart || isEnd)}
                             eventHandlers={{
                                 click: () => onSelect(airport.icao),
                             }}
@@ -103,6 +138,8 @@ export const WeatherMap = ({ currentStation, onSelect }: WeatherMapProps) => {
                                     `}>
                                         {status === 'green' ? 'GO' : status === 'red' ? 'NO-GO' : status === 'yellow' ? 'MARGINAL' : 'NO DATA'}
                                     </div>
+                                    {(isStart) && <div className="mt-1 text-xs font-bold text-sky-600">DEPARTURE</div>}
+                                    {(isEnd) && <div className="mt-1 text-xs font-bold text-indigo-600">DESTINATION</div>}
                                 </div>
                             </Popup>
                         </Marker>

@@ -13,4 +13,9 @@ export interface TrainingProfile {
     name: string;
     description: string;
     limits: TrainingLimits;
+    aircraft?: {
+        cruiseSpeed: number; // knots TAS
+        fuelBurn: number; // gph
+        range: number; // nm
+    };
 }

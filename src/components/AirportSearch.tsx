@@ -6,9 +6,10 @@ import { AIRPORTS, type Airport } from '../data/airports';
 interface AirportSearchProps {
     onSelect: (icao: string) => void;
     currentStation: string;
+    compact?: boolean;
 }
 
-export const AirportSearch = ({ onSelect, currentStation }: AirportSearchProps) => {
+export const AirportSearch = ({ onSelect, currentStation, compact }: AirportSearchProps) => {
     const [inputValue, setInputValue] = useState(currentStation);
     const [isOpen, setIsOpen] = useState(false);
     const [matches, setMatches] = useState<Airport[]>([]);
@@ -72,10 +73,12 @@ export const AirportSearch = ({ onSelect, currentStation }: AirportSearchProps) 
                     value={inputValue}
                     onChange={handleInput}
                     onFocus={() => inputValue.length > 0 && setIsOpen(true)}
-                    className="bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 w-full md:w-40 md:focus:w-64 transition-all outline-none uppercase font-bold text-sm text-slate-800 shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-400"
-                    placeholder="Search Airport..."
+                    className={`bg-white border border-gray-200 rounded-lg transition-all outline-none uppercase font-bold text-sm text-slate-800 shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-400
+                        ${compact ? 'w-24 pl-10 pr-2 py-2 text-xs md:w-28' : 'pl-10 pr-4 py-2.5 w-full md:w-40 md:focus:w-64'}
+                    `}
+                    placeholder={compact ? "..." : "Search Airport..."}
                 />
-                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 group-focus-within:text-sky-500 transition-colors" />
+                <Search className={`absolute w-3.5 h-3.5 text-slate-400 group-focus-within:text-sky-500 transition-colors ${compact ? 'left-2.5 top-2.5' : 'left-3 top-3.5'}`} />
             </form>
 
             {/* Dropdown Results */}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useWeather } from '../hooks/useWeather';
+import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
@@ -18,6 +19,8 @@ type ViewMode = 'timeline' | 'calendar' | 'map';
 
 export const Dashboard = () => {
     const [stationId, setStationId] = useState('KMCI');
+    const [searchMode, setSearchMode] = useState<'single' | 'route'>('single');
+    const [route, setRoute] = useState<{ from: string, to: string | null }>({ from: 'KMCI', to: null });
     // searchInput state removed, handled in AirportSearch
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
     const [selectedWindow, setSelectedWindow] = useState<WeatherWindow | null>(null);
@@ -43,8 +46,18 @@ export const Dashboard = () => {
                 <div className="flex flex-col gap-1">
                     <p className="text-slate-500 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
                     <div className="flex items-baseline gap-4">
-                        <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">
-                            {stationId}
+                        <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                            {searchMode === 'single' ? (
+                                stationId
+                            ) : (
+                                <>
+                                    <span>{route.from}</span>
+                                    <span className="text-slate-300 text-3xl">✈</span>
+                                    <span className={route.to ? "text-slate-900" : "text-slate-300"}>
+                                        {route.to || '???'}
+                                    </span>
+                                </>
+                            )}
                         </h1>
                         <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
                             LIVE
@@ -58,11 +71,54 @@ export const Dashboard = () => {
                 {/* Right: Controls (Search + Profile + View) */}
                 <div className="flex flex-wrap items-center gap-4">
 
-                    {/* Search */}
-                    <AirportSearch
-                        currentStation={stationId}
-                        onSelect={setStationId}
-                    />
+                    {/* New Route vs Station Toggle */}
+                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                        <button
+                            onClick={() => setSearchMode('single')}
+                            className={clsx("px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                                searchMode === 'single' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700')}
+                        >
+                            Single
+                        </button>
+                        <button
+                            onClick={() => setSearchMode('route')}
+                            className={clsx("px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                                searchMode === 'route' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700')}
+                        >
+                            Route
+                        </button>
+                    </div>
+
+                    {/* Search Components */}
+                    {searchMode === 'single' ? (
+                        <AirportSearch
+                            currentStation={stationId}
+                            onSelect={setStationId}
+                        />
+                    ) : (
+                        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+                            <div className="relative">
+                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">FROM</span>
+                                <AirportSearch
+                                    currentStation={route.from}
+                                    onSelect={(icao) => {
+                                        setRoute(prev => ({ ...prev, from: icao }));
+                                        setStationId(icao); // Also update main station
+                                    }}
+                                    compact
+                                />
+                            </div>
+                            <div className="text-slate-300">→</div>
+                            <div className="relative">
+                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">TO</span>
+                                <AirportSearch
+                                    currentStation={route.to || ''}
+                                    onSelect={(icao) => setRoute(prev => ({ ...prev, to: icao }))}
+                                    compact
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Profile Selector */}
                     <div className="relative">
@@ -115,8 +171,16 @@ export const Dashboard = () => {
 
                 </div>
 
-
             </header>
+
+            {/* Route Briefing Panel */}
+            {searchMode === 'route' && route.to && (
+                <RouteBriefing
+                    from={route.from}
+                    to={route.to}
+                    profile={activeProfile}
+                />
+            )}
 
             {loading && weatherData.length === 0 ? (
                 <div className="py-20 text-center text-slate-400 flex flex-col items-center">
@@ -167,6 +231,7 @@ export const Dashboard = () => {
                                     // Optionally switch back to timeline after selection, or stay on map?
                                     // Let's stay on map for now.
                                 }}
+                                route={searchMode === 'route' ? route : undefined}
                             />
                         ) : (
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">

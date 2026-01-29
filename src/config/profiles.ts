@@ -13,7 +13,8 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minVisibility: 5,
             allowIfr: false,
             maxPrecipProb: 30
-        }
+        },
+        aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 400 }
     },
     {
         id: 'student-solo-xc',
@@ -27,7 +28,8 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minVisibility: 8,
             allowIfr: false,
             maxPrecipProb: 20
-        }
+        },
+        aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500 }
     },
     {
         id: 'instruction-dual',
@@ -41,6 +43,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minVisibility: 3,
             allowIfr: false, // VFR training assumed usually
             maxPrecipProb: 60
-        }
+        },
+        aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600 }
     }
 ];
