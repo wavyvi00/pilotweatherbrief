@@ -189,7 +189,7 @@ export const Dashboard = () => {
                             />
 
                             {/* Runway Wind Tool */}
-                            <RunwayWindCalculator wind={currentWindow.wind} />
+                            <RunwayWindCalculator wind={currentWindow.wind} stationId={stationId} />
 
                             {/* Placeholder for future widgets (e.g. Airport Info) */}
                             <div className="hidden xl:block p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500 text-center">

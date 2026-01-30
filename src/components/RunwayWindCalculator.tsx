@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
-import { Wind, ArrowUp, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Wind, ArrowUp, ArrowRight, ArrowLeft, Loader, ChevronDown } from 'lucide-react';
+import { useRunways } from '../hooks/useRunways';
 
 
 interface RunwayWindCalculatorProps {
@@ -9,35 +10,32 @@ interface RunwayWindCalculatorProps {
         speed: number;
         gust?: number;
     };
+    stationId: string;
 }
 
-export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
+export const RunwayWindCalculator = ({ wind, stationId }: RunwayWindCalculatorProps) => {
     const [runway, setRunway] = useState<string>('');
+    const [manualMode, setManualMode] = useState(false);
+    const { runways, loading, error } = useRunways(stationId);
 
-    // Parse runway heading (e.g. "27" -> 270)
-    let runwayHeading = parseInt(runway) * 10;
+    // Reset runway selection when airport changes
+    useEffect(() => {
+        setRunway('');
+        setManualMode(false);
+    }, [stationId]);
+
+    // Parse runway heading (e.g. "27" -> 270, "27L" -> 270)
+    const runwayNumber = runway.replace(/[LRC]/gi, '');
+    let runwayHeading = parseInt(runwayNumber) * 10;
     if (isNaN(runwayHeading)) runwayHeading = 0;
 
     // Calculate components
-    // Theta = |WindDir - RunwayDir| (adjusted to 0-180 range usually)
     const angleDiff = (wind.direction - runwayHeading + 360) % 360;
     const angleRad = (angleDiff * Math.PI) / 180;
 
-    // Headwind = Speed * cos(diff)
-    // Crosswind = Speed * sin(diff)
-    const headwind = Math.round(wind.speed * Math.cos(angleRad)); // + is head, - is tail
-    const crosswind = Math.round(wind.speed * Math.sin(angleRad)); // + is right to left?, we display ABS
-
+    const headwind = Math.round(wind.speed * Math.cos(angleRad));
+    const crosswind = Math.round(wind.speed * Math.sin(angleRad));
     const isHeadwind = headwind >= 0;
-
-
-    // Crosswind Direction logic
-    // If wind is 300 and runway is 360 (Diff -60 or 300). 
-    // This is wind from the LEFT. 
-    // Simple logic:
-    // (Wind - Runway + 360) % 360.
-    // 0-180: Wind from Right. 
-    // 180-360: Wind from Left.
     const isWindFromRight = angleDiff > 0 && angleDiff < 180;
 
     return (
@@ -49,38 +47,65 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Runway</span>
-                    <input
-                        type="number"
-                        placeholder="XX"
-                        className="w-12 text-center border border-slate-300 dark:border-slate-600 rounded font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-sky-500 outline-none transition-colors"
-                        value={runway}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            if (val.length <= 2) setRunway(val);
-                        }}
-                    />
+
+                    {loading ? (
+                        <div className="w-20 h-8 flex items-center justify-center">
+                            <Loader className="w-4 h-4 text-slate-400 animate-spin" />
+                        </div>
+                    ) : manualMode || runways.length === 0 ? (
+                        // Manual input fallback
+                        <input
+                            type="text"
+                            placeholder="XX"
+                            className="w-16 text-center border border-slate-300 dark:border-slate-600 rounded font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-sky-500 outline-none transition-colors uppercase"
+                            value={runway}
+                            onChange={(e) => {
+                                const val = e.target.value.toUpperCase();
+                                if (val.length <= 3) setRunway(val);
+                            }}
+                        />
+                    ) : (
+                        // Dropdown of actual runways
+                        <div className="relative">
+                            <select
+                                value={runway}
+                                onChange={(e) => setRunway(e.target.value)}
+                                className="appearance-none w-20 text-center border border-slate-300 dark:border-slate-600 rounded font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-sky-500 outline-none cursor-pointer transition-colors pr-6 py-1"
+                            >
+                                <option value="">--</option>
+                                {runways.map(rwy => (
+                                    <option key={rwy} value={rwy}>{rwy}</option>
+                                ))}
+                            </select>
+                            <ChevronDown className="absolute right-1.5 top-2 w-3 h-3 text-slate-400 pointer-events-none" />
+                        </div>
+                    )}
+
+                    {/* Toggle for manual entry */}
+                    {runways.length > 0 && !loading && (
+                        <button
+                            onClick={() => {
+                                setManualMode(!manualMode);
+                                setRunway('');
+                            }}
+                            className="text-[10px] text-slate-400 hover:text-sky-500 underline"
+                        >
+                            {manualMode ? 'List' : 'Manual'}
+                        </button>
+                    )}
                 </div>
             </div>
 
+            {error && (
+                <p className="text-xs text-amber-500 mb-2">{error} - Using manual entry</p>
+            )}
+
             {runway && runway.length >= 1 ? (
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                    {/* Visualizer (Simple SVG) */}
+                    {/* Visualizer */}
                     <div className="relative w-32 h-32 bg-slate-50 dark:bg-slate-900/50 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                        {/* Runway Strip */}
                         <div className="absolute w-4 h-28 bg-slate-800 dark:bg-slate-600 rounded-sm"></div>
                         <div className="absolute bottom-2 text-[10px] font-bold text-white z-10">{runway}</div>
-                        {/* Wind Arrow */}
-                        <div
-                            className="absolute w-1 h-20 bg-transparent flex flex-col justify-end items-center origin-top"
-                            style={{
-                                transform: `rotate(${angleDiff}deg)`,
-                                top: '50%',
-                                height: '50%'
-                            }}
-                        >
-                            {/* Wind Vector */}
-                        </div>
-                        {/* Correct Visual: Wind Arrow blowing ONTO the runway center */}
                         <div
                             className="absolute w-full h-full flex justify-center items-center"
                             style={{ transform: `rotate(${angleDiff + 180}deg)` }}
@@ -114,7 +139,9 @@ export const RunwayWindCalculator = ({ wind }: RunwayWindCalculatorProps) => {
                 </div>
             ) : (
                 <div className="text-center text-xs text-slate-400 dark:text-slate-500 py-4 italic">
-                    Enter runway number (e.g. 27) to calculate components.
+                    {runways.length > 0
+                        ? 'Select a runway to calculate wind components.'
+                        : 'Enter runway number (e.g. 27) to calculate components.'}
                 </div>
             )}
         </div>
