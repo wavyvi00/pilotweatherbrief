@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
+import { useSettings } from '../hooks/useSettings';
 import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
@@ -14,32 +15,69 @@ import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
 
 import { WeatherMap } from '../components/WeatherMap';
-import { format } from 'date-fns';
-import { Loader, AlertCircle, Plane } from 'lucide-react';
+import { format, isWithinInterval } from 'date-fns';
+import { Loader, AlertCircle, Plane, RotateCcw } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
 type ViewMode = 'timeline' | 'calendar' | 'map';
 
 export const Dashboard = () => {
-    const [stationId, setStationId] = useState('KMCI');
+    const { settings } = useSettings();
+
+    const [stationId, setStationId] = useState(settings.defaultAirport || 'KMCI');
     const [searchMode, setSearchMode] = useState<'single' | 'route'>('single');
-    const [route, setRoute] = useState<{ from: string, to: string | null }>({ from: 'KMCI', to: null });
-    // searchInput state removed, handled in AirportSearch
+    const [route, setRoute] = useState<{ from: string, to: string | null }>({ from: settings.defaultAirport || 'KMCI', to: null });
+
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
     const { fleet, activeAircraft, activeAircraftId, setActiveAircraftId, addAircraft, deleteAircraft } = useAircraft();
     const [isAircraftManagerOpen, setIsAircraftManagerOpen] = useState(false);
 
+    // Apply default aircraft/profile from settings on mount
+    useEffect(() => {
+        if (settings.defaultAircraftId && fleet.find(a => a.id === settings.defaultAircraftId)) {
+            setActiveAircraftId(settings.defaultAircraftId);
+        }
+        if (settings.defaultProfileId && profiles.find(p => p.id === settings.defaultProfileId)) {
+            setActiveProfileId(settings.defaultProfileId);
+        }
+    }, []); // Run once on mount
+
     const [selectedWindow, setSelectedWindow] = useState<WeatherWindow | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('timeline');
+    const [selectedTime, setSelectedTime] = useState<Date | null>(null); // null = LIVE mode
 
     // Demo coords
     const [coords] = useState({ lat: 39.2976, lon: -94.7139 });
 
     const { weatherData, loading, error, refresh } = useWeather(stationId, coords.lat, coords.lon);
 
-    // handleSearch removed
+    // Determine if we're in LIVE mode
+    const isLive = selectedTime === null;
 
-    const currentWindow = selectedWindow || (weatherData.length > 0 ? weatherData[0] : null);
+    // Find the weather window matching the selected time
+    const getWindowForTime = (time: Date | null) => {
+        if (!time || weatherData.length === 0) return weatherData[0] || null;
+
+        // Find the window that contains this time
+        const matchingWindow = weatherData.find(w => {
+            const windowEnd = new Date(w.startTime.getTime() + 60 * 60 * 1000); // 1 hour window
+            return isWithinInterval(time, { start: w.startTime, end: windowEnd });
+        });
+
+        // If no exact match, find the closest window
+        if (!matchingWindow) {
+            const closest = weatherData.reduce((prev, curr) => {
+                const prevDiff = Math.abs(prev.startTime.getTime() - time.getTime());
+                const currDiff = Math.abs(curr.startTime.getTime() - time.getTime());
+                return currDiff < prevDiff ? curr : prev;
+            });
+            return closest;
+        }
+
+        return matchingWindow;
+    };
+
+    const currentWindow = selectedWindow || getWindowForTime(selectedTime);
     const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile) : null;
 
     return (
@@ -65,9 +103,24 @@ export const Dashboard = () => {
                                 </>
                             )}
                         </h1>
-                        <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
-                            LIVE
-                        </div>
+                        {isLive ? (
+                            <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+                                LIVE
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <div className="px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-xs font-bold border border-sky-200 dark:border-sky-800">
+                                    {format(selectedTime!, 'MMM d, h:mm a')}
+                                </div>
+                                <button
+                                    onClick={() => setSelectedTime(null)}
+                                    className="p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    title="Reset to Now"
+                                >
+                                    <RotateCcw className="w-3 h-3" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
                         Planning for <span className="text-slate-700 dark:text-slate-300 font-bold">{activeProfile.name}</span>
@@ -93,6 +146,8 @@ export const Dashboard = () => {
                         setActiveProfileId={setActiveProfileId}
                         viewMode={viewMode}
                         setViewMode={setViewMode}
+                        selectedTime={selectedTime}
+                        onTimeChange={setSelectedTime}
                         onRefresh={refresh}
                     />
                 </div>

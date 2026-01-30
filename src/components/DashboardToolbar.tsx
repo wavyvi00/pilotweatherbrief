@@ -1,11 +1,10 @@
 
-import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, ArrowRight, Moon, Sun } from 'lucide-react';
+import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 import { AirportSearch } from './AirportSearch';
 import { AircraftSelector } from './AircraftSelector';
 import type { Aircraft } from '../types/aircraft';
 import type { TrainingProfile } from '../types/profile';
-import { useTheme } from '../hooks/useTheme';
 
 interface DashboardToolbarProps {
     searchMode: 'single' | 'route';
@@ -23,6 +22,8 @@ interface DashboardToolbarProps {
     setActiveProfileId: (id: string) => void;
     viewMode: 'calendar' | 'timeline' | 'map';
     setViewMode: (mode: 'calendar' | 'timeline' | 'map') => void;
+    selectedTime: Date | null;
+    onTimeChange: (time: Date | null) => void;
     onRefresh: () => void;
 }
 
@@ -33,9 +34,28 @@ export const DashboardToolbar = ({
     fleet, activeAircraftId, setActiveAircraftId, setIsAircraftManagerOpen,
     profiles, activeProfileId, setActiveProfileId,
     viewMode, setViewMode,
+    selectedTime, onTimeChange,
     onRefresh
 }: DashboardToolbarProps) => {
-    const { theme, toggleTheme } = useTheme();
+
+    // Helper to format Date to datetime-local input value
+    const formatDateTimeLocal = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value) {
+            onTimeChange(new Date(value));
+        } else {
+            onTimeChange(null);
+        }
+    };
 
     return (
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-2 flex flex-col lg:flex-row items-start lg:items-center gap-4 w-full transition-colors">
@@ -127,61 +147,54 @@ export const DashboardToolbar = ({
             </div>
 
             {/* Group 3: View Toggles & Actions */}
-            <div className="flex items-center gap-2 ml-auto shrink-0">
-                <div className="flex bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <button
-                        onClick={() => setViewMode('timeline')}
-                        className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                            viewMode === 'timeline' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
-                        title="Timeline View"
-                    >
-                        <LayoutList className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('calendar')}
-                        className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                            viewMode === 'calendar' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
-                        title="Calendar View"
-                    >
-                        <CalendarIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('map')}
-                        className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
-                            viewMode === 'map' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
-                        title="Map View"
-                    >
-                        <Map className="w-4 h-4" />
-                    </button>
-                </div>
-
-                {/* Date Picker (Visual Only for now) */}
-                <div className="hidden xl:flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 w-full lg:w-auto lg:ml-auto lg:shrink-0">
+                {/* Date Picker */}
+                <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 shadow-sm flex-1 min-w-0 lg:flex-none">
                     <input
                         type="datetime-local"
-                        className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent outline-none border-none p-0 cursor-pointer"
-                        defaultValue={new Date().toISOString().slice(0, 16)}
-                    // Functionality to be connected to global time context later
+                        className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent outline-none border-none p-0 cursor-pointer w-full"
+                        value={formatDateTimeLocal(selectedTime || new Date())}
+                        onChange={handleTimeChange}
                     />
                 </div>
 
-                <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                {/* View Toggles & Refresh */}
+                <div className="flex items-center gap-2">
+                    <div className="flex bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <button
+                            onClick={() => setViewMode('timeline')}
+                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
+                                viewMode === 'timeline' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
+                            title="Timeline View"
+                        >
+                            <LayoutList className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('calendar')}
+                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
+                                viewMode === 'calendar' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
+                            title="Calendar View"
+                        >
+                            <CalendarIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('map')}
+                            className={clsx("p-2 rounded-md transition-all flex items-center justify-center",
+                                viewMode === 'map' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
+                            title="Map View"
+                        >
+                            <Map className="w-4 h-4" />
+                        </button>
+                    </div>
 
-                <button
-                    onClick={onRefresh}
-                    className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 rounded-lg hover:text-sky-500 dark:hover:text-sky-400 hover:border-sky-200 dark:hover:border-sky-800 transition-all shadow-sm"
-                    title="Refresh Weather"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                </button>
-
-                <button
-                    onClick={toggleTheme}
-                    className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 rounded-lg hover:text-indigo-500 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all shadow-sm"
-                    title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                >
-                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                </button>
+                    <button
+                        onClick={onRefresh}
+                        className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 rounded-lg hover:text-sky-500 dark:hover:text-sky-400 hover:border-sky-200 dark:hover:border-sky-800 transition-all shadow-sm"
+                        title="Refresh Weather"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Calendar, Settings } from 'lucide-react';
+import { Calendar, Settings, Moon, Sun } from 'lucide-react';
+import { useTheme } from './hooks/useTheme';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
 import { Footer } from './components/Footer';
@@ -30,6 +31,19 @@ function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: stri
   );
 }
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-300"
+      title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+    >
+      {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+    </button>
+  );
+}
+
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
@@ -41,9 +55,10 @@ function Layout({ children }: { children: React.ReactNode }) {
               FlightSolo
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <NavLink to="/" icon={Calendar} label="Dashboard" />
             <NavLink to="/settings" icon={Settings} label="Profile" />
+            <ThemeToggle />
           </div>
         </div>
       </nav>
