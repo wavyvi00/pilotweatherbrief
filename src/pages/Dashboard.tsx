@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
@@ -13,10 +13,14 @@ import { DashboardToolbar } from '../components/DashboardToolbar';
 import { CalendarView } from '../components/CalendarView';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
+import { AirportWeatherPanel } from '../components/AirportWeatherPanel';
+import { AIRPORTS } from '../data/airports';
+import type { Route } from '../types/route';
+import { createSimpleRoute, hasValidDestination, getRouteIcaos } from '../types/route';
 
 import { WeatherMap } from '../components/WeatherMap';
 import { format, isWithinInterval } from 'date-fns';
-import { Loader, AlertCircle, Plane, RotateCcw } from 'lucide-react';
+import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
 type ViewMode = 'timeline' | 'calendar' | 'map';
@@ -26,7 +30,16 @@ export const Dashboard = () => {
 
     const [stationId, setStationId] = useState(settings.defaultAirport || 'KMCI');
     const [searchMode, setSearchMode] = useState<'single' | 'route'>('single');
-    const [route, setRoute] = useState<{ from: string, to: string | null }>({ from: settings.defaultAirport || 'KMCI', to: null });
+    // New Route array format
+    const [route, setRoute] = useState<Route>(() =>
+        createSimpleRoute(settings.defaultAirport || 'KMCI', '')
+    );
+
+    // For backward compatibility with old { from, to } format in some components
+    const routeCompat = useMemo(() => ({
+        from: route[0]?.icao || stationId,
+        to: route.length >= 2 ? route[route.length - 1]?.icao : null
+    }), [route, stationId]);
 
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
     const { fleet, activeAircraft, activeAircraftId, setActiveAircraftId, addAircraft, deleteAircraft } = useAircraft();
@@ -46,10 +59,59 @@ export const Dashboard = () => {
     const [viewMode, setViewMode] = useState<ViewMode>('timeline');
     const [selectedTime, setSelectedTime] = useState<Date | null>(null); // null = LIVE mode
 
-    // Demo coords
-    const [coords] = useState({ lat: 39.2976, lon: -94.7139 });
+    // Get coordinates for departure airport
+    const departureAirport = useMemo(() =>
+        AIRPORTS.find(a => a.icao === stationId),
+        [stationId]
+    );
+    const depCoords = departureAirport
+        ? { lat: departureAirport.lat, lon: departureAirport.lon }
+        : { lat: 39.2976, lon: -94.7139 }; // Fallback to KMCI
 
-    const { weatherData, loading, error, refresh } = useWeather(stationId, coords.lat, coords.lon);
+    // Get all unique ICAO codes from route (excluding departure which is fetched separately)
+    const routeWaypointIcaos = useMemo(() => {
+        const allIcaos = getRouteIcaos(route);
+        // Exclude the first one (departure) since it's already fetched
+        return allIcaos.slice(1);
+    }, [route]);
+
+    // Fetch weather for departure
+    const { weatherData, loading, error, refresh } = useWeather(stationId, depCoords.lat, depCoords.lon);
+
+    // Fetch weather for all route waypoints (up to 5 additional waypoints)
+    // We'll use separate useWeather calls for simplicity (React hooks rules)
+    const wp1 = routeWaypointIcaos[0] || '';
+    const wp1Airport = AIRPORTS.find(a => a.icao === wp1);
+    const { weatherData: wp1Weather, loading: wp1Loading, error: wp1Error } = useWeather(
+        searchMode === 'route' ? wp1 : '',
+        wp1Airport?.lat || 0,
+        wp1Airport?.lon || 0
+    );
+
+    const wp2 = routeWaypointIcaos[1] || '';
+    const wp2Airport = AIRPORTS.find(a => a.icao === wp2);
+    const { weatherData: wp2Weather, loading: wp2Loading, error: wp2Error } = useWeather(
+        searchMode === 'route' ? wp2 : '',
+        wp2Airport?.lat || 0,
+        wp2Airport?.lon || 0
+    );
+
+    const wp3 = routeWaypointIcaos[2] || '';
+    const wp3Airport = AIRPORTS.find(a => a.icao === wp3);
+    const { weatherData: wp3Weather, loading: wp3Loading, error: wp3Error } = useWeather(
+        searchMode === 'route' ? wp3 : '',
+        wp3Airport?.lat || 0,
+        wp3Airport?.lon || 0
+    );
+
+    // Build array of waypoint weather data for rendering
+    const waypointWeatherData = useMemo(() => {
+        const result: { icao: string; weather: WeatherWindow[]; loading: boolean; error: string | null }[] = [];
+        if (wp1) result.push({ icao: wp1, weather: wp1Weather, loading: wp1Loading, error: wp1Error });
+        if (wp2) result.push({ icao: wp2, weather: wp2Weather, loading: wp2Loading, error: wp2Error });
+        if (wp3) result.push({ icao: wp3, weather: wp3Weather, loading: wp3Loading, error: wp3Error });
+        return result;
+    }, [wp1, wp1Weather, wp1Loading, wp1Error, wp2, wp2Weather, wp2Loading, wp2Error, wp3, wp3Weather, wp3Loading, wp3Error]);
 
     // Determine if we're in LIVE mode
     const isLive = selectedTime === null;
@@ -95,10 +157,10 @@ export const Dashboard = () => {
                                 stationId
                             ) : (
                                 <>
-                                    <span>{route.from}</span>
+                                    <span>{routeCompat.from}</span>
                                     <span className="text-slate-300 dark:text-slate-600 text-3xl"><Plane className="w-8 h-8 animate-pulse" /></span>
-                                    <span className={route.to ? "text-slate-900 dark:text-slate-100" : "text-slate-300 dark:text-slate-600"}>
-                                        {route.to || '???'}
+                                    <span className={routeCompat.to ? "text-slate-900 dark:text-slate-100" : "text-slate-300 dark:text-slate-600"}>
+                                        {routeCompat.to || '???'}
                                     </span>
                                 </>
                             )}
@@ -158,10 +220,10 @@ export const Dashboard = () => {
 
             {/* Route Briefing Panel */}
             {
-                searchMode === 'route' && route.to && (
+                searchMode === 'route' && hasValidDestination(route) && (
                     <RouteBriefing
-                        from={route.from}
-                        to={route.to}
+                        from={routeCompat.from}
+                        to={routeCompat.to!}
                         profile={activeProfile}
                         aircraft={activeAircraft}
                     />
@@ -180,59 +242,150 @@ export const Dashboard = () => {
                         {error}
                     </div>
                 ) : weatherData.length > 0 && currentWindow && currentResult ? (
-                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+                    <>
+                        {/* Route Mode: Horizontal weather panel strip above chart */}
+                        {searchMode === 'route' && hasValidDestination(route) && (
+                            <div className="mb-6">
+                                {/* Route Weather Overview - Horizontal Cards */}
+                                <div className="grid gap-4" style={{
+                                    gridTemplateColumns: `repeat(${Math.min(route.length, 4)}, minmax(0, 1fr))`
+                                }}>
+                                    {/* Departure Panel */}
+                                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
+                                                <Plane className="w-4 h-4 text-sky-500" />
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] uppercase font-bold text-sky-500 block">Departure</span>
+                                                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{stationId}</span>
+                                            </div>
+                                        </div>
+                                        <AirportWeatherPanel
+                                            stationId={stationId}
+                                            weatherData={weatherData}
+                                            profile={activeProfile}
+                                            selectedTime={selectedTime}
+                                            compact
+                                        />
+                                    </div>
 
-                        {/* Sidebar: Detail Panel */}
-                        <div className="xl:col-span-1 space-y-6 xl:sticky xl:top-24">
-                            <SuitabilityCard
-                                result={currentResult}
-                            />
+                                    {/* Intermediate Stops + Destination */}
+                                    {waypointWeatherData.map((wpData, index) => {
+                                        const isDestination = index === waypointWeatherData.length - 1;
 
-                            {/* Runway Wind Tool */}
-                            <RunwayWindCalculator wind={currentWindow.wind} stationId={stationId} />
+                                        return (
+                                            <div
+                                                key={wpData.icao || index}
+                                                className={`bg-white dark:bg-slate-800 rounded-xl shadow-sm border p-4 ${isDestination
+                                                    ? 'border-emerald-200 dark:border-emerald-900/50'
+                                                    : 'border-amber-200 dark:border-amber-900/50'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDestination
+                                                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                                                        : 'bg-amber-100 dark:bg-amber-900/30'
+                                                        }`}>
+                                                        {isDestination
+                                                            ? <Flag className="w-4 h-4 text-emerald-500" />
+                                                            : <MapPin className="w-4 h-4 text-amber-500" />
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        <span className={`text-[10px] uppercase font-bold block ${isDestination ? 'text-emerald-500' : 'text-amber-500'
+                                                            }`}>
+                                                            {isDestination ? 'Destination' : `Stop ${index + 1}`}
+                                                        </span>
+                                                        <span className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                                                            {wpData.icao || '???'}
+                                                        </span>
+                                                    </div>
+                                                </div>
 
-                            {/* Placeholder for future widgets (e.g. Airport Info) */}
-                            <div className="hidden xl:block p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500 text-center">
-                                Select a time block to view specific conditions.
+                                                {wpData.loading && wpData.weather.length === 0 ? (
+                                                    <div className="p-4 text-center text-slate-400 dark:text-slate-500">
+                                                        <Loader className="w-5 h-5 animate-spin mx-auto mb-1" />
+                                                        <p className="text-xs">Loading...</p>
+                                                    </div>
+                                                ) : wpData.error ? (
+                                                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400 text-xs">
+                                                        {wpData.error}
+                                                    </div>
+                                                ) : (
+                                                    <AirportWeatherPanel
+                                                        stationId={wpData.icao}
+                                                        weatherData={wpData.weather}
+                                                        profile={activeProfile}
+                                                        selectedTime={selectedTime}
+                                                        compact
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Main Grid Content */}
+                        <div className={searchMode === 'route' && hasValidDestination(route)
+                            ? ''
+                            : 'grid grid-cols-1 xl:grid-cols-4 gap-8 items-start'
+                        }>
+                            {/* Sidebar for Single Airport Mode */}
+                            {searchMode !== 'route' || !hasValidDestination(route) ? (
+                                <div className="xl:col-span-1 space-y-6 xl:sticky xl:top-24">
+                                    <SuitabilityCard
+                                        result={currentResult}
+                                    />
+
+                                    {/* Runway Wind Tool */}
+                                    <RunwayWindCalculator wind={currentWindow.wind} stationId={stationId} />
+
+                                    {/* Placeholder for future widgets */}
+                                    <div className="hidden xl:block p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500 text-center">
+                                        Select a time block to view specific conditions.
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {/* Main Content: Calendar / Timeline */}
+                            <div className={searchMode === 'route' && hasValidDestination(route) ? '' : 'xl:col-span-3'}>
+                                {viewMode === 'calendar' ? (
+                                    <CalendarView
+                                        windows={weatherData}
+                                        profile={activeProfile}
+                                        onSelectDay={(date) => {
+                                            // Find exact match or closest window
+                                            const win = weatherData.find(w => format(w.startTime, 'yyyy-MM-dd HH:mm') === format(date, 'yyyy-MM-dd HH:mm'));
+                                            if (win) {
+                                                setSelectedWindow(win);
+                                            } else {
+                                                const closeWin = weatherData.find(w => Math.abs(w.startTime.getTime() - date.getTime()) < 60 * 60 * 1000);
+                                                if (closeWin) setSelectedWindow(closeWin);
+                                            }
+                                        }}
+                                    />
+                                ) : viewMode === 'map' ? (
+                                    <WeatherMap
+                                        currentStation={stationId}
+                                        onSelect={(icao) => {
+                                            setStationId(icao);
+                                            // Optionally switch back to timeline after selection, or stay on map?
+                                            // Let's stay on map for now.
+                                        }}
+                                        route={searchMode === 'route' ? routeCompat : undefined}
+                                    />
+                                ) : (
+                                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
+                                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>
+                                        <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
+                                    </div>
+                                )}
                             </div>
                         </div>
-
-                        {/* Main Content: Calendar / Timeline */}
-                        <div className="xl:col-span-3">
-                            {viewMode === 'calendar' ? (
-                                <CalendarView
-                                    windows={weatherData}
-                                    profile={activeProfile}
-                                    onSelectDay={(date) => {
-                                        // Find exact match or closest window
-                                        const win = weatherData.find(w => format(w.startTime, 'yyyy-MM-dd HH:mm') === format(date, 'yyyy-MM-dd HH:mm'));
-                                        if (win) {
-                                            setSelectedWindow(win);
-                                        } else {
-                                            const closeWin = weatherData.find(w => Math.abs(w.startTime.getTime() - date.getTime()) < 60 * 60 * 1000);
-                                            if (closeWin) setSelectedWindow(closeWin);
-                                        }
-                                    }}
-                                />
-                            ) : viewMode === 'map' ? (
-                                <WeatherMap
-                                    currentStation={stationId}
-                                    onSelect={(icao) => {
-                                        setStationId(icao);
-                                        // Optionally switch back to timeline after selection, or stay on map?
-                                        // Let's stay on map for now.
-                                    }}
-                                    route={searchMode === 'route' ? route : undefined}
-                                />
-                            ) : (
-                                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>
-                                    <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
-                                </div>
-                            )}
-                        </div>
-
-                    </div>
+                    </>
                 ) : null
             }
 

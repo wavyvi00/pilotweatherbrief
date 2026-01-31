@@ -7,9 +7,10 @@ interface AirportSearchProps {
     onSelect: (icao: string) => void;
     currentStation: string;
     compact?: boolean;
+    placeholder?: string;
 }
 
-export const AirportSearch = ({ onSelect, currentStation, compact }: AirportSearchProps) => {
+export const AirportSearch = ({ onSelect, currentStation, compact, placeholder }: AirportSearchProps) => {
     const [inputValue, setInputValue] = useState(currentStation);
     const [isOpen, setIsOpen] = useState(false);
     const [matches, setMatches] = useState<Airport[]>([]);
@@ -76,7 +77,7 @@ export const AirportSearch = ({ onSelect, currentStation, compact }: AirportSear
                     className={`bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg transition-all outline-none uppercase font-bold text-sm text-slate-800 dark:text-slate-200 shadow-sm focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-400
                         ${compact ? 'w-full pl-10 pr-2 py-2 text-xs' : 'pl-10 pr-4 py-2.5 w-full md:w-40 md:focus:w-64'}
                     `}
-                    placeholder={compact ? "..." : "Search Airport..."}
+                    placeholder={placeholder || (compact ? "..." : "Search Airport...")}
                 />
                 <Search className={`absolute w-3.5 h-3.5 text-slate-400 group-focus-within:text-sky-500 transition-colors ${compact ? 'left-2.5 top-2.5' : 'left-3 top-3.5'}`} />
             </form>

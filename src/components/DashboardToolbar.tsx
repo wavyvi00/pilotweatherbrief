@@ -1,18 +1,22 @@
 
-import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, ArrowRight } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
 import { AirportSearch } from './AirportSearch';
 import { AircraftSelector } from './AircraftSelector';
+import { RouteSummary } from './RouteSummary';
+import { RouteEditorPopover } from './RouteEditorPopover';
 import type { Aircraft } from '../types/aircraft';
 import type { TrainingProfile } from '../types/profile';
+import type { Route } from '../types/route';
 
 interface DashboardToolbarProps {
     searchMode: 'single' | 'route';
     setSearchMode: (mode: 'single' | 'route') => void;
     stationId: string;
     setStationId: (id: string) => void;
-    route: { from: string; to: string | null };
-    setRoute: (route: { from: string; to: string | null }) => void;
+    route: Route;
+    setRoute: (route: Route) => void;
     fleet: Aircraft[];
     activeAircraftId: string;
     setActiveAircraftId: (id: string) => void;
@@ -38,6 +42,9 @@ export const DashboardToolbar = ({
     onRefresh
 }: DashboardToolbarProps) => {
 
+    const [isRouteEditorOpen, setIsRouteEditorOpen] = useState(false);
+    const routeSummaryRef = useRef<HTMLDivElement>(null);
+
     // Helper to format Date to datetime-local input value
     const formatDateTimeLocal = (date: Date) => {
         const year = date.getFullYear();
@@ -57,11 +64,19 @@ export const DashboardToolbar = ({
         }
     };
 
+    const handleRouteChange = (newRoute: Route) => {
+        setRoute(newRoute);
+        // Keep stationId in sync with departure
+        if (newRoute[0]?.icao) {
+            setStationId(newRoute[0].icao);
+        }
+    };
+
     return (
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-2 flex flex-col lg:flex-row items-start lg:items-center gap-4 w-full transition-colors">
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-2 sm:p-3 flex flex-wrap items-center gap-2 sm:gap-3 w-full transition-colors">
 
             {/* Group 1: Navigation & Search */}
-            <div className="flex items-center gap-3 w-full lg:w-auto flex-1">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 {/* Mode Switcher */}
                 <div className="flex bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">
                     <button
@@ -80,8 +95,8 @@ export const DashboardToolbar = ({
                     </button>
                 </div>
 
-                {/* Search Bar(s) */}
-                <div className="flex-1 max-w-md">
+                {/* Search Bar / Route Summary */}
+                <div className="relative shrink-0">
                     {searchMode === 'single' ? (
                         <div className="w-full">
                             <AirportSearch
@@ -90,27 +105,19 @@ export const DashboardToolbar = ({
                             />
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 bg-slate-50/50 dark:bg-slate-900/30 p-1 rounded-lg border border-slate-200 dark:border-slate-700 w-full">
-                            <div className="relative flex-1 min-w-[80px]">
-                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">FROM</span>
-                                <AirportSearch
-                                    currentStation={route.from}
-                                    onSelect={(icao) => {
-                                        setRoute({ ...route, from: icao });
-                                        setStationId(icao);
-                                    }}
-                                    compact
-                                />
-                            </div>
-                            <div className="text-slate-300 dark:text-slate-600"><ArrowRight className="w-4 h-4" /></div>
-                            <div className="relative flex-1 min-w-[80px]">
-                                <span className="absolute left-2 top-2.5 text-[10px] font-bold text-slate-400">TO</span>
-                                <AirportSearch
-                                    currentStation={route.to || ''}
-                                    onSelect={(icao) => setRoute({ ...route, to: icao })}
-                                    compact
-                                />
-                            </div>
+                        <div ref={routeSummaryRef} className="relative z-[1000]">
+                            <RouteSummary
+                                route={route}
+                                onClick={() => setIsRouteEditorOpen(!isRouteEditorOpen)}
+                                isOpen={isRouteEditorOpen}
+                            />
+                            <RouteEditorPopover
+                                route={route}
+                                onRouteChange={handleRouteChange}
+                                isOpen={isRouteEditorOpen}
+                                onClose={() => setIsRouteEditorOpen(false)}
+                                anchorRef={routeSummaryRef}
+                            />
                         </div>
                     )}
                 </div>
@@ -120,9 +127,9 @@ export const DashboardToolbar = ({
             <div className="hidden lg:block w-px h-8 bg-slate-200 dark:bg-slate-700"></div>
 
             {/* Group 2: Configuration (Aircraft / Profile) */}
-            <div className="flex items-center gap-3 w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 {/* Aircraft */}
-                <div className="min-w-[200px]">
+                <div className="w-auto">
                     <AircraftSelector
                         fleet={fleet}
                         activeId={activeAircraftId}
@@ -132,9 +139,9 @@ export const DashboardToolbar = ({
                 </div>
 
                 {/* Profile */}
-                <div className="relative min-w-[180px]">
+                <div className="relative w-auto">
                     <select
-                        className="w-full appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-3 pr-8 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-all"
+                        className="appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-3 pr-8 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-all"
                         value={activeProfileId}
                         onChange={(e) => setActiveProfileId(e.target.value)}
                     >
@@ -147,9 +154,9 @@ export const DashboardToolbar = ({
             </div>
 
             {/* Group 3: View Toggles & Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-2 w-full lg:w-auto lg:ml-auto lg:shrink-0">
+            <div className="flex items-center gap-2 ml-auto">
                 {/* Date Picker */}
-                <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 shadow-sm flex-1 min-w-0 lg:flex-none">
+                <div className="hidden sm:flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 shadow-sm">
                     <input
                         type="datetime-local"
                         className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent outline-none border-none p-0 cursor-pointer w-full"

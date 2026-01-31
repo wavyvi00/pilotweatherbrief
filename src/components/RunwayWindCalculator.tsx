@@ -11,9 +11,10 @@ interface RunwayWindCalculatorProps {
         gust?: number;
     };
     stationId: string;
+    compact?: boolean;
 }
 
-export const RunwayWindCalculator = ({ wind, stationId }: RunwayWindCalculatorProps) => {
+export const RunwayWindCalculator = ({ wind, stationId, compact = false }: RunwayWindCalculatorProps) => {
     const [runway, setRunway] = useState<string>('');
     const [manualMode, setManualMode] = useState(false);
     const { runways, loading, error } = useRunways(stationId);
@@ -38,6 +39,83 @@ export const RunwayWindCalculator = ({ wind, stationId }: RunwayWindCalculatorPr
     const isHeadwind = headwind >= 0;
     const isWindFromRight = angleDiff > 0 && angleDiff < 180;
 
+    // Compact mode - with mini visualizer
+    if (compact) {
+        return (
+            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800 p-3 mt-2">
+                <div className="flex items-center gap-3">
+                    {/* Mini Visualizer - shows when runway selected */}
+                    {runway && runway.length >= 1 ? (
+                        <div className="relative w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+                            <div className="absolute w-2.5 h-16 bg-slate-600 dark:bg-slate-500 rounded-sm"></div>
+                            <div className="absolute bottom-1.5 text-[10px] font-bold text-white z-10">{runway}</div>
+                            <div
+                                className="absolute w-full h-full flex justify-center items-center"
+                                style={{ transform: `rotate(${angleDiff + 180}deg)` }}
+                            >
+                                <ArrowUp className="w-5 h-5 text-sky-500" />
+                            </div>
+                        </div>
+                    ) : (
+                        <Wind className="w-5 h-5 text-sky-500 shrink-0" />
+                    )}
+
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">RWY</span>
+
+                            {loading ? (
+                                <Loader className="w-3 h-3 text-slate-400 animate-spin" />
+                            ) : runways.length > 0 && !manualMode ? (
+                                <select
+                                    value={runway}
+                                    onChange={(e) => setRunway(e.target.value)}
+                                    className="appearance-none text-xs border border-slate-200 dark:border-slate-600 rounded px-2 py-1 font-mono font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 outline-none cursor-pointer"
+                                >
+                                    <option value="">--</option>
+                                    {runways.map(rwy => (
+                                        <option key={rwy} value={rwy}>{rwy}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    type="text"
+                                    placeholder="XX"
+                                    className="w-12 text-xs text-center border border-slate-200 dark:border-slate-600 rounded px-1 py-1 font-mono font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 outline-none uppercase"
+                                    value={runway}
+                                    onChange={(e) => {
+                                        const val = e.target.value.toUpperCase();
+                                        if (val.length <= 3) setRunway(val);
+                                    }}
+                                />
+                            )}
+                        </div>
+
+                        {runway && runway.length >= 1 ? (
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[10px] text-slate-400">{isHeadwind ? 'HEAD' : 'TAIL'}</span>
+                                    <span className={`text-sm font-bold font-mono ${isHeadwind ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                        {Math.abs(headwind)}kt
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[10px] text-slate-400">XWIND</span>
+                                    <span className={`text-sm font-bold font-mono ${Math.abs(crosswind) > 12 ? 'text-amber-500' : 'text-slate-600 dark:text-slate-300'}`}>
+                                        {Math.abs(crosswind)}kt
+                                    </span>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-[10px] text-slate-400 italic">Select runway</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Full mode
     return (
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mt-4 transition-colors">
             <div className="flex items-center justify-between mb-4">

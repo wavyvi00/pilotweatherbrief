@@ -5,9 +5,10 @@ import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface SuitabilityCardProps {
     result: SuitabilityResult;
+    compact?: boolean;
 }
 
-export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result }) => {
+export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result, compact = false }) => {
     const { status } = result;
 
     const statusConfig = {
@@ -18,6 +19,7 @@ export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result }) => {
             text: 'text-emerald-700 dark:text-emerald-400',
             iconColor: 'text-emerald-600 dark:text-emerald-400',
             label: 'Good to Fly',
+            compactLabel: 'GO',
             glow: 'shadow-sm shadow-emerald-500/20'
         },
         MARGINAL: {
@@ -27,6 +29,7 @@ export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result }) => {
             text: 'text-amber-700 dark:text-amber-400',
             iconColor: 'text-amber-600 dark:text-amber-400',
             label: 'Marginal Conditions',
+            compactLabel: 'MARGINAL',
             glow: 'shadow-sm shadow-amber-500/20'
         },
         NO_GO: {
@@ -36,6 +39,7 @@ export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result }) => {
             text: 'text-rose-700 dark:text-rose-400',
             iconColor: 'text-rose-600 dark:text-rose-400',
             label: 'No Go',
+            compactLabel: 'NO GO',
             glow: 'shadow-sm shadow-rose-500/20'
         }
     };
@@ -43,6 +47,27 @@ export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result }) => {
     const config = statusConfig[status];
     const Icon = status === 'GO' ? CheckCircle : status === 'NO_GO' ? XCircle : AlertTriangle;
 
+    // Compact view - just status badge
+    if (compact) {
+        return (
+            <div className={clsx(
+                "rounded-lg p-3 border transition-all",
+                config.bg, config.border
+            )}>
+                <div className="flex items-center gap-2">
+                    <Icon className={clsx("w-5 h-5", config.iconColor)} />
+                    <span className={clsx("font-bold font-display text-sm", config.text)}>
+                        {config.compactLabel}
+                    </span>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                    {config.label}
+                </p>
+            </div>
+        );
+    }
+
+    // Full view
     return (
         <div className={clsx(
             "rounded-xl p-5 shadow-lg border transition-all animate-fade-in",
