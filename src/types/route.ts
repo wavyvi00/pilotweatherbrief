@@ -1,4 +1,9 @@
 /**
+ * Type of stop at intermediate waypoints
+ */
+export type StopType = 'fuel' | 'full-stop' | 'stop-and-go' | 'touch-and-go';
+
+/**
  * Represents a single waypoint in a route
  */
 export interface RouteWaypoint {
@@ -6,6 +11,8 @@ export interface RouteWaypoint {
     icao: string;
     /** Type of waypoint in the route */
     type: 'departure' | 'waypoint' | 'destination';
+    /** Optional stop type for intermediate waypoints */
+    stopType?: StopType;
 }
 
 /**
@@ -44,7 +51,7 @@ export const createSimpleRoute = (from: string, to: string): Route => [
 /**
  * Add a waypoint before the destination
  */
-export const addWaypoint = (route: Route, icao: string = ''): Route => {
+export const addWaypoint = (route: Route, icao: string = '', stopType: StopType = 'full-stop'): Route => {
     if (route.length < 2) {
         // No destination yet, just add as destination
         return [...route, { icao, type: 'destination' }];
@@ -55,7 +62,7 @@ export const addWaypoint = (route: Route, icao: string = ''): Route => {
     const destination = newRoute.pop()!;
 
     // Change destination to waypoint if adding after it
-    newRoute.push({ icao, type: 'waypoint' });
+    newRoute.push({ icao, type: 'waypoint', stopType });
     newRoute.push(destination);
 
     return newRoute;

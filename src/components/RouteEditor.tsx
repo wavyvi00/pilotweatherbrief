@@ -1,7 +1,30 @@
-import { Plus, X, Plane, MapPin, Flag } from 'lucide-react';
+import { Plus, X, Plane, MapPin, Flag, Fuel, CircleStop, PlaneLanding } from 'lucide-react';
 import { AirportSearch } from './AirportSearch';
-import type { Route } from '../types/route';
+import type { Route, StopType } from '../types/route';
 import { addWaypoint, removeWaypoint, updateWaypoint } from '../types/route';
+
+// Stop type labels
+const STOP_TYPE_LABELS: Record<StopType, string> = {
+    'full-stop': 'Full Stop',
+    'fuel': 'Fuel Stop',
+    'stop-and-go': 'Stop & Go',
+    'touch-and-go': 'Touch & Go',
+};
+
+const getStopIcon = (stopType?: StopType, small = false) => {
+    const size = small ? 'w-3 h-3' : 'w-5 h-5';
+    switch (stopType) {
+        case 'fuel':
+            return <Fuel className={`${size} text-amber-500`} />;
+        case 'stop-and-go':
+            return <CircleStop className={`${size} text-amber-500`} />;
+        case 'touch-and-go':
+            return <PlaneLanding className={`${size} text-amber-500`} />;
+        case 'full-stop':
+        default:
+            return <MapPin className={`${size} text-amber-500`} />;
+    }
+};
 
 interface RouteEditorProps {
     route: Route;
@@ -41,7 +64,7 @@ export const RouteEditor = ({ route, onRouteChange, compact = false }: RouteEdit
                                         'bg-amber-100 dark:bg-amber-900/30'
                                 }`}>
                                 {waypoint.type === 'departure' && <Plane className="w-3 h-3 text-sky-500" />}
-                                {waypoint.type === 'waypoint' && <MapPin className="w-3 h-3 text-amber-500" />}
+                                {waypoint.type === 'waypoint' && getStopIcon(waypoint.stopType, true)}
                                 {waypoint.type === 'destination' && <Flag className="w-3 h-3 text-emerald-500" />}
                             </div>
 
@@ -119,7 +142,7 @@ export const RouteEditor = ({ route, onRouteChange, compact = false }: RouteEdit
                                 'bg-amber-100 dark:bg-amber-900/30'
                         }`}>
                         {waypoint.type === 'departure' && <Plane className="w-5 h-5 text-sky-500" />}
-                        {waypoint.type === 'waypoint' && <MapPin className="w-5 h-5 text-amber-500" />}
+                        {waypoint.type === 'waypoint' && getStopIcon(waypoint.stopType)}
                         {waypoint.type === 'destination' && <Flag className="w-5 h-5 text-emerald-500" />}
                     </div>
 
@@ -128,7 +151,7 @@ export const RouteEditor = ({ route, onRouteChange, compact = false }: RouteEdit
                         <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-0.5 block">
                             {waypoint.type === 'departure' ? 'Departure' :
                                 waypoint.type === 'destination' ? 'Destination' :
-                                    `Stop ${index}`}
+                                    STOP_TYPE_LABELS[waypoint.stopType || 'full-stop'] || `Stop ${index}`}
                         </label>
                         <AirportSearch
                             currentStation={waypoint.icao}
@@ -161,3 +184,4 @@ export const RouteEditor = ({ route, onRouteChange, compact = false }: RouteEdit
         </div>
     );
 };
+

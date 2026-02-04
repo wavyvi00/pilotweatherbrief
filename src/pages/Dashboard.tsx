@@ -42,7 +42,7 @@ export const Dashboard = () => {
     }), [route, stationId]);
 
     const { profiles, activeProfile, setActiveProfileId } = useProfiles();
-    const { fleet, activeAircraft, activeAircraftId, setActiveAircraftId, addAircraft, deleteAircraft } = useAircraft();
+    const { fleet, activeAircraft, activeAircraftId, setActiveAircraftId, addAircraft, updateAircraft, deleteAircraft } = useAircraft();
     const [isAircraftManagerOpen, setIsAircraftManagerOpen] = useState(false);
 
     // Apply default aircraft/profile from settings on mount
@@ -143,22 +143,23 @@ export const Dashboard = () => {
     const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile) : null;
 
     return (
-        <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 py-8 min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in relative transition-colors">
+        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-4 md:px-8 py-4 sm:py-8 min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in relative transition-colors">
 
             {/* Unified Header & Toolbar */}
-            <header className="mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+            <header className="mb-3 sm:mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-6">
 
-                {/* Left: Branding & Station */}
-                <div className="flex flex-col gap-1">
-                    <p className="text-slate-500 dark:text-slate-400 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
-                    <div className="flex items-baseline gap-4">
-                        <h1 className="text-4xl font-display font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
+                {/* Left: Branding & Station - Compact on mobile */}
+                <div className="flex flex-col gap-0.5 sm:gap-1">
+                    {/* Hide subtitle on mobile */}
+                    <p className="hidden sm:block text-slate-500 dark:text-slate-400 font-medium text-sm tracking-wide uppercase">Flight Weather Dashboard</p>
+                    <div className="flex items-baseline gap-2 sm:gap-4">
+                        <h1 className="text-2xl sm:text-4xl font-display font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2 sm:gap-3">
                             {searchMode === 'single' ? (
                                 stationId
                             ) : (
                                 <>
                                     <span>{routeCompat.from}</span>
-                                    <span className="text-slate-300 dark:text-slate-600 text-3xl"><Plane className="w-8 h-8 animate-pulse" /></span>
+                                    <span className="text-slate-300 dark:text-slate-600 text-xl sm:text-3xl"><Plane className="w-5 h-5 sm:w-8 sm:h-8 animate-pulse" /></span>
                                     <span className={routeCompat.to ? "text-slate-900 dark:text-slate-100" : "text-slate-300 dark:text-slate-600"}>
                                         {routeCompat.to || '???'}
                                     </span>
@@ -166,12 +167,12 @@ export const Dashboard = () => {
                             )}
                         </h1>
                         {isLive ? (
-                            <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+                            <div className="px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-200 dark:border-emerald-800">
                                 LIVE
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2">
-                                <div className="px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-xs font-bold border border-sky-200 dark:border-sky-800">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                                <div className="px-2 sm:px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 text-[10px] sm:text-xs font-bold border border-sky-200 dark:border-sky-800">
                                     {format(selectedTime!, 'MMM d, h:mm a')}
                                 </div>
                                 <button
@@ -184,14 +185,14 @@ export const Dashboard = () => {
                             </div>
                         )}
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                    {/* Hide "Planning for" on mobile - already shown in toolbar */}
+                    <p className="hidden sm:block text-slate-500 dark:text-slate-400 font-medium mt-1">
                         Planning for <span className="text-slate-700 dark:text-slate-300 font-bold">{activeProfile.name}</span>
                     </p>
                 </div>
 
-                {/* Right: Controls (Search + Profile + View) */}
-                {/* Toolbar Replaced Content */}
-                <div className="mb-6">
+                {/* Right: Toolbar */}
+                <div>
                     <DashboardToolbar
                         searchMode={searchMode}
                         setSearchMode={setSearchMode}
@@ -214,9 +215,8 @@ export const Dashboard = () => {
                     />
                 </div>
 
+            </header>
 
-
-            </header >
 
             {/* Route Briefing Panel */}
             {
@@ -415,6 +415,7 @@ export const Dashboard = () => {
                 onClose={() => setIsAircraftManagerOpen(false)}
                 fleet={fleet}
                 onAdd={addAircraft}
+                onUpdate={updateAircraft}
                 onDelete={deleteAircraft}
             />
         </div >

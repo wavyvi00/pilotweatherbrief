@@ -1,8 +1,8 @@
 import { useRef, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plane, MapPin, Flag, Plus, Navigation } from 'lucide-react';
+import { X, Plane, MapPin, Flag, Plus, Navigation, Fuel, CircleStop, PlayCircle, PlaneLanding } from 'lucide-react';
 import { AirportSearch } from './AirportSearch';
-import type { Route } from '../types/route';
+import type { Route, StopType } from '../types/route';
 import { addWaypoint, removeWaypoint, updateWaypoint, hasValidDestination, getRouteIcaos } from '../types/route';
 import { AIRPORTS } from '../data/airports';
 import { calculateDistance } from '../services/geo';
@@ -14,6 +14,28 @@ interface RouteEditorPopoverProps {
     onClose: () => void;
     anchorRef: React.RefObject<HTMLElement | null>;
 }
+
+// Stop type labels and icons
+const STOP_TYPES: { value: StopType; label: string; shortLabel: string }[] = [
+    { value: 'full-stop', label: 'Full Stop', shortLabel: 'Stop' },
+    { value: 'fuel', label: 'Fuel Stop', shortLabel: 'Fuel' },
+    { value: 'stop-and-go', label: 'Stop & Go', shortLabel: 'S&G' },
+    { value: 'touch-and-go', label: 'Touch & Go', shortLabel: 'T&G' },
+];
+
+const getStopIcon = (stopType?: StopType) => {
+    switch (stopType) {
+        case 'fuel':
+            return <Fuel className="w-5 h-5 text-amber-500" />;
+        case 'stop-and-go':
+            return <CircleStop className="w-5 h-5 text-amber-500" />;
+        case 'touch-and-go':
+            return <PlaneLanding className="w-5 h-5 text-amber-500" />;
+        case 'full-stop':
+        default:
+            return <MapPin className="w-5 h-5 text-amber-500" />;
+    }
+};
 
 export const RouteEditorPopover = ({
     route,
@@ -86,6 +108,13 @@ export const RouteEditorPopover = ({
         onRouteChange(updateWaypoint(route, index, icao));
     };
 
+    const handleUpdateStopType = (index: number, stopType: StopType) => {
+        const newRoute = route.map((wp, i) =>
+            i === index ? { ...wp, stopType } : wp
+        );
+        onRouteChange(newRoute);
+    };
+
     const handleAddWaypoint = () => {
         onRouteChange(addWaypoint(route, ''));
     };
@@ -144,7 +173,7 @@ export const RouteEditorPopover = ({
                                     'bg-amber-100 dark:bg-amber-900/30'
                                 }`}>
                                 {waypoint.type === 'departure' && <Plane className="w-5 h-5 text-sky-500" />}
-                                {waypoint.type === 'waypoint' && <MapPin className="w-5 h-5 text-amber-500" />}
+                                {waypoint.type === 'waypoint' && getStopIcon(waypoint.stopType)}
                                 {waypoint.type === 'destination' && <Flag className="w-5 h-5 text-emerald-500" />}
                             </div>
 
@@ -153,12 +182,26 @@ export const RouteEditorPopover = ({
                                 <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1 block">
                                     {waypoint.type === 'departure' ? 'Departure' :
                                         waypoint.type === 'destination' ? 'Destination' :
-                                            `Stop ${index}`}
+                                            STOP_TYPES.find(s => s.value === waypoint.stopType)?.label || 'Stop'}
                                 </label>
                                 <AirportSearch
                                     currentStation={waypoint.icao}
                                     onSelect={(icao) => handleUpdateWaypoint(index, icao)}
                                 />
+                                {/* Stop type selector for waypoints */}
+                                {waypoint.type === 'waypoint' && (
+                                    <select
+                                        value={waypoint.stopType || 'full-stop'}
+                                        onChange={(e) => handleUpdateStopType(index, e.target.value as StopType)}
+                                        className="mt-1.5 w-full px-2 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    >
+                                        {STOP_TYPES.map(type => (
+                                            <option key={type.value} value={type.value}>
+                                                {type.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
 
                             {/* Remove button (only for waypoints) */}
@@ -201,7 +244,7 @@ export const RouteEditorPopover = ({
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-amber-300 hover:text-amber-500 hover:bg-amber-50 dark:hover:border-amber-700 dark:hover:text-amber-400 dark:hover:bg-amber-900/10 transition-colors"
                     >
                         <Plus className="w-4 h-4" />
-                        <span className="text-sm font-medium">Add Fuel Stop</span>
+                        <span className="text-sm font-medium">Add Stop</span>
                     </button>
                 )}
             </div>
@@ -225,3 +268,4 @@ export const RouteEditorPopover = ({
         document.body
     );
 };
+
