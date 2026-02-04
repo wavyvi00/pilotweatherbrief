@@ -12,7 +12,10 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minCeiling: 2000,
             minVisibility: 5,
             allowIfr: false,
-            maxPrecipProb: 30
+            maxPrecipProb: 30,
+            minTempSpread: 3, // Standard margin
+            maxDensityAltitude: 3000,
+            minRunwayLength: 3000
         },
         aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 400 }
     },
@@ -27,7 +30,10 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minCeiling: 3000,
             minVisibility: 8,
             allowIfr: false,
-            maxPrecipProb: 20
+            maxPrecipProb: 20,
+            minTempSpread: 3,
+            maxDensityAltitude: 4000,
+            minRunwayLength: 2500
         },
         aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500 }
     },
@@ -42,7 +48,10 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minCeiling: 1000, // MVFR is okay for patterns
             minVisibility: 3,
             allowIfr: false, // VFR training assumed usually
-            maxPrecipProb: 60
+            maxPrecipProb: 60,
+            minTempSpread: 2,
+            maxDensityAltitude: 5000,
+            minRunwayLength: 2000
         },
         aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600 }
     }

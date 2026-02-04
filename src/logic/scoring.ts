@@ -9,7 +9,15 @@ export interface SuitabilityResult {
 }
 
 export const ScoringEngine = {
-    calculateSuitability(weather: WeatherWindow, profile: TrainingProfile, runwayHeading?: number): SuitabilityResult {
+    calculateSuitability(
+        weather: WeatherWindow,
+        profile: TrainingProfile,
+        context?: {
+            runwayHeading?: number;
+            stationElevation?: number; // feet MSL
+            maxRunwayLength?: number; // feet
+        }
+    ): SuitabilityResult {
         const limits = profile.limits;
         const reasons: string[] = [];
         let score = 100;
@@ -41,8 +49,8 @@ export const ScoringEngine = {
         // Calculate Crosswind if runway provided, else use total wind
         let effectiveCrosswind = 0; // Unknown if no runway
 
-        if (runwayHeading !== undefined) {
-            const angle = Math.abs(weather.wind.direction - runwayHeading);
+        if (context?.runwayHeading !== undefined) {
+            const angle = Math.abs(weather.wind.direction - context.runwayHeading);
             const rad = (angle * Math.PI) / 180;
             effectiveCrosswind = Math.abs(Math.sin(rad) * weather.wind.speed);
 
@@ -73,6 +81,50 @@ export const ScoringEngine = {
                 if (score > 49) score = 49;
             } else {
                 score -= weather.precipitationProbability / 2; // Minor penalty
+            }
+        }
+
+        // 6. Temp/Dewpoint Spread (Fog Risk)
+        if (weather.temperature !== undefined && weather.dewpoint !== undefined && limits.minTempSpread !== undefined) {
+            const spread = weather.temperature - weather.dewpoint;
+            if (spread < limits.minTempSpread) {
+                reasons.push(`Temp/Dewpoint Spread ${spread.toFixed(1)}°C < Minimum ${limits.minTempSpread}°C (Fog Risk)`);
+                // If visibility is already low, this duplicates, but it warns of *potential* getting worse
+                // Warn but don't hard fail unless visibility is also low?
+                // Let's degrade score significantly
+                score -= 30;
+                if (score < 60) score = 55; // Ensure at least marginal
+            }
+        }
+
+        // 7. Density Altitude
+        if (context?.stationElevation !== undefined && weather.temperature !== undefined && weather.altimeter !== undefined && limits.maxDensityAltitude !== undefined) {
+            // Calculate DA
+            // Pressure Altitude = (29.92 - Altimeter) * 1000 + Elevation
+            const pressureAltitude = (29.92 - weather.altimeter) * 1000 + context.stationElevation;
+            // ISA Temp at Pressure Altitude = 15 - (2 * PA/1000)
+            const isaTemp = 15 - (2 * (pressureAltitude / 1000));
+            // DA = PA + [120 * (OAT - ISA)]
+            const da = pressureAltitude + (120 * (weather.temperature - isaTemp));
+
+            // Attach derived DA to weather window for display? (Ideally, but WeatherWindow is raw)
+            // We just score it here.
+
+            if (da > limits.maxDensityAltitude) {
+                reasons.push(`Density Altitude ${Math.round(da)}ft > Limit ${limits.maxDensityAltitude}ft`);
+                score = 0;
+            } else if (da > limits.maxDensityAltitude - 1000) {
+                // Warning zone
+                score -= 15;
+                reasons.push(`High Density Altitude (${Math.round(da)}ft)`);
+            }
+        }
+
+        // 8. Runway Length
+        if (context?.maxRunwayLength !== undefined && limits.minRunwayLength !== undefined) {
+            if (context.maxRunwayLength < limits.minRunwayLength) {
+                reasons.push(`Max Runway Length ${context.maxRunwayLength}ft < Minimum ${limits.minRunwayLength}ft`);
+                score = 0;
             }
         }
 

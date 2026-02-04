@@ -14,7 +14,7 @@ export const OpenMeteoService = {
                 params: {
                     latitude: lat,
                     longitude: lon,
-                    hourly: 'temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover_low,precipitation_probability',
+                    hourly: 'temperature_2m,dewpoint_2m,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover_low,precipitation_probability',
                     wind_speed_unit: 'kn', // Aviation uses knots
                     forecast_days: 14
                 }
@@ -60,7 +60,10 @@ export const OpenMeteoService = {
                     visibility: visMiles,
                     flightCategory,
                     precipitationProbability: hourly.precipitation_probability[i],
-                    source: 'OPEN_METEO'
+                    source: 'OPEN_METEO',
+                    temperature: hourly.temperature_2m[i],
+                    dewpoint: hourly.dewpoint_2m[i],
+                    altimeter: hourly.pressure_msl[i] * 0.02953 // hPa to inHg
                 });
             }
 

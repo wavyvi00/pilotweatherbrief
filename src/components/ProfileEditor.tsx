@@ -1,6 +1,6 @@
 import React from 'react';
 import { type TrainingProfile, type TrainingLimits } from '../types/profile';
-import { Wind, Eye, CloudRain, Cloud, AlertTriangle } from 'lucide-react';
+import { Wind, Eye, CloudRain, Cloud, AlertTriangle, Plane } from 'lucide-react';
 
 
 interface ProfileEditorProps {
@@ -141,12 +141,49 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                             onChange={(v) => handleLimitChange('minVisibility', v)}
                         />
                         <LimitInput
+                            label="Min Temp Spread"
+                            value={profile.limits.minTempSpread}
+                            unit="°C"
+                            step={1}
+                            icon={Wind} // Reusing Wind icon or maybe something better like Thermometer if available? Let's use Wind for now or CloudRain
+                            onChange={(v) => handleLimitChange('minTempSpread', v)}
+                        />
+                        <LimitInput
                             label="Max Precip Chance"
                             value={profile.limits.maxPrecipProb}
                             unit="%"
                             max={100}
                             icon={CloudRain}
                             onChange={(v) => handleLimitChange('maxPrecipProb', v)}
+                        />
+                    </div>
+                </div>
+
+                {/* Performance Section */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="p-1.5 bg-amber-50 rounded-md text-amber-600">
+                            <AlertTriangle className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-bold text-slate-800">Performance Limits</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <LimitInput
+                            label="Max Density Altitude"
+                            value={profile.limits.maxDensityAltitude}
+                            unit="ft"
+                            step={100}
+                            icon={Cloud}
+                            onChange={(v) => handleLimitChange('maxDensityAltitude', v)}
+                        />
+                        <LimitInput
+                            label="Min Runway Length"
+                            value={profile.limits.minRunwayLength}
+                            unit="ft"
+                            step={100}
+                            icon={Plane} // Need to import Plane
+                            onChange={(v) => handleLimitChange('minRunwayLength', v)}
                         />
                     </div>
                 </div>

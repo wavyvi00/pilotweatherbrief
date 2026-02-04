@@ -6,6 +6,9 @@ export interface TrainingLimits {
     minVisibility: number; // statute miles
     allowIfr: boolean; // if true, allows IFR/LIFR (with penalties maybe?)
     maxPrecipProb: number; // %
+    minTempSpread: number; // Celsius (Temp - Dewpoint)
+    maxDensityAltitude: number; // feet
+    minRunwayLength: number; // feet
 }
 
 export interface TrainingProfile {

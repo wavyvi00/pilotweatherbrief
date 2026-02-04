@@ -4,6 +4,7 @@ import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
+import { useAirportData } from '../hooks/useAirportData';
 import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
@@ -26,9 +27,16 @@ import type { WeatherWindow } from '../types/weather';
 type ViewMode = 'timeline' | 'calendar' | 'map';
 
 export const Dashboard = () => {
-    const { settings } = useSettings();
+    const { settings, updateSetting } = useSettings();
 
     const [stationId, setStationId] = useState(settings.defaultAirport || 'KMCI');
+
+    // Wrapper to persist station changes
+    const handleStationChange = (id: string) => {
+        setStationId(id);
+        updateSetting('defaultAirport', id);
+    };
+
     const [searchMode, setSearchMode] = useState<'single' | 'route'>('single');
     // New Route array format
     const [route, setRoute] = useState<Route>(() =>
@@ -67,6 +75,9 @@ export const Dashboard = () => {
     const depCoords = departureAirport
         ? { lat: departureAirport.lat, lon: departureAirport.lon }
         : { lat: 39.2976, lon: -94.7139 }; // Fallback to KMCI
+
+    // Fetch Airport Data (Elevation, Runways) for Scoring
+    const { elevation: stationElevation, maxRunwayLength } = useAirportData(stationId, depCoords.lat, depCoords.lon);
 
     // Get all unique ICAO codes from route (excluding departure which is fetched separately)
     const routeWaypointIcaos = useMemo(() => {
@@ -140,7 +151,12 @@ export const Dashboard = () => {
     };
 
     const currentWindow = selectedWindow || getWindowForTime(selectedTime);
-    const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile) : null;
+
+    // Calculate suitability with extended context
+    const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile, {
+        stationElevation,
+        maxRunwayLength
+    }) : null;
 
     return (
         <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-4 md:px-8 py-4 sm:py-8 min-h-screen text-slate-800 dark:text-slate-200 animate-fade-in relative transition-colors">
@@ -197,7 +213,7 @@ export const Dashboard = () => {
                         searchMode={searchMode}
                         setSearchMode={setSearchMode}
                         stationId={stationId}
-                        setStationId={setStationId}
+                        setStationId={handleStationChange}
                         route={route}
                         setRoute={setRoute}
                         fleet={fleet}

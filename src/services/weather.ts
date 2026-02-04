@@ -189,7 +189,10 @@ export const AviationWeatherService = {
             flightCategory: metar.flight_category || 'VFR', // Fallback, normally provided
             precipitationProbability: 0, // METAR doesn't usually give prob, but we could parse distinct codes
             source: 'METAR',
-            rawText: metar.raw_text
+            rawText: metar.raw_text,
+            temperature: metar.temp_c,
+            dewpoint: metar.dewpoint_c,
+            altimeter: metar.altim_in_hg
         };
     },
 

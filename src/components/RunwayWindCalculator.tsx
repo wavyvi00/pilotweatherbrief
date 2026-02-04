@@ -74,7 +74,7 @@ export const RunwayWindCalculator = ({ wind, stationId, compact = false }: Runwa
                                 >
                                     <option value="">--</option>
                                     {runways.map(rwy => (
-                                        <option key={rwy} value={rwy}>{rwy}</option>
+                                        <option key={rwy.ident} value={rwy.ident}>{rwy.ident}</option>
                                     ))}
                                 </select>
                             ) : (
@@ -152,7 +152,7 @@ export const RunwayWindCalculator = ({ wind, stationId, compact = false }: Runwa
                             >
                                 <option value="">--</option>
                                 {runways.map(rwy => (
-                                    <option key={rwy} value={rwy}>{rwy}</option>
+                                    <option key={rwy.ident} value={rwy.ident}>{rwy.ident}</option>
                                 ))}
                             </select>
                             <ChevronDown className="absolute right-1.5 top-2 w-3 h-3 text-slate-400 pointer-events-none" />

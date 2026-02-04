@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 
 interface RunwaysState {
-    runways: string[];
+    runways: Runway[];
     loading: boolean;
     error: string | null;
 }
 
+export interface Runway {
+    ident: string;
+    length: number; // feet
+    width: number; // feet
+    surface: string;
+}
+
 // Global cache for parsed runway data
-let runwayDataCache: Record<string, string[]> | null = null;
-let cachePromise: Promise<Record<string, string[]>> | null = null;
+let runwayDataCache: Record<string, Runway[]> | null = null;
+let cachePromise: Promise<Record<string, Runway[]>> | null = null;
 
 // Parse CSV and build runway map
-async function loadRunwayData(): Promise<Record<string, string[]>> {
+async function loadRunwayData(): Promise<Record<string, Runway[]>> {
     // Return cached data if available
     if (runwayDataCache) {
         return runwayDataCache;
@@ -40,20 +47,28 @@ async function loadRunwayData(): Promise<Record<string, string[]>> {
         const airportIdentIdx = headers.indexOf('airport_ident');
         const leIdentIdx = headers.indexOf('le_ident');
         const heIdentIdx = headers.indexOf('he_ident');
+        const lengthIdx = headers.indexOf('length_ft');
+        const widthIdx = headers.indexOf('width_ft');
+        const surfaceIdx = headers.indexOf('surface');
         const closedIdx = headers.indexOf('closed');
 
-        const runwayMap: Record<string, Set<string>> = {};
+        const runwayMap: Record<string, Runway[]> = {};
 
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
 
             // Simple CSV parse (OurAirports data is clean)
+            // Note: This simple split fails on quoted strings with commas, but OurAirports usually ok.
+            // Ideally use a CSV parser libraries but keeping it lightweight.
             const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
 
             const airportIdent = cols[airportIdentIdx];
             const leIdent = cols[leIdentIdx];
             const heIdent = cols[heIdentIdx];
+            const length = parseInt(cols[lengthIdx]) || 0;
+            const width = parseInt(cols[widthIdx]) || 0;
+            const surface = cols[surfaceIdx] || '';
             const closed = cols[closedIdx];
 
             // Skip closed runways
@@ -61,19 +76,30 @@ async function loadRunwayData(): Promise<Record<string, string[]>> {
 
             if (airportIdent && leIdent) {
                 if (!runwayMap[airportIdent]) {
-                    runwayMap[airportIdent] = new Set();
+                    runwayMap[airportIdent] = [];
                 }
-                if (leIdent) runwayMap[airportIdent].add(leIdent);
-                if (heIdent) runwayMap[airportIdent].add(heIdent);
+
+                // Add reciprocal ends (e.g. 09 and 27)
+                // We store them as separate entries for easier lookup/display in UI
+                // Or maybe store as one runway object?
+                // The RunwayWindCalculator expects identifiers.
+                // Let's store objects for each end to simplify usage
+
+                if (leIdent) {
+                    runwayMap[airportIdent].push({ ident: leIdent, length, width, surface });
+                }
+                if (heIdent) {
+                    runwayMap[airportIdent].push({ ident: heIdent, length, width, surface });
+                }
             }
         }
 
-        // Convert Sets to sorted Arrays
-        const result: Record<string, string[]> = {};
+        // Sort runways
+        const result: Record<string, Runway[]> = {};
         for (const key in runwayMap) {
-            result[key] = Array.from(runwayMap[key]).sort((a, b) => {
-                const numA = parseInt(a.replace(/[LRC]/g, ''));
-                const numB = parseInt(b.replace(/[LRC]/g, ''));
+            result[key] = runwayMap[key].sort((a, b) => {
+                const numA = parseInt(a.ident.replace(/[LRC]/g, ''));
+                const numB = parseInt(b.ident.replace(/[LRC]/g, ''));
                 return numA - numB;
             });
         }

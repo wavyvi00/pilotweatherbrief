@@ -58,6 +58,10 @@ export interface WeatherWindow {
         speed: number;
         gust: number;
     };
+    temperature?: number; // Celsius
+    dewpoint?: number; // Celsius
+    altimeter?: number; // inHg
+    densityAltitude?: number; // ft
     ceiling: number; // feet AGL, 99999 if clear
     visibility: number; // statute miles
     flightCategory: 'VFR' | 'MVFR' | 'IFR' | 'LIFR';
