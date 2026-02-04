@@ -1,6 +1,6 @@
 import { useRef, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plane, MapPin, Flag, Plus, Navigation, Fuel, CircleStop, PlayCircle, PlaneLanding } from 'lucide-react';
+import { X, Plane, MapPin, Flag, Plus, Navigation, Fuel, CircleStop, PlaneLanding } from 'lucide-react';
 import { AirportSearch } from './AirportSearch';
 import type { Route, StopType } from '../types/route';
 import { addWaypoint, removeWaypoint, updateWaypoint, hasValidDestination, getRouteIcaos } from '../types/route';
