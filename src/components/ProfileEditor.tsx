@@ -1,6 +1,6 @@
 import React from 'react';
 import { type TrainingProfile, type TrainingLimits } from '../types/profile';
-import { Wind, Eye, CloudRain, Cloud, AlertTriangle, Plane } from 'lucide-react';
+import { Wind, Eye, CloudRain, Cloud, AlertTriangle, Plane, Thermometer, Moon, Fuel, Gauge } from 'lucide-react';
 
 
 interface ProfileEditorProps {
@@ -174,7 +174,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                             value={profile.limits.maxDensityAltitude}
                             unit="ft"
                             step={100}
-                            icon={Cloud}
+                            icon={Gauge}
                             onChange={(v) => handleLimitChange('maxDensityAltitude', v)}
                         />
                         <LimitInput
@@ -182,9 +182,60 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                             value={profile.limits.minRunwayLength}
                             unit="ft"
                             step={100}
-                            icon={Plane} // Need to import Plane
+                            icon={Plane}
                             onChange={(v) => handleLimitChange('minRunwayLength', v)}
                         />
+                    </div>
+                </div>
+
+                {/* New: Environment & Fuel Section */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="p-1.5 bg-emerald-50 rounded-md text-emerald-600">
+                            <Thermometer className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-bold text-slate-800">Environment & Fuel</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <LimitInput
+                            label="Min Freezing Level"
+                            value={profile.limits.minFreezingLevel}
+                            unit="ft MSL"
+                            step={500}
+                            icon={Thermometer}
+                            onChange={(v) => handleLimitChange('minFreezingLevel', v)}
+                        />
+                        <LimitInput
+                            label="Min Fuel Reserve"
+                            value={profile.limits.minFuelReserve}
+                            unit="min"
+                            step={5}
+                            icon={Fuel}
+                            onChange={(v) => handleLimitChange('minFuelReserve', v)}
+                        />
+
+                        {/* Boolean Toggles wrapped in custom UI if needed, or simple checkbox */}
+                        <div className="flex items-center justify-between py-2">
+                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <Moon className="w-3.5 h-3.5" />
+                                Allow Night Flight
+                            </label>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={profile.limits.allowNight}
+                                    onChange={(e) => {
+                                        onUpdate({
+                                            ...profile,
+                                            limits: { ...profile.limits, allowNight: e.target.checked }
+                                        });
+                                    }}
+                                />
+                                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-600"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -14,7 +14,7 @@ export const OpenMeteoService = {
                 params: {
                     latitude: lat,
                     longitude: lon,
-                    hourly: 'temperature_2m,dewpoint_2m,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover_low,precipitation_probability',
+                    hourly: 'temperature_2m,dewpoint_2m,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover_low,precipitation_probability,freezing_level_height,is_day',
                     wind_speed_unit: 'kn', // Aviation uses knots
                     forecast_days: 14
                 }
@@ -63,7 +63,9 @@ export const OpenMeteoService = {
                     source: 'OPEN_METEO',
                     temperature: hourly.temperature_2m[i],
                     dewpoint: hourly.dewpoint_2m[i],
-                    altimeter: hourly.pressure_msl[i] * 0.02953 // hPa to inHg
+                    altimeter: hourly.pressure_msl[i] * 0.02953, // hPa to inHg
+                    freezingLevel: hourly.freezing_level_height[i],
+                    isDay: hourly.is_day[i] === 1 // 0=night, 1=day
                 });
             }
 

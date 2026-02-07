@@ -9,6 +9,9 @@ export interface TrainingLimits {
     minTempSpread: number; // Celsius (Temp - Dewpoint)
     maxDensityAltitude: number; // feet
     minRunwayLength: number; // feet
+    minFreezingLevel: number; // feet MSL
+    allowNight: boolean;
+    minFuelReserve: number; // minutes
 }
 
 export interface TrainingProfile {

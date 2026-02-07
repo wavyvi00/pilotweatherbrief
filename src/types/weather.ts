@@ -62,6 +62,8 @@ export interface WeatherWindow {
     dewpoint?: number; // Celsius
     altimeter?: number; // inHg
     densityAltitude?: number; // ft
+    freezingLevel?: number; // feet MSL
+    isDay?: boolean;
     ceiling: number; // feet AGL, 99999 if clear
     visibility: number; // statute miles
     flightCategory: 'VFR' | 'MVFR' | 'IFR' | 'LIFR';

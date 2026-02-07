@@ -128,6 +128,29 @@ export const ScoringEngine = {
             }
         }
 
+        // 9. Freezing Level
+        if (weather.freezingLevel !== undefined && limits.minFreezingLevel !== undefined) {
+            if (weather.freezingLevel < limits.minFreezingLevel) {
+                reasons.push(`Freezing Level ${Math.round(weather.freezingLevel)}ft < Minimum ${limits.minFreezingLevel}ft`);
+                // Icing risk is serious. If below mins, huge penalty or NO_GO.
+                // Assuming this minimum means "Don't fly if freezing level is lower than X" (implying we want to stay below it? or above it?)
+                // Usually VFR pilots want freezing level HIGH so they don't encounter ice in clouds slightly above.
+                // So "minFreezingLevel" means "Freezing level must be at least X feet" (e.g. 5000ft).
+                // If actual is 2000ft, that's bad.
+                score = 0;
+            } else if (weather.freezingLevel < limits.minFreezingLevel + 2000) {
+                // Warning buffer
+                reasons.push(`Freezing Level (${Math.round(weather.freezingLevel)}ft) Low`);
+                score -= 20;
+            }
+        }
+
+        // 10. Night Flight
+        if (weather.isDay === false && !limits.allowNight) {
+            reasons.push('Night Flight Not Allowed');
+            score = 0;
+        }
+
         // Determine Status
         let status: 'GO' | 'MARGINAL' | 'NO_GO' = 'GO';
         if (score < 50) status = 'NO_GO';
