@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRunways } from './useRunways';
 import axios from 'axios';
 
-interface AirportData {
-    elevation: number | undefined; // feet MSL
-    maxRunwayLength: number | undefined; // feet
-    loading: boolean;
-}
+
 
 export const useAirportData = (stationId: string, lat?: number, lon?: number) => {
     const { runways, loading: runwaysLoading } = useRunways(stationId);
