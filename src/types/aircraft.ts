@@ -15,4 +15,3 @@ export interface Aircraft {
     color?: string; // For UI identification
     requiredEndorsements?: string[]; // e.g. ['complex', 'high-performance']
 }
-}

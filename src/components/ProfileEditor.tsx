@@ -238,7 +238,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                         </div>
                     </div>
                 </div>
-                </div>
+
 
                 {/* Endorsements Section */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6 md:col-span-2">
@@ -257,7 +257,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                             <div className="space-y-2">
                                 {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
                                     <label key={endo} className="flex items-center gap-2 cursor-pointer group">
-                                         <input
+                                        <input
                                             type="checkbox"
                                             className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
                                             checked={profile.endorsements?.includes(endo)}
@@ -280,11 +280,11 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                         {/* Aircraft Requires */}
                         <div className="space-y-3">
                             <h4 className="text-sm font-semibold text-slate-700">Aircraft Requirements</h4>
-                             <p className="text-xs text-slate-500">Select endorsements required for this aircraft.</p>
+                            <p className="text-xs text-slate-500">Select endorsements required for this aircraft.</p>
                             <div className="space-y-2">
                                 {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
                                     <label key={`req-${endo}`} className="flex items-center gap-2 cursor-pointer group">
-                                         <input
+                                        <input
                                             type="checkbox"
                                             className="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
                                             checked={profile.aircraft?.requiredEndorsements?.includes(endo)}
@@ -293,7 +293,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                                                 const newReqs = e.target.checked
                                                     ? [...current, endo]
                                                     : current.filter(x => x !== endo);
-                                                
+
                                                 onUpdate({
                                                     ...profile,
                                                     aircraft: {
