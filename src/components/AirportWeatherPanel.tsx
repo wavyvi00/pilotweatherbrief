@@ -3,6 +3,7 @@ import { RunwayWindCalculator } from './RunwayWindCalculator';
 import { ScoringEngine } from '../logic/scoring';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 import { Plane, MapPin } from 'lucide-react';
 
 interface AirportWeatherPanelProps {
@@ -12,6 +13,7 @@ interface AirportWeatherPanelProps {
     label?: 'Departure' | 'Destination';
     selectedTime?: Date | null;
     compact?: boolean; // When true, skip header (header rendered externally)
+    aircraft?: Aircraft;
 }
 
 export const AirportWeatherPanel = ({
@@ -20,7 +22,8 @@ export const AirportWeatherPanel = ({
     profile,
     label,
     selectedTime,
-    compact = false
+    compact = false,
+    aircraft
 }: AirportWeatherPanelProps) => {
     // Find the current weather window based on selected time
     const getCurrentWindow = () => {
@@ -47,7 +50,7 @@ export const AirportWeatherPanel = ({
     };
 
     const currentWindow = getCurrentWindow();
-    const result = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, profile) : null;
+    const result = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, profile, { aircraft }) : null;
 
     const isDeparture = label === 'Departure';
 

@@ -3,6 +3,7 @@ import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
+import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
 import { useAirportData } from '../hooks/useAirportData';
 import { AircraftManager } from '../components/AircraftManager';
@@ -155,7 +156,8 @@ export const Dashboard = () => {
     // Calculate suitability with extended context
     const currentResult = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, activeProfile, {
         stationElevation,
-        maxRunwayLength
+        maxRunwayLength,
+        aircraft: activeAircraft
     }) : null;
 
     return (
@@ -283,6 +285,7 @@ export const Dashboard = () => {
                                             profile={activeProfile}
                                             selectedTime={selectedTime}
                                             compact
+                                            aircraft={activeAircraft}
                                         />
                                     </div>
 
@@ -335,6 +338,7 @@ export const Dashboard = () => {
                                                         profile={activeProfile}
                                                         selectedTime={selectedTime}
                                                         compact
+                                                        aircraft={activeAircraft}
                                                     />
                                                 )}
                                             </div>
@@ -372,6 +376,7 @@ export const Dashboard = () => {
                                     <CalendarView
                                         windows={weatherData}
                                         profile={activeProfile}
+                                        aircraft={activeAircraft}
                                         onSelectDay={(date) => {
                                             // Find exact match or closest window
                                             const win = weatherData.find(w => format(w.startTime, 'yyyy-MM-dd HH:mm') === format(date, 'yyyy-MM-dd HH:mm'));
@@ -396,7 +401,7 @@ export const Dashboard = () => {
                                 ) : (
                                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
                                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>
-                                        <TimelineChart windows={weatherData} profile={activeProfile} onSelectWindow={setSelectedWindow} />
+                                        <TimelineChart windows={weatherData} profile={activeProfile} aircraft={activeAircraft} onSelectWindow={setSelectedWindow} />
                                     </div>
                                 )}
                             </div>

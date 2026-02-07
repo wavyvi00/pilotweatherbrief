@@ -3,10 +3,11 @@ import { AviationWeatherService } from '../services/weather';
 import { ScoringEngine } from '../logic/scoring';
 import { AIRPORTS } from '../data/airports';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 
 export type StatusColor = 'green' | 'red' | 'yellow' | 'gray';
 
-export const useMapStatus = (profile: TrainingProfile, targetDate: Date | null = null) => {
+export const useMapStatus = (profile: TrainingProfile, targetDate: Date | null = null, aircraft?: Aircraft) => {
     const [statuses, setStatuses] = useState<Record<string, StatusColor>>({});
     const [loading, setLoading] = useState(false);
 
@@ -33,7 +34,7 @@ export const useMapStatus = (profile: TrainingProfile, targetDate: Date | null =
                     );
 
                     if (match) {
-                        const score = ScoringEngine.calculateSuitability(match, profile);
+                        const score = ScoringEngine.calculateSuitability(match, profile, { aircraft });
                         let color: StatusColor = 'gray';
                         if (score.score >= 80) color = 'green';
                         else if (score.score >= 50) color = 'yellow';
@@ -51,7 +52,7 @@ export const useMapStatus = (profile: TrainingProfile, targetDate: Date | null =
                     if (!metar.station_id) return;
 
                     const window = AviationWeatherService.normalizeMetar(metar);
-                    const score = ScoringEngine.calculateSuitability(window, profile);
+                    const score = ScoringEngine.calculateSuitability(window, profile, { aircraft });
 
                     let color: StatusColor = 'gray';
                     if (score.score >= 80) color = 'green';

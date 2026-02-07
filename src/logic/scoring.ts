@@ -1,5 +1,6 @@
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 
 export interface SuitabilityResult {
     score: number; // 0-100
@@ -16,6 +17,7 @@ export const ScoringEngine = {
             runwayHeading?: number;
             stationElevation?: number; // feet MSL
             maxRunwayLength?: number; // feet
+            aircraft?: Aircraft; // Active aircraft overrides profile aircraft
         }
     ): SuitabilityResult {
         const limits = profile.limits;
@@ -152,8 +154,10 @@ export const ScoringEngine = {
         }
 
         // 11. Endorsements
-        if (profile.aircraft?.requiredEndorsements && profile.aircraft.requiredEndorsements.length > 0) {
-            const missing = profile.aircraft.requiredEndorsements.filter(e => !profile.endorsements?.includes(e));
+        const requiredEndorsements = context?.aircraft?.requiredEndorsements || profile.aircraft?.requiredEndorsements;
+
+        if (requiredEndorsements && requiredEndorsements.length > 0) {
+            const missing = requiredEndorsements.filter(e => !profile.endorsements?.includes(e));
             if (missing.length > 0) {
                 reasons.push(`Missing Endorsements: ${missing.map(e => e.replace('-', ' ')).join(', ')}`);
                 score = 0;

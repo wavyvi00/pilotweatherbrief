@@ -5,6 +5,7 @@ import { AIRPORTS } from '../data/airports';
 import { Icon, DivIcon } from 'leaflet';
 import { useMapStatus, type StatusColor } from '../hooks/useMapStatus';
 import { useProfiles } from '../hooks/useProfiles';
+import { useAircraft } from '../hooks/useAircraft';
 import { Clock, Radio, Circle } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -126,6 +127,7 @@ interface WeatherMapProps {
 
 export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps) => {
     const { activeProfile } = useProfiles();
+    const { activeAircraft } = useAircraft();
 
     // Optimisation: Only render visible airports
     const [visibleAirports, setVisibleAirports] = useState<typeof AIRPORTS>([]);
@@ -133,7 +135,7 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
     const [isLive, setIsLive] = useState(true);
 
-    const { statuses, loading } = useMapStatus(activeProfile, isLive ? null : selectedTime);
+    const { statuses, loading } = useMapStatus(activeProfile, isLive ? null : selectedTime, activeAircraft);
     const activeAirport = AIRPORTS.find(a => a.icao === currentStation) || AIRPORTS[0];
 
     // Route logic

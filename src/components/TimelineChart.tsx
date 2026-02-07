@@ -2,21 +2,23 @@ import React from 'react';
 import { format } from 'date-fns';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 import { ScoringEngine } from '../logic/scoring';
 import clsx from 'clsx';
 
 interface TimelineChartProps {
     windows: WeatherWindow[];
     profile: TrainingProfile;
+    aircraft?: Aircraft;
     onSelectWindow?: (window: WeatherWindow) => void;
 }
 
-export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, onSelectWindow }) => {
+export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, aircraft, onSelectWindow }) => {
     return (
         <div className="overflow-x-auto pb-4 custom-scrollbar">
             <div className="flex gap-2 min-w-max px-2 pt-2">
                 {windows.map((win, idx) => {
-                    const result = ScoringEngine.calculateSuitability(win, profile);
+                    const result = ScoringEngine.calculateSuitability(win, profile, { aircraft });
                     const timeLabel = format(win.startTime, 'HH:mm');
                     const dayLabel = format(win.startTime, 'MMM d');
                     const isNewDay = idx === 0 || format(windows[idx - 1].startTime, 'd') !== format(win.startTime, 'd');

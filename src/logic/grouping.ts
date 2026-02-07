@@ -1,5 +1,6 @@
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 import { ScoringEngine, type SuitabilityResult } from './scoring';
 
 export interface GroupedEventResource extends SuitabilityResult {
@@ -26,7 +27,7 @@ interface GroupAccumulator {
  * Groups contiguous weather windows with the same suitability status into single calendar events.
  * This effectively "de-noises" the calendar by merging 5 separate "GO" hours into one 5-hour "GO" block.
  */
-export function groupWeatherWindows(windows: WeatherWindow[], profile: TrainingProfile): SmartCalendarEvent[] {
+export function groupWeatherWindows(windows: WeatherWindow[], profile: TrainingProfile, aircraft?: Aircraft): SmartCalendarEvent[] {
     if (!windows.length) return [];
 
     const sortedWindows = [...windows].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
@@ -34,7 +35,7 @@ export function groupWeatherWindows(windows: WeatherWindow[], profile: TrainingP
     let currentGroup: GroupAccumulator | null = null;
 
     for (const win of sortedWindows) {
-        const result = ScoringEngine.calculateSuitability(win, profile);
+        const result = ScoringEngine.calculateSuitability(win, profile, { aircraft });
 
         if (currentGroup) {
             // Check if contiguous (less than 90 mins gap allows for hourly data slightly off-tick) AND same status

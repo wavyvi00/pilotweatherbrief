@@ -4,6 +4,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
+import type { Aircraft } from '../types/aircraft';
 import { groupWeatherWindows, type SmartCalendarEvent } from '../logic/grouping';
 import { CalendarToolbar } from './CalendarToolbar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -23,15 +24,16 @@ const localizer = dateFnsLocalizer({
 interface CalendarViewProps {
     windows: WeatherWindow[];
     profile: TrainingProfile;
+    aircraft?: Aircraft;
     onSelectDay: (date: Date) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, onSelectDay }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ windows, profile, aircraft, onSelectDay }) => {
 
     // Transform WeatherWindows into Smart Calendar Events (Grouped)
     const events = useMemo(() => {
-        return groupWeatherWindows(windows, profile);
-    }, [windows, profile]);
+        return groupWeatherWindows(windows, profile, aircraft);
+    }, [windows, profile, aircraft]);
 
     const [view, setView] = React.useState<any>(Views.WEEK);
 

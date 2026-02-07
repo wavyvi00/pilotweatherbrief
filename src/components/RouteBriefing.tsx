@@ -54,7 +54,7 @@ export const RouteBriefing = ({ from, to, profile, aircraft }: RouteBriefingProp
             // Let's assume TAF. If no TAF, maybe MOS? For now "No Data".
 
             if (bestWindow) {
-                const suitability = ScoringEngine.calculateSuitability(bestWindow, profile);
+                const suitability = ScoringEngine.calculateSuitability(bestWindow, profile, { aircraft });
                 let color: 'green' | 'yellow' | 'red' = 'green';
                 if (suitability.status === 'NO_GO') color = 'red';
                 if (suitability.status === 'MARGINAL') color = 'yellow';

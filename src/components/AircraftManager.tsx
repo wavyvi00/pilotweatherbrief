@@ -20,13 +20,15 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         type: '',
         name: '',
         cruiseSpeed: 110,
-        fuelBurn: 9
+        fuelBurn: 9,
+        requiredEndorsements: [] as string[]
     });
     const [editShip, setEditShip] = useState({
         registration: '',
         type: '',
         cruiseSpeed: 110,
-        fuelBurn: 9
+        fuelBurn: 9,
+        requiredEndorsements: [] as string[]
     });
 
     if (!isOpen) return null;
@@ -42,10 +44,11 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 fuelBurn: Number(newShip.fuelBurn),
                 usableFuel: 40, // default
                 range: 0 // calc
-            }
+            },
+            requiredEndorsements: newShip.requiredEndorsements
         });
         setIsAdding(false);
-        setNewShip({ registration: '', type: '', name: '', cruiseSpeed: 110, fuelBurn: 9 });
+        setNewShip({ registration: '', type: '', name: '', cruiseSpeed: 110, fuelBurn: 9, requiredEndorsements: [] });
     };
 
     const startEdit = (ship: Aircraft) => {
@@ -54,7 +57,8 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
             registration: ship.registration,
             type: ship.type,
             cruiseSpeed: ship.performance.cruiseSpeed,
-            fuelBurn: ship.performance.fuelBurn
+            fuelBurn: ship.performance.fuelBurn,
+            requiredEndorsements: ship.requiredEndorsements || []
         });
         setIsAdding(false); // Close add form if open
     };
@@ -70,7 +74,8 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 fuelBurn: Number(editShip.fuelBurn),
                 usableFuel: 40,
                 range: 0
-            }
+            },
+            requiredEndorsements: editShip.requiredEndorsements
         });
         setEditingId(null);
     };
@@ -142,6 +147,27 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                                                     onChange={e => setEditShip({ ...editShip, fuelBurn: Number(e.target.value) })}
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 pt-1">
+                                            {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
+                                                <label key={endo} className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-amber-500 focus:ring-amber-500"
+                                                        checked={editShip.requiredEndorsements?.includes(endo)}
+                                                        onChange={e => {
+                                                            const current = editShip.requiredEndorsements || [];
+                                                            const next = e.target.checked
+                                                                ? [...current, endo]
+                                                                : current.filter(x => x !== endo);
+                                                            setEditShip({ ...editShip, requiredEndorsements: next });
+                                                        }}
+                                                    />
+                                                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 capitalize">
+                                                        {endo.replace('-', ' ')}
+                                                    </span>
+                                                </label>
+                                            ))}
                                         </div>
                                         <div className="flex gap-2 pt-2">
                                             <button type="submit" className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-sm flex items-center justify-center gap-2">
@@ -234,6 +260,27 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                                             onChange={e => setNewShip({ ...newShip, fuelBurn: Number(e.target.value) })}
                                         />
                                     </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-1">
+                                    {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
+                                        <label key={endo} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-sky-500 focus:ring-sky-500"
+                                                checked={newShip.requiredEndorsements?.includes(endo)}
+                                                onChange={e => {
+                                                    const current = newShip.requiredEndorsements || [];
+                                                    const next = e.target.checked
+                                                        ? [...current, endo]
+                                                        : current.filter(x => x !== endo);
+                                                    setNewShip({ ...newShip, requiredEndorsements: next });
+                                                }}
+                                            />
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 capitalize">
+                                                {endo.replace('-', ' ')}
+                                            </span>
+                                        </label>
+                                    ))}
                                 </div>
                                 <div className="flex gap-2 pt-2">
                                     <button type="submit" className="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-lg text-sm flex items-center justify-center gap-2">
