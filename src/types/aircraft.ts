@@ -13,4 +13,6 @@ export interface Aircraft {
     name: string; // Friendly name e.g. "Skyhawk"
     performance: AircraftPerformance;
     color?: string; // For UI identification
+    requiredEndorsements?: string[]; // e.g. ['complex', 'high-performance']
+}
 }

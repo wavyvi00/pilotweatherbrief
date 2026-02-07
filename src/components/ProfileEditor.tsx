@@ -238,6 +238,81 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                         </div>
                     </div>
                 </div>
+                </div>
+
+                {/* Endorsements Section */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6 md:col-span-2">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="p-1.5 bg-purple-50 rounded-md text-purple-600">
+                            <AlertTriangle className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-bold text-slate-800">Endorsements</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Pilot Holds */}
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-slate-700">Pilot Qualifications</h4>
+                            <p className="text-xs text-slate-500">Select the endorsements you hold.</p>
+                            <div className="space-y-2">
+                                {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
+                                    <label key={endo} className="flex items-center gap-2 cursor-pointer group">
+                                         <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                                            checked={profile.endorsements?.includes(endo)}
+                                            onChange={(e) => {
+                                                const current = profile.endorsements || [];
+                                                const newEndos = e.target.checked
+                                                    ? [...current, endo]
+                                                    : current.filter(x => x !== endo);
+                                                onUpdate({ ...profile, endorsements: newEndos });
+                                            }}
+                                        />
+                                        <span className="text-sm text-slate-700 group-hover:text-slate-900 capitalize">
+                                            {endo.replace('-', ' ')}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Aircraft Requires */}
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-slate-700">Aircraft Requirements</h4>
+                             <p className="text-xs text-slate-500">Select endorsements required for this aircraft.</p>
+                            <div className="space-y-2">
+                                {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
+                                    <label key={`req-${endo}`} className="flex items-center gap-2 cursor-pointer group">
+                                         <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                            checked={profile.aircraft?.requiredEndorsements?.includes(endo)}
+                                            onChange={(e) => {
+                                                const current = profile.aircraft?.requiredEndorsements || [];
+                                                const newReqs = e.target.checked
+                                                    ? [...current, endo]
+                                                    : current.filter(x => x !== endo);
+                                                
+                                                onUpdate({
+                                                    ...profile,
+                                                    aircraft: {
+                                                        ...profile.aircraft!,
+                                                        requiredEndorsements: newReqs
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                        <span className="text-sm text-slate-700 group-hover:text-slate-900 capitalize">
+                                            {endo.replace('-', ' ')}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div className="p-4 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-100 flex gap-2">
@@ -248,6 +323,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                 </p>
             </div>
 
-        </div>
+        </div >
     );
 };

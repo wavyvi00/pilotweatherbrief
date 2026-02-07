@@ -151,6 +151,16 @@ export const ScoringEngine = {
             score = 0;
         }
 
+        // 11. Endorsements
+        if (profile.aircraft?.requiredEndorsements && profile.aircraft.requiredEndorsements.length > 0) {
+            const missing = profile.aircraft.requiredEndorsements.filter(e => !profile.endorsements?.includes(e));
+            if (missing.length > 0) {
+                reasons.push(`Missing Endorsements: ${missing.map(e => e.replace('-', ' ')).join(', ')}`);
+                score = 0;
+                // Hard fail
+            }
+        }
+
         // Determine Status
         let status: 'GO' | 'MARGINAL' | 'NO_GO' = 'GO';
         if (score < 50) status = 'NO_GO';

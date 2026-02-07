@@ -20,7 +20,8 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             allowNight: false,
             minFuelReserve: 45
         },
-        aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 400 }
+        endorsements: [],
+        aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 400, requiredEndorsements: [] }
     },
     {
         id: 'student-solo-xc',
@@ -41,7 +42,8 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             allowNight: false,
             minFuelReserve: 45
         },
-        aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500 }
+        endorsements: [],
+        aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500, requiredEndorsements: [] }
     },
     {
         id: 'instruction-dual',
@@ -62,6 +64,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             allowNight: true,
             minFuelReserve: 30
         },
-        aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600 }
+        endorsements: ['complex', 'high-performance'], // Instructor assumed to have these
+        aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600, requiredEndorsements: [] }
     }
 ];

@@ -19,9 +19,11 @@ export interface TrainingProfile {
     name: string;
     description: string;
     limits: TrainingLimits;
+    endorsements: string[]; // Endorsements held by the pilot in this profile
     aircraft?: {
         cruiseSpeed: number; // knots TAS
         fuelBurn: number; // gph
         range: number; // nm
+        requiredEndorsements?: string[]; // Endorsements required to fly this aircraft
     };
 }

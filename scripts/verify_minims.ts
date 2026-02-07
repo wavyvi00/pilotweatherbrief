@@ -57,4 +57,34 @@ if (goodResult.status === 'GO') {
     console.error('❌ Good Weather Logic: FAILED', goodResult);
 }
 
+// Test 4: Missing Endorsement (Should Fail)
+const complexProfile = {
+    ...profile,
+    endorsements: [],
+    aircraft: {
+        ...profile.aircraft!,
+        requiredEndorsements: ['complex']
+    }
+};
+
+const endoResult = ScoringEngine.calculateSuitability(baseWeather, complexProfile);
+if (endoResult.status === 'NO_GO' && endoResult.reasons.some(r => r.includes('Missing Endorsements'))) {
+    console.log('✅ Missing Endorsement Logic: PASSED');
+    console.log(`   Reason: ${endoResult.reasons[0]}`);
+} else {
+    console.error('❌ Missing Endorsement Logic: FAILED', endoResult);
+}
+
+// Test 5: Has Endorsement (Should Pass)
+const qualifiedProfile = {
+    ...complexProfile,
+    endorsements: ['complex']
+};
+const qualifiedResult = ScoringEngine.calculateSuitability(baseWeather, qualifiedProfile);
+if (qualifiedResult.status === 'GO') {
+    console.log('✅ Has Endorsement Logic: PASSED');
+} else {
+    console.error('❌ Has Endorsement Logic: FAILED', qualifiedResult);
+}
+
 console.log('--- Verification Completed ---');
