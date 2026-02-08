@@ -6,6 +6,7 @@ import { useAircraft } from '../hooks/useAircraft';
 
 import { useSettings } from '../hooks/useSettings';
 import { useAirportData } from '../hooks/useAirportData';
+import { useFuelPrice } from '../hooks/useFuelPrice';
 import { AircraftManager } from '../components/AircraftManager';
 import { ScoringEngine } from '../logic/scoring';
 import { SuitabilityCard } from '../components/SuitabilityCard';
@@ -24,7 +25,7 @@ import { createSimpleRoute, hasValidDestination, getRouteIcaos } from '../types/
 
 import { WeatherMap } from '../components/WeatherMap';
 import { format, isWithinInterval } from 'date-fns';
-import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin } from 'lucide-react';
+import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin, Fuel } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
 
@@ -103,6 +104,9 @@ export const Dashboard = () => {
         wp1Airport?.lat || 0,
         wp1Airport?.lon || 0
     );
+    
+    // Fetch fuel price for primary station
+    const { price: fuelPrice } = useFuelPrice(stationId);
 
     const wp2 = routeWaypointIcaos[1] || '';
     const wp2Airport = AIRPORTS.find(a => a.icao === wp2);
@@ -204,6 +208,20 @@ export const Dashboard = () => {
                                 >
                                     <RotateCcw className="w-3 h-3" />
                                 </button>
+                            </div>
+                            </div>
+                        )}
+                        
+                        {/* Fuel Price Badge */}
+                        {fuelPrice && searchMode === 'single' && (
+                            <div className="flex flex-col items-start sm:items-end ml-2 sm:ml-4 pl-2 sm:pl-4 border-l border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/50">
+                                    <Fuel className="w-3.5 h-3.5 text-amber-500" />
+                                    <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                        ${fuelPrice.price.toFixed(2)}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">{fuelPrice.type}</span>
                             </div>
                         )}
                     </div>
