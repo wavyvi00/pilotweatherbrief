@@ -55,8 +55,65 @@ export const LandingPage = () => {
                 </div>
             </section>
 
+            {/* Cloud Parallax Transition */}
+            <div className="relative h-48 md:h-64 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-800/50 to-slate-950">
+                {/* Cloud Layer 1 - Back */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="absolute w-[200%] h-full flex gap-8 animate-[slide_30s_linear_infinite]">
+                        {[...Array(8)].map((_, i) => (
+                            <div 
+                                key={`cloud-back-${i}`}
+                                className="flex-shrink-0 w-64 h-24 bg-white/5 rounded-full blur-2xl"
+                                style={{ 
+                                    transform: `translateY(${Math.sin(i * 0.8) * 20}px)`,
+                                    opacity: 0.3 + Math.random() * 0.2 
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+                
+                {/* Cloud Layer 2 - Mid */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="absolute w-[200%] h-full flex gap-12 animate-[slide_20s_linear_infinite]">
+                        {[...Array(6)].map((_, i) => (
+                            <div 
+                                key={`cloud-mid-${i}`}
+                                className="flex-shrink-0 w-80 h-32 bg-white/10 rounded-full blur-xl"
+                                style={{ 
+                                    transform: `translateY(${Math.cos(i * 1.2) * 15}px)`,
+                                    opacity: 0.4 + Math.random() * 0.2 
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+                
+                {/* Cloud Layer 3 - Front */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="absolute w-[200%] h-full flex gap-16 animate-[slide_12s_linear_infinite]">
+                        {[...Array(5)].map((_, i) => (
+                            <div 
+                                key={`cloud-front-${i}`}
+                                className="flex-shrink-0 w-96 h-40 bg-white/15 rounded-full blur-lg"
+                                style={{ 
+                                    transform: `translateY(${Math.sin(i * 0.5) * 10}px)`,
+                                    opacity: 0.5 + Math.random() * 0.2 
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+                
+                {/* Fog overlay at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                
+                {/* Center glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            </div>
+
             {/* Features Grid - Technical/Dark */}
-            <section className="py-20 px-4 bg-slate-950 border-t border-slate-800">
+            <section className="py-20 px-4 bg-slate-950">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-2xl font-mono font-bold text-emerald-500 mb-4 tracking-wider uppercase">Mission Capabilities</h2>
