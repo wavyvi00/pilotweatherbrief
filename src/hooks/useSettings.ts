@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchUserSettings, updateUserSettings } from '../lib/sync';
 
 export interface UserSettings {
     defaultAirport: string;
@@ -10,12 +12,55 @@ const STORAGE_KEY = 'flightsolo_settings_v1';
 
 const DEFAULT_SETTINGS: UserSettings = {
     defaultAirport: 'KMCI',
-    defaultAircraftId: null, // null means use first available
-    defaultProfileId: null,  // null means use first available
+    defaultAircraftId: null,
+    defaultProfileId: null,
 };
 
 export const useSettings = () => {
-    const [settings, setSettings] = useState<UserSettings>(() => {
+    const { user } = useAuth();
+    const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+    const [loading, setLoading] = useState(true);
+
+    // Load data on mount and when auth changes
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            
+            if (user) {
+                try {
+                    const cloudSettings = await fetchUserSettings(user.id);
+                    if (cloudSettings) {
+                        setSettings(prev => ({
+                            ...prev,
+                            defaultAirport: cloudSettings.defaultAirport,
+                        }));
+                    } else {
+                        // First login - use localStorage settings
+                        const localSettings = loadFromLocalStorage();
+                        setSettings(localSettings);
+                        // Sync to cloud
+                        await updateUserSettings(user.id, { defaultAirport: localSettings.defaultAirport });
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings from cloud:', error);
+                    setSettings(loadFromLocalStorage());
+                }
+            } else {
+                setSettings(loadFromLocalStorage());
+            }
+            
+            setLoading(false);
+        };
+        
+        loadData();
+    }, [user]);
+
+    // Persist to localStorage always
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    }, [settings]);
+
+    const loadFromLocalStorage = (): UserSettings => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
@@ -23,24 +68,38 @@ export const useSettings = () => {
             console.error('Failed to load settings:', error);
             return DEFAULT_SETTINGS;
         }
-    });
-
-    // Persist changes
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    }, [settings]);
-
-    const updateSetting = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
     };
 
-    const resetSettings = () => {
+    const updateSetting = useCallback(<K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
+        setSettings(prev => {
+            const newSettings = { ...prev, [key]: value };
+            
+            if (user && key === 'defaultAirport') {
+                updateUserSettings(user.id, { defaultAirport: value as string }).catch(err =>
+                    console.error('Failed to update settings in cloud:', err)
+                );
+            }
+            
+            return newSettings;
+        });
+    }, [user]);
+
+    const resetSettings = useCallback(async () => {
         setSettings(DEFAULT_SETTINGS);
-    };
+        
+        if (user) {
+            try {
+                await updateUserSettings(user.id, { defaultAirport: DEFAULT_SETTINGS.defaultAirport });
+            } catch (error) {
+                console.error('Failed to reset settings in cloud:', error);
+            }
+        }
+    }, [user]);
 
     return {
         settings,
         updateSetting,
-        resetSettings
+        resetSettings,
+        loading
     };
 };

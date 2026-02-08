@@ -1,9 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Calendar, Settings, Moon, Sun } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Calendar, Settings, Moon, Sun, LogIn, LogOut, User } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
 import { LandingPage } from './pages/LandingPage';
+import { AuthPage } from './pages/Auth';
 import { SettingsPage } from './pages/Settings';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { SupportPage } from './pages/Support';
@@ -44,6 +46,43 @@ function ThemeToggle() {
   );
 }
 
+function AuthButton() {
+  const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+
+  if (loading) return null;
+
+  if (user) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20">
+          <User className="w-4 h-4 text-sky-400" />
+          <span className="text-sm text-sky-400 font-medium truncate max-w-[120px]">
+            {user.user_metadata?.display_name || user.email?.split('@')[0]}
+          </span>
+        </div>
+        <button
+          onClick={() => signOut()}
+          className="p-2 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-300"
+          title="Sign Out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => navigate('/auth')}
+      className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-300"
+    >
+      <LogIn className="w-4 h-4" />
+      <span className="hidden sm:inline">Sign In</span>
+    </button>
+  );
+}
+
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
@@ -59,6 +98,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             <NavLink to="/dashboard" icon={Calendar} label="Dashboard" />
             <NavLink to="/settings" icon={Settings} label="Profile" />
             <ThemeToggle />
+            <AuthButton />
           </div>
         </div>
       </nav>
@@ -71,18 +111,27 @@ function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppRoutes() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/support" element={<SupportPage />} />
+      </Routes>
+    </Layout>
+  );
+}
+
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/support" element={<SupportPage />} />
-        </Routes>
-      </Layout>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </Router>
   );
 }
