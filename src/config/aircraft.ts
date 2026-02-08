@@ -11,8 +11,21 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             cruiseSpeed: 115,
             fuelBurn: 9.5,
             usableFuel: 53,
-            range: 630
+            range: 630,
+            emptyWeight: 1665,
+            maxGrossWeight: 2550
         },
+        stations: [
+            { id: 'pilot', name: 'Pilot & Pax', arm: 37, maxWeight: 400 },
+            { id: 'rear', name: 'Rear Pax', arm: 73, maxWeight: 400 },
+            { id: 'bag1', name: 'Baggage 1', arm: 95, maxWeight: 120 },
+            { id: 'bag2', name: 'Baggage 2', arm: 123, maxWeight: 50 },
+            { id: 'fuel', name: 'Fuel', arm: 48, maxWeight: 318 } // 53 * 6
+        ],
+        cgEnvelope: [
+            { weight: 1600, arm: 35 }, { weight: 2550, arm: 41 }, 
+            { weight: 2550, arm: 47.3 }, { weight: 1600, arm: 47.3 }
+        ],
         color: 'sky'
     },
     {
@@ -24,8 +37,12 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             cruiseSpeed: 95,
             fuelBurn: 6,
             usableFuel: 24,
-            range: 350
+            range: 350,
+            emptyWeight: 1100,
+            maxGrossWeight: 1670
         },
+        stations: [],
+        cgEnvelope: [],
         color: 'emerald'
     },
     {
@@ -37,8 +54,12 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             cruiseSpeed: 125,
             fuelBurn: 10.5,
             usableFuel: 48,
-            range: 520
+            range: 520,
+            emptyWeight: 1590,
+            maxGrossWeight: 2550
         },
+        stations: [],
+        cgEnvelope: [],
         color: 'indigo'
     }
 ];

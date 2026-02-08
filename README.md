@@ -23,21 +23,29 @@ graph TD
 
     subgraph App ["🚀 FlightSolo Engine"]
         UI["Dashboard Interface"]
-        Logic["Scoring & Logic Engine"]
+        
+        subgraph LogicLayer ["🧠 Logic Core"]
+            Scoring["Suitability Scorer"]
+            WB["Sem-Truck / Aircraft W&B"]
+            Checklist["Checklist Engine"]
+        end
+        
         Store["Local Storage (Profiles, Settings)"]
     end
 
     subgraph External ["☁️ Official Data Sources"]
         NOAA["AviationWeather.gov (METARs/TAFs)"]
         OSM["OpenStreetMap (Map Layer)"]
+        FuelAPI["Regional Fuel Prices (Mock/API)"]
     end
 
     %% Edge Connections
     User -->|Interacts| Devices
     Devices -->|Runs| App
-    UI -->|Visualizes| Logic
-    Logic <-->|Persists Data| Store
-    Logic -->|Fetches Real-time Wx| NOAA
+    UI -->|Visualizes| LogicLayer
+    LogicLayer <-->|Persists Data| Store
+    LogicLayer -->|Fetches Real-time Wx| NOAA
+    LogicLayer -->|Fetches Fuel Data| FuelAPI
     UI -->|Request Tiles| OSM
 
     %% Styling
@@ -45,11 +53,13 @@ graph TD
     classDef device fill:#f8fafc,stroke:#94a3b8,stroke-width:2px,color:#0f172a;
     classDef app fill:#e0f2fe,stroke:#0ea5e9,stroke-width:2px,color:#0c4a6e;
     classDef ext fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#14532d;
+    classDef logic fill:#fff,stroke:#0ea5e9,stroke-dasharray: 5 5;
 
     class User user;
     class iPhone,Android,Web device;
-    class UI,Logic,Store app;
-    class NOAA,OSM ext;
+    class UI,Store app;
+    class Scoring,WB,Checklist logic;
+    class NOAA,OSM,FuelAPI ext;
 ```
 
 ### Key Components

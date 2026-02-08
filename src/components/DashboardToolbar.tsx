@@ -1,6 +1,7 @@
 
 import { useState, useRef } from 'react';
-import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown } from 'lucide-react';
+import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, Scale, CheckSquare } from 'lucide-react';
+import clsx from 'clsx';
 import clsx from 'clsx';
 import { AirportSearch } from './AirportSearch';
 import { AircraftSelector } from './AircraftSelector';
@@ -24,8 +25,11 @@ interface DashboardToolbarProps {
     profiles: TrainingProfile[];
     activeProfileId: string;
     setActiveProfileId: (id: string) => void;
-    viewMode: 'calendar' | 'timeline' | 'map';
-    setViewMode: (mode: 'calendar' | 'timeline' | 'map') => void;
+    activeProfileId: string;
+    setActiveProfileId: (id: string) => void;
+    viewMode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist';
+    setViewMode: (mode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist') => void;
+    selectedTime: Date | null;
     selectedTime: Date | null;
     onTimeChange: (time: Date | null) => void;
     onRefresh: () => void;
@@ -189,6 +193,22 @@ export const DashboardToolbar = ({
                                 title="Map View"
                             >
                                 <Map className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('wb')}
+                                className={clsx("p-1.5 sm:p-2 rounded-md transition-all flex items-center justify-center",
+                                    viewMode === 'wb' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
+                                title="Weight & Balance"
+                            >
+                                <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('checklist')}
+                                className={clsx("p-1.5 sm:p-2 rounded-md transition-all flex items-center justify-center",
+                                    viewMode === 'checklist' ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300')}
+                                title="Checklists"
+                            >
+                                <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
                         </div>
 

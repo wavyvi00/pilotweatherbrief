@@ -13,6 +13,8 @@ import { RawWxViewer } from '../components/RawWxViewer';
 import { RunwayWindCalculator } from '../components/RunwayWindCalculator';
 import { DashboardToolbar } from '../components/DashboardToolbar';
 import { CalendarView } from '../components/CalendarView';
+import { WeightBalanceCalculator } from '../components/WeightBalanceCalculator';
+import { ChecklistViewer } from '../components/ChecklistViewer';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
 import { AirportWeatherPanel } from '../components/AirportWeatherPanel';
@@ -25,7 +27,9 @@ import { format, isWithinInterval } from 'date-fns';
 import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
-type ViewMode = 'timeline' | 'calendar' | 'map';
+import type { WeatherWindow } from '../types/weather';
+
+export type ViewMode = 'timeline' | 'calendar' | 'map' | 'wb' | 'checklist';
 
 export const Dashboard = () => {
     const { settings, updateSetting } = useSettings();
@@ -398,6 +402,15 @@ export const Dashboard = () => {
                                         }}
                                         route={searchMode === 'route' ? routeCompat : undefined}
                                     />
+                                    </div>
+                                ) : viewMode === 'wb' ? (
+                                    <div className="mt-6">
+                                        <WeightBalanceCalculator />
+                                    </div>
+                                ) : viewMode === 'checklist' ? (
+                                    <div className="mt-6 max-w-2xl mx-auto">
+                                        <ChecklistViewer />
+                                    </div>
                                 ) : (
                                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
                                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>

@@ -4,7 +4,8 @@ import { ScoringEngine } from '../logic/scoring';
 import type { WeatherWindow } from '../types/weather';
 import type { TrainingProfile } from '../types/profile';
 import type { Aircraft } from '../types/aircraft';
-import { Plane, MapPin } from 'lucide-react';
+import { Plane, MapPin, Fuel } from 'lucide-react';
+import { useFuelPrice } from '../hooks/useFuelPrice';
 
 interface AirportWeatherPanelProps {
     stationId: string;
@@ -53,6 +54,7 @@ export const AirportWeatherPanel = ({
     const result = currentWindow ? ScoringEngine.calculateSuitability(currentWindow, profile, { aircraft }) : null;
 
     const isDeparture = label === 'Departure';
+    const { price: fuelPrice } = useFuelPrice(stationId);
 
     return (
         <div className={compact ? '' : 'space-y-4'}>
@@ -76,6 +78,19 @@ export const AirportWeatherPanel = ({
                             {stationId}
                         </p>
                     </div>
+                    </div>
+                    {/* Fuel Price Badge */}
+                    {fuelPrice && (
+                        <div className="ml-auto flex flex-col items-end">
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+                                <Fuel className="w-3.5 h-3.5 text-amber-500" />
+                                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                    ${fuelPrice.price.toFixed(2)}
+                                </span>
+                            </div>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5 font-medium">{fuelPrice.type}</span>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -84,6 +99,15 @@ export const AirportWeatherPanel = ({
                 <div className={compact ? 'space-y-3' : ''}>
                     <SuitabilityCard result={result} compact={compact} />
                     <RunwayWindCalculator wind={currentWindow.wind} stationId={stationId} compact={compact} />
+                    {compact && fuelPrice && (
+                         <div className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700/50">
+                            <div className="flex items-center gap-2">
+                                <Fuel className="w-3.5 h-3.5 text-amber-500" />
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">100LL</span>
+                            </div>
+                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">${fuelPrice.price.toFixed(2)}</span>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="text-center py-8 text-slate-400 dark:text-slate-500">

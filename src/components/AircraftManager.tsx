@@ -1,7 +1,9 @@
 
 import { useState } from 'react';
 import { X, Plus, Trash2, Save, Pencil } from 'lucide-react';
-import type { Aircraft } from '../types/aircraft';
+import type { Aircraft, Station, CGEnvelopePoint } from '../types/aircraft';
+import { Settings } from 'lucide-react';
+import { DEFAULT_AIRCRAFT } from '../config/aircraft';
 
 interface AircraftManagerProps {
     isOpen: boolean;
@@ -21,14 +23,22 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         name: '',
         cruiseSpeed: 110,
         fuelBurn: 9,
-        requiredEndorsements: [] as string[]
+        requiredEndorsements: [] as string[],
+        emptyWeight: 1600,
+        maxGrossWeight: 2550,
+        stations: [] as Station[],
+        cgEnvelope: [] as CGEnvelopePoint[]
     });
     const [editShip, setEditShip] = useState({
         registration: '',
         type: '',
         cruiseSpeed: 110,
         fuelBurn: 9,
-        requiredEndorsements: [] as string[]
+        requiredEndorsements: [] as string[],
+        emptyWeight: 1600,
+        maxGrossWeight: 2550,
+        stations: [] as Station[],
+        cgEnvelope: [] as CGEnvelopePoint[]
     });
 
     if (!isOpen) return null;
@@ -45,10 +55,17 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 usableFuel: 40, // default
                 range: 0 // calc
             },
-            requiredEndorsements: newShip.requiredEndorsements
+            requiredEndorsements: newShip.requiredEndorsements,
+            emptyWeight: newShip.emptyWeight,
+            maxGrossWeight: newShip.maxGrossWeight,
+            stations: newShip.stations.length > 0 ? newShip.stations : (DEFAULT_AIRCRAFT[0].stations || []),
+            cgEnvelope: newShip.cgEnvelope.length > 0 ? newShip.cgEnvelope : (DEFAULT_AIRCRAFT[0].cgEnvelope || [])
         });
         setIsAdding(false);
-        setNewShip({ registration: '', type: '', name: '', cruiseSpeed: 110, fuelBurn: 9, requiredEndorsements: [] });
+        setNewShip({ 
+            registration: '', type: '', name: '', cruiseSpeed: 110, fuelBurn: 9, requiredEndorsements: [],
+            emptyWeight: 1600, maxGrossWeight: 2550, stations: [], cgEnvelope: []
+        });
     };
 
     const startEdit = (ship: Aircraft) => {
@@ -56,9 +73,12 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         setEditShip({
             registration: ship.registration,
             type: ship.type,
-            cruiseSpeed: ship.performance.cruiseSpeed,
             fuelBurn: ship.performance.fuelBurn,
-            requiredEndorsements: ship.requiredEndorsements || []
+            requiredEndorsements: ship.requiredEndorsements || [],
+            emptyWeight: ship.emptyWeight || 1600,
+            maxGrossWeight: ship.maxGrossWeight || 2550,
+            stations: ship.stations || [],
+            cgEnvelope: ship.cgEnvelope || []
         });
         setIsAdding(false); // Close add form if open
     };
@@ -69,13 +89,12 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         onUpdate(editingId, {
             registration: editShip.registration.toUpperCase(),
             type: editShip.type,
-            performance: {
-                cruiseSpeed: Number(editShip.cruiseSpeed),
-                fuelBurn: Number(editShip.fuelBurn),
-                usableFuel: 40,
-                range: 0
             },
-            requiredEndorsements: editShip.requiredEndorsements
+            requiredEndorsements: editShip.requiredEndorsements,
+            emptyWeight: Number(editShip.emptyWeight),
+            maxGrossWeight: Number(editShip.maxGrossWeight),
+            stations: editShip.stations,
+            cgEnvelope: editShip.cgEnvelope
         });
         setEditingId(null);
     };
@@ -168,6 +187,34 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                                                     </span>
                                                 </label>
                                             ))}
+                                        </div>
+                                        <div className="pt-4 border-t border-amber-200 dark:border-amber-700/50 mt-2 mb-2">
+                                            <h4 className="text-xs font-bold text-amber-800 dark:text-amber-500 mb-2 flex items-center gap-1">
+                                                <Settings className="w-3 h-3" /> Weight & Balance
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                 <div>
+                                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Empty Wt (lbs)</label>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full text-sm font-bold p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                                                        value={editShip.emptyWeight}
+                                                        onChange={e => setEditShip({ ...editShip, emptyWeight: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Max Gross (lbs)</label>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full text-sm font-bold p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                                                        value={editShip.maxGrossWeight}
+                                                        onChange={e => setEditShip({ ...editShip, maxGrossWeight: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 text-[10px] text-slate-500">
+                                                Stations: {editShip.stations.length} | Envelope: {editShip.cgEnvelope.length} pts
+                                            </div>
                                         </div>
                                         <div className="flex gap-2 pt-2">
                                             <button type="submit" className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-sm flex items-center justify-center gap-2">
