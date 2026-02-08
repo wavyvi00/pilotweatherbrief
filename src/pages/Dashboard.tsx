@@ -286,10 +286,8 @@ export const Dashboard = () => {
                         {/* Route Mode: Horizontal weather panel strip above chart */}
                         {searchMode === 'route' && hasValidDestination(route) && (
                             <div className="mb-6">
-                                {/* Route Weather Overview - Horizontal Cards */}
-                                <div className="grid gap-4" style={{
-                                    gridTemplateColumns: `repeat(${Math.min(route.length, 4)}, minmax(0, 1fr))`
-                                }}>
+                                {/* Route Weather Overview - Responsive Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                                     {/* Departure Panel */}
                                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
                                         <div className="flex items-center gap-2 mb-3">

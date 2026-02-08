@@ -19,10 +19,10 @@ export const SettingsPage = () => {
             </div>
 
             {/* Defaults Section */}
-            <GlassCard className="p-8 mb-8">
-                <div className="mb-8 pb-8 border-b border-slate-100 dark:border-slate-700">
-                    <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-slate-100 mb-2">Defaults</h1>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-2xl">
+            <GlassCard className="p-4 sm:p-6 md:p-8 mb-6 md:mb-8">
+                <div className="mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-slate-100 dark:border-slate-700">
+                    <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 dark:text-slate-100 mb-2">Defaults</h1>
+                    <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl">
                         Set your default home base and preferred aircraft. These will be pre-selected when you open the dashboard.
                     </p>
                 </div>
