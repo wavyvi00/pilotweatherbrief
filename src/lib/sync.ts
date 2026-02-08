@@ -124,10 +124,15 @@ export async function syncProfilesToSupabase(userId: string, profiles: TrainingP
 
 // ============ USER PROFILE / SETTINGS ============
 
-export async function fetchUserSettings(userId: string): Promise<{ defaultAirport: string; theme: string } | null> {
+export async function fetchUserSettings(userId: string): Promise<{ 
+    defaultAirport: string; 
+    theme: string;
+    defaultAircraftId: string | null;
+    defaultProfileId: string | null;
+} | null> {
     const { data, error } = await supabase
         .from('profiles')
-        .select('default_airport, theme')
+        .select('default_airport, theme, default_aircraft_id, default_profile_id')
         .eq('id', userId)
         .single();
     
@@ -135,13 +140,22 @@ export async function fetchUserSettings(userId: string): Promise<{ defaultAirpor
     return {
         defaultAirport: data?.default_airport || 'KMCI',
         theme: data?.theme || 'dark',
+        defaultAircraftId: data?.default_aircraft_id || null,
+        defaultProfileId: data?.default_profile_id || null,
     };
 }
 
-export async function updateUserSettings(userId: string, settings: { defaultAirport?: string; theme?: string }): Promise<void> {
+export async function updateUserSettings(userId: string, settings: { 
+    defaultAirport?: string; 
+    theme?: string;
+    defaultAircraftId?: string | null;
+    defaultProfileId?: string | null;
+}): Promise<void> {
     const updates: Record<string, any> = { updated_at: new Date().toISOString() };
     if (settings.defaultAirport !== undefined) updates.default_airport = settings.defaultAirport;
     if (settings.theme !== undefined) updates.theme = settings.theme;
+    if (settings.defaultAircraftId !== undefined) updates.default_aircraft_id = settings.defaultAircraftId;
+    if (settings.defaultProfileId !== undefined) updates.default_profile_id = settings.defaultProfileId;
     
     const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
     if (error) throw error;

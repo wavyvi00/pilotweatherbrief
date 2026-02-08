@@ -30,16 +30,21 @@ export const useSettings = () => {
                 try {
                     const cloudSettings = await fetchUserSettings(user.id);
                     if (cloudSettings) {
-                        setSettings(prev => ({
-                            ...prev,
+                        setSettings({
                             defaultAirport: cloudSettings.defaultAirport,
-                        }));
+                            defaultAircraftId: cloudSettings.defaultAircraftId,
+                            defaultProfileId: cloudSettings.defaultProfileId,
+                        });
                     } else {
                         // First login - use localStorage settings
                         const localSettings = loadFromLocalStorage();
                         setSettings(localSettings);
                         // Sync to cloud
-                        await updateUserSettings(user.id, { defaultAirport: localSettings.defaultAirport });
+                        await updateUserSettings(user.id, {
+                            defaultAirport: localSettings.defaultAirport,
+                            defaultAircraftId: localSettings.defaultAircraftId,
+                            defaultProfileId: localSettings.defaultProfileId,
+                        });
                     }
                 } catch (error) {
                     console.error('Failed to load settings from cloud:', error);
@@ -74,8 +79,14 @@ export const useSettings = () => {
         setSettings(prev => {
             const newSettings = { ...prev, [key]: value };
             
-            if (user && key === 'defaultAirport') {
-                updateUserSettings(user.id, { defaultAirport: value as string }).catch(err =>
+            if (user) {
+                // Map key names to cloud column names
+                const cloudUpdate: Record<string, any> = {};
+                if (key === 'defaultAirport') cloudUpdate.defaultAirport = value;
+                if (key === 'defaultAircraftId') cloudUpdate.defaultAircraftId = value;
+                if (key === 'defaultProfileId') cloudUpdate.defaultProfileId = value;
+                
+                updateUserSettings(user.id, cloudUpdate).catch(err =>
                     console.error('Failed to update settings in cloud:', err)
                 );
             }
@@ -89,7 +100,11 @@ export const useSettings = () => {
         
         if (user) {
             try {
-                await updateUserSettings(user.id, { defaultAirport: DEFAULT_SETTINGS.defaultAirport });
+                await updateUserSettings(user.id, {
+                    defaultAirport: DEFAULT_SETTINGS.defaultAirport,
+                    defaultAircraftId: DEFAULT_SETTINGS.defaultAircraftId,
+                    defaultProfileId: DEFAULT_SETTINGS.defaultProfileId,
+                });
             } catch (error) {
                 console.error('Failed to reset settings in cloud:', error);
             }
