@@ -89,6 +89,12 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         onUpdate(editingId, {
             registration: editShip.registration.toUpperCase(),
             type: editShip.type,
+            name: editShip.name || '', // Ensure name is preserved
+            performance: {
+                cruiseSpeed: Number(editShip.cruiseSpeed),
+                fuelBurn: Number(editShip.fuelBurn),
+                usableFuel: 40,
+                range: 0
             },
             requiredEndorsements: editShip.requiredEndorsements,
             emptyWeight: Number(editShip.emptyWeight),

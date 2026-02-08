@@ -402,7 +402,6 @@ export const Dashboard = () => {
                                         }}
                                         route={searchMode === 'route' ? routeCompat : undefined}
                                     />
-                                    </div>
                                 ) : viewMode === 'wb' ? (
                                     <div className="mt-6">
                                         <WeightBalanceCalculator />

@@ -78,7 +78,6 @@ export const AirportWeatherPanel = ({
                             {stationId}
                         </p>
                     </div>
-                    </div>
                     {/* Fuel Price Badge */}
                     {fuelPrice && (
                         <div className="ml-auto flex flex-col items-end">
