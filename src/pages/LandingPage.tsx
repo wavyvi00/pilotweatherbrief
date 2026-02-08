@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { 
     CloudSun, 
     Scale, 
@@ -9,12 +9,11 @@ import {
     Map as MapIcon, 
     ShieldCheck,
     Plane,
-    Target
+    Sparkles
 } from 'lucide-react';
 
 export const LandingPage = () => {
     const [scrollY, setScrollY] = useState(0);
-    const heroRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -25,127 +24,136 @@ export const LandingPage = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-[80vh] bg-slate-900 text-slate-100 selection:bg-emerald-500/30 overflow-hidden">
+        <div className="flex flex-col min-h-[80vh] selection:bg-sky-500/30">
             
-            {/* Hero Section - HUD/Cockpit Style with Parallax */}
-            <section ref={heroRef} className="relative py-24 md:py-40 px-4 overflow-hidden">
+            {/* Hero Section with Parallax */}
+            <section className="relative py-24 md:py-40 px-4 overflow-hidden">
                 
                 {/* Grid Background - Slow Parallax */}
                 <div 
-                    className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] pointer-events-none"
+                    className="absolute inset-0 bg-[linear-gradient(rgba(14,165,233,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(14,165,233,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.05)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] pointer-events-none"
                     style={{ transform: `translateY(${scrollY * 0.1}px)` }}
                 ></div>
                 
-                {/* Radar Sweep Effect - Medium Parallax */}
+                {/* Gradient Orb - Medium Parallax */}
                 <div 
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-emerald-500/10 [mask-image:linear-gradient(transparent,black)] animate-[spin_10s_linear_infinite] pointer-events-none opacity-20"
-                    style={{ transform: `translate(-50%, calc(-50% + ${scrollY * 0.2}px))` }}
-                >
-                    <div className="h-1/2 w-full bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
-                </div>
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-sky-500/20 via-indigo-500/10 to-orange-500/10 dark:from-sky-500/30 dark:via-indigo-500/20 dark:to-orange-500/15 rounded-full blur-3xl pointer-events-none"
+                    style={{ transform: `translate(-50%, calc(-50% + ${scrollY * 0.15}px))` }}
+                ></div>
 
                 {/* Floating Orbs - Fast Parallax */}
                 <div 
-                    className="absolute top-20 left-[10%] w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"
+                    className="absolute top-20 left-[10%] w-64 h-64 bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none"
                     style={{ transform: `translateY(${scrollY * 0.4}px)` }}
                 ></div>
                 <div 
-                    className="absolute bottom-10 right-[15%] w-48 h-48 bg-sky-500/5 rounded-full blur-3xl pointer-events-none"
+                    className="absolute bottom-10 right-[15%] w-48 h-48 bg-indigo-400/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"
                     style={{ transform: `translateY(${scrollY * -0.3}px)` }}
                 ></div>
 
                 <div className="max-w-5xl mx-auto text-center relative z-10">
-                    {/* Status Badge - Slight upward parallax */}
+                    {/* Status Badge */}
                     <div 
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-emerald-500/30 bg-emerald-900/20 text-emerald-400 text-xs font-mono tracking-widest uppercase mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-500/20 dark:border-sky-500/30 text-sky-600 dark:text-sky-400 text-sm font-medium mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
                         style={{ transform: `translateY(${scrollY * -0.15}px)` }}
                     >
-                        <Target className="w-3 h-3" />
-                        System Online • v1.0
+                        <Sparkles className="w-4 h-4" />
+                        Now Available
                     </div>
                     
-                    {/* Title - Slower parallax for depth */}
+                    {/* Title */}
                     <h1 
-                        className="text-5xl md:text-7xl font-mono font-bold text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                        className="text-5xl md:text-7xl font-display font-bold mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100"
                         style={{ transform: `translateY(${scrollY * -0.1}px)` }}
                     >
-                        FLIGHT<span className="text-emerald-500">SOLO</span>
+                        <span className="text-slate-800 dark:text-white">Flight Planning,</span>
+                        <br />
+                        <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-sky-500 bg-clip-text text-transparent">
+                            Reimagined.
+                        </span>
                     </h1>
                     
-                    {/* Subtitle - Even slower for more depth */}
+                    {/* Subtitle */}
                     <p 
-                        className="text-xl md:text-2xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 font-light"
+                        className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200"
                         style={{ transform: `translateY(${scrollY * -0.05}px)` }}
                     >
-                        Precision flight planning tools. <br/>
-                        <span className="text-emerald-400 font-mono">Weather. Balance. Risk.</span>
+                        Smart weather briefings, weight & balance, and risk assessment tools designed for the modern pilot.
                     </p>
                     
-                    {/* CTA Button - Static for user interaction */}
+                    {/* CTA Button */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
                         <Link 
                             to="/dashboard" 
-                            className="group relative w-full sm:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold tracking-wide transition-all clip-path-slant flex items-center justify-center gap-3 overflow-hidden"
-                            style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 20%)' }}
+                            className="group w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-600 text-white text-lg font-bold rounded-xl transition-all shadow-lg shadow-sky-500/25 flex items-center justify-center gap-3"
                         >
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            <Plane className="w-5 h-5 group-hover:-rotate-45 transition-transform duration-300" />
-                            INITIATE FLIGHT
+                            <Plane className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-300" />
+                            Launch App
                         </Link>
                     </div>
                 </div>
             </section>
 
-            {/* Features Grid - Technical/Dark */}
-            <section className="py-20 px-4 bg-slate-950 border-t border-slate-800 relative overflow-hidden">
-                {/* Subtle parallax background for features section */}
+            {/* Features Grid */}
+            <section className="py-20 px-4 bg-slate-100/50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800 relative overflow-hidden">
+                {/* Subtle parallax background */}
                 <div 
-                    className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent pointer-events-none"
+                    className="absolute inset-0 bg-gradient-to-b from-white/50 dark:from-slate-950/50 to-transparent pointer-events-none"
                     style={{ transform: `translateY(${(scrollY - 400) * 0.05}px)` }}
                 ></div>
 
                 <div className="max-w-6xl mx-auto relative z-10">
                     <div className="text-center mb-16">
-                        <h2 className="text-2xl font-mono font-bold text-emerald-500 mb-4 tracking-wider uppercase">Mission Capabilities</h2>
-                        <div className="h-0.5 w-24 bg-emerald-500/30 mx-auto"></div>
+                        <h2 className="text-3xl font-display font-bold text-slate-800 dark:text-white mb-4">
+                            Everything you need to <span className="text-sky-500">Go.</span>
+                        </h2>
+                        <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+                            Comprehensive tools packed into a fast, offline-capable interface.
+                        </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
-                        <TechCard 
+                        <FeatureCard 
                             icon={CloudSun}
                             title="Smart Briefings"
-                            description="Live METAR/TAF decoding with personal minimums scoring."
-                            delay={0}
+                            description="Real-time METARs and TAFs decoded and scored against your personal minimums."
+                            color="text-amber-500"
+                            bg="bg-amber-500/10"
                         />
-                        <TechCard 
+                        <FeatureCard 
                             icon={Scale}
                             title="Weight & Balance"
-                            description="Dynamic CG envelopes with multi-station load planning."
-                            delay={1}
+                            description="Interactive CG envelopes and load planning for your specific aircraft profiles."
+                            color="text-emerald-500"
+                            bg="bg-emerald-500/10"
                         />
-                        <TechCard 
+                        <FeatureCard 
                             icon={MapIcon}
-                            title="Route Visualization"
-                            description="Interactive weather mapping along your flight path."
-                            delay={2}
+                            title="Route Weather"
+                            description="Visualize weather conditions along your entire flight path with dynamic mapping."
+                            color="text-sky-500"
+                            bg="bg-sky-500/10"
                         />
-                         <TechCard 
+                         <FeatureCard 
                             icon={CheckSquare}
-                            title="Voice Checklists"
-                            description="Audible callouts for hands-free cockpit operations."
-                            delay={3}
+                            title="Smart Checklists"
+                            description="Voice-assisted emergency and normal checklists to keep your head in the cockpit."
+                            color="text-indigo-500"
+                            bg="bg-indigo-500/10"
                         />
-                         <TechCard 
+                         <FeatureCard 
                             icon={Wind}
-                            title="Wind Components"
-                            description="Instant headwind/crosswind calculations for any runway."
-                            delay={4}
+                            title="Runway Winds"
+                            description="Instant headwind and crosswind component calculations for any runway."
+                            color="text-rose-500"
+                            bg="bg-rose-500/10"
                         />
-                         <TechCard 
+                         <FeatureCard 
                             icon={ShieldCheck}
-                            title="Offline Capable"
-                            description="Fully functional PWA. Data persists without connection."
-                            delay={5}
+                            title="Offline Ready"
+                            description="Built as a PWA. Save to your home screen and access core features even without signal."
+                            color="text-slate-500"
+                            bg="bg-slate-500/10"
                         />
                     </div>
                 </div>
@@ -154,23 +162,14 @@ export const LandingPage = () => {
     );
 };
 
-function TechCard({ icon: Icon, title, description, delay }: any) {
+function FeatureCard({ icon: Icon, title, description, color, bg }: any) {
     return (
-        <div 
-            className="bg-slate-900 p-6 border border-slate-800 hover:border-emerald-500/50 transition-all duration-500 group relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-500/5"
-            style={{ animationDelay: `${delay * 100}ms` }}
-        >
-            {/* Corner Markers */}
-            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
-            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
-            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
-            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
-
-            <div className="mb-4 text-emerald-500/50 group-hover:text-emerald-400 transition-colors">
-                <Icon className="w-8 h-8" />
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <div className={`w-12 h-12 ${bg} ${color} rounded-xl flex items-center justify-center mb-6`}>
+                <Icon className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-mono font-bold text-slate-200 mb-2 group-hover:text-emerald-400 transition-colors">{title}</h3>
-            <p className="text-slate-400 text-sm leading-relaxed border-l-2 border-slate-800 pl-3 group-hover:border-emerald-500/30 transition-colors">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-3 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">{title}</h3>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                 {description}
             </p>
         </div>
