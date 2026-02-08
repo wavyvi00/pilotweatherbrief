@@ -209,7 +209,7 @@ export const Dashboard = () => {
                                     <RotateCcw className="w-3 h-3" />
                                 </button>
                             </div>
-                            </div>
+
                         )}
                         
                         {/* Fuel Price Badge */}
