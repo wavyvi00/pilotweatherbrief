@@ -1,11 +1,7 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CloudSun } from 'lucide-react';
-import { PrivacyPolicyModal, TermsOfServiceModal } from './LegalModals';
 
 export const Footer = () => {
-    const [showPrivacy, setShowPrivacy] = useState(false);
-    const [showTerms, setShowTerms] = useState(false);
-
     return (
         <footer className="w-full py-8 mt-12 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-center transition-colors">
             <div className="max-w-4xl mx-auto px-4">
@@ -18,18 +14,15 @@ export const Footer = () => {
                     <br />
                     <span className="font-bold text-amber-500/80 dark:text-amber-500/60 uppercase tracking-widest text-[10px]">Not for Navigation</span>
                 </p>
-                <div className="flex justify-center gap-6 text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <button onClick={() => setShowTerms(true)} className="hover:text-primary dark:hover:text-sky-400 transition-colors">Terms of Service</button>
-                    <button onClick={() => setShowPrivacy(true)} className="hover:text-primary dark:hover:text-sky-400 transition-colors">Privacy Policy</button>
-                    <a href="https://github.com/victorrodriguez/pilotweatherbrief" target="_blank" rel="noopener noreferrer" className="hover:text-primary dark:hover:text-sky-400 transition-colors">GitHub</a>
+                <div className="flex items-center justify-center gap-6 text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <Link to="/privacy" className="hover:text-sky-500 dark:hover:text-sky-400 transition-colors">Privacy Policy</Link>
+                    <Link to="/support" className="hover:text-sky-500 dark:hover:text-sky-400 transition-colors">Support</Link>
+                    <a href="https://github.com/victorrodriguez/pilotweatherbrief" target="_blank" rel="noopener noreferrer" className="hover:text-sky-500 dark:hover:text-sky-400 transition-colors">GitHub</a>
                 </div>
                 <div className="mt-6 text-[10px] text-slate-300 dark:text-slate-600">
                     © {new Date().getFullYear()} FlightSolo. All rights reserved.
                 </div>
             </div>
-
-            <PrivacyPolicyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
-            <TermsOfServiceModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
         </footer>
     );
 };

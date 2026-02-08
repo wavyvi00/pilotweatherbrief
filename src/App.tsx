@@ -8,6 +8,8 @@ import { Footer } from './components/Footer';
 import clsx from 'clsx';
 
 import { SettingsPage } from './pages/Settings';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { SupportPage } from './pages/Support';
 
 import flightSoloLogo from './assets/flightsolo_icon.png';
 
@@ -78,6 +80,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/support" element={<SupportPage />} />
         </Routes>
       </Layout>
     </Router>
