@@ -1,4 +1,3 @@
-```
 import { useState, useEffect } from 'react';
 import { ALL_CHECKLISTS } from '../data/checklists';
 import type { ChecklistSection } from '../types/checklist';
