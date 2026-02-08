@@ -35,9 +35,8 @@ export const WeightBalanceCalculator = () => {
         
         // FIX: I should have added emptyArm to Aircraft type. 
         // For now, I'll estimate it or use the first station's arm - something.
-        // Better: Assume Base Empty Arm is roughly start of envelope? 
-        // C172 Empty Arm is usually ~38-40.
-        const emptyArm = 39.0; 
+        // Use configured empty arm or fallback
+        const emptyArm = activeAircraft.performance.emptyArm || 39.0;
         
         m = w * emptyArm;
 

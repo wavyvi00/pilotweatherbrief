@@ -25,6 +25,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         fuelBurn: 9,
         requiredEndorsements: [] as string[],
         emptyWeight: 1600,
+        emptyArm: 39.0, // Default
         maxGrossWeight: 2550,
         stations: [] as Station[],
         cgEnvelope: [] as CGEnvelopePoint[]
@@ -37,6 +38,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         fuelBurn: 9,
         requiredEndorsements: [] as string[],
         emptyWeight: 1600,
+        emptyArm: 39.0,
         maxGrossWeight: 2550,
         stations: [] as Station[],
         cgEnvelope: [] as CGEnvelopePoint[]
@@ -56,6 +58,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 usableFuel: 40, // default
                 range: 0, // calc
                 emptyWeight: Number(newShip.emptyWeight),
+                emptyArm: Number(newShip.emptyArm),
                 maxGrossWeight: Number(newShip.maxGrossWeight)
             },
             requiredEndorsements: newShip.requiredEndorsements,
@@ -65,7 +68,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         setIsAdding(false);
         setNewShip({ 
             registration: '', type: '', name: '', cruiseSpeed: 110, fuelBurn: 9, requiredEndorsements: [],
-            emptyWeight: 1600, maxGrossWeight: 2550, stations: [], cgEnvelope: []
+            emptyWeight: 1600, emptyArm: 39.0, maxGrossWeight: 2550, stations: [], cgEnvelope: []
         });
     };
 
@@ -79,6 +82,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
             fuelBurn: ship.performance.fuelBurn,
             requiredEndorsements: ship.requiredEndorsements || [],
             emptyWeight: ship.performance.emptyWeight || 1600, // Fixed access
+            emptyArm: ship.performance.emptyArm || 39.0,
             maxGrossWeight: ship.performance.maxGrossWeight || 2550, // Fixed access
             stations: ship.stations || [],
             cgEnvelope: ship.cgEnvelope || []
@@ -99,6 +103,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 usableFuel: 40,
                 range: 0,
                 emptyWeight: Number(editShip.emptyWeight),
+                emptyArm: Number(editShip.emptyArm),
                 maxGrossWeight: Number(editShip.maxGrossWeight)
             },
             requiredEndorsements: editShip.requiredEndorsements,
@@ -202,13 +207,23 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                                                 <Settings className="w-3 h-3" /> Weight & Balance
                                             </h4>
                                             <div className="grid grid-cols-2 gap-3">
-                                                 <div>
+                                                <div>
                                                     <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Empty Wt (lbs)</label>
                                                     <input
                                                         type="number"
                                                         className="w-full text-sm font-bold p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                                                         value={editShip.emptyWeight}
                                                         onChange={e => setEditShip({ ...editShip, emptyWeight: Number(e.target.value) })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1">Empty Arm (in)</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.1"
+                                                        className="w-full text-sm font-bold p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                                                        value={editShip.emptyArm}
+                                                        onChange={e => setEditShip({ ...editShip, emptyArm: Number(e.target.value) })}
                                                     />
                                                 </div>
                                                 <div>

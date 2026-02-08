@@ -13,6 +13,7 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             usableFuel: 53,
             range: 630,
             emptyWeight: 1665,
+            emptyArm: 39.6, // C172S Typical
             maxGrossWeight: 2550
         },
         stations: [
@@ -39,6 +40,7 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             usableFuel: 24,
             range: 350,
             emptyWeight: 1100,
+            emptyArm: 32.0, // C152 Typical
             maxGrossWeight: 1670
         },
         stations: [],
@@ -56,6 +58,7 @@ export const DEFAULT_AIRCRAFT: Aircraft[] = [
             usableFuel: 48,
             range: 520,
             emptyWeight: 1590,
+            emptyArm: 85.0, // PA-28 Typical (Datum is 78.4" ahead of wing leading edge)
             maxGrossWeight: 2550
         },
         stations: [],

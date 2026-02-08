@@ -6,6 +6,8 @@ export interface AircraftPerformance {
     range: number; // Estimated Range in NM (Optional, can be calc'd)
     // W&B Base Data
     emptyWeight: number; // lbs
+    emptyArm: number; // inches
+    emptyMoment?: number; // lb-in (Optional, derived)
     maxGrossWeight: number; // lbs
 }
 

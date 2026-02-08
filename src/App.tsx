@@ -3,14 +3,12 @@ import { Calendar, Settings, Moon, Sun } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
-import { Footer } from './components/Footer';
-
-import clsx from 'clsx';
-
+import { LandingPage } from './pages/LandingPage';
 import { SettingsPage } from './pages/Settings';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { SupportPage } from './pages/Support';
-
+import { Footer } from './components/Footer';
+import clsx from 'clsx';
 import flightSoloLogo from './assets/flightsolo_icon.png';
 
 function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: string }) {
@@ -51,14 +49,14 @@ function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
       <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
         <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between py-4">
-          <div className="flex items-center gap-3 font-display font-bold text-xl tracking-tight">
+          <Link to="/" className="flex items-center gap-3 font-display font-bold text-xl tracking-tight">
             <img src={flightSoloLogo} alt="FlightSolo" className="w-8 h-8 object-contain" />
             <span className="bg-gradient-to-r from-sky-200 to-indigo-300 bg-clip-text text-transparent">
               FlightSolo
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-2">
-            <NavLink to="/" icon={Calendar} label="Dashboard" />
+            <NavLink to="/dashboard" icon={Calendar} label="Dashboard" />
             <NavLink to="/settings" icon={Settings} label="Profile" />
             <ThemeToggle />
           </div>
@@ -78,7 +76,8 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/support" element={<SupportPage />} />
