@@ -1,9 +1,9 @@
-
+```
 import { useState, useEffect } from 'react';
 import { ALL_CHECKLISTS } from '../data/checklists';
-import type { Checklist, ChecklistSection, ChecklistItem } from '../types/checklist';
+import type { ChecklistSection } from '../types/checklist';
 import { useAircraft } from '../hooks/useAircraft';
-import { CheckCircle, Circle, Play, Pause, ChevronDown, ChevronRight, Volume2 } from 'lucide-react';
+import { CheckCircle, Pause, ChevronDown, ChevronRight, Volume2 } from 'lucide-react';
 import clsx from 'clsx';
 
 export const ChecklistViewer = () => {

@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAircraft } from '../hooks/useAircraft';
-import type { Station } from '../types/aircraft';
 import { Scale, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export const WeightBalanceCalculator = () => {
@@ -13,7 +12,7 @@ export const WeightBalanceCalculator = () => {
         if (activeAircraft) {
             const initial: Record<string, number> = {};
             activeAircraft.stations?.forEach(s => {
-                initial[s.id] = s.weight || 0; // Default or 0
+                initial[s.id] = 0; // Default to 0
             });
             // Fuel station special case?
             setWeights(initial);
@@ -25,8 +24,8 @@ export const WeightBalanceCalculator = () => {
     };
 
     // Calculations
-    const { totalWeight, totalMoment, cg } = useMemo(() => {
-        let w = activeAircraft.emptyWeight || 0;
+    const { totalWeight, cg } = useMemo(() => {
+        let w = activeAircraft.performance.emptyWeight || 0;
         let m = w * (activeAircraft.cgEnvelope?.[0]?.arm || 0); // Fallback if no empty arm provided? 
         // Wait, Aircraft struct doesn't have partial empty arm usually, it's derived or part of "Empty Weight" record. 
         // Actually, typical W&B starts with Empty Weight & Moment/Arm. 
@@ -52,13 +51,12 @@ export const WeightBalanceCalculator = () => {
 
         return {
             totalWeight: w,
-            totalMoment: m,
             cg: w > 0 ? m / w : 0
         };
     }, [activeAircraft, weights]);
 
     // Status
-    const isWeightOk = totalWeight <= (activeAircraft.maxGrossWeight || 2550);
+    const isWeightOk = totalWeight <= (activeAircraft.performance.maxGrossWeight || 2550);
     
     // Check Envelope (Point in Polygon)
     const isCgOk = useMemo(() => {
@@ -133,7 +131,7 @@ export const WeightBalanceCalculator = () => {
                         </div>
                          <div className="flex justify-between text-sm">
                             <span className="text-slate-500">Basic Empty Weight</span>
-                            <span className="font-bold text-slate-800 dark:text-slate-200">{activeAircraft.emptyWeight} lbs</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-200">{activeAircraft.performance.emptyWeight} lbs</span>
                         </div>
                     </div>
 
@@ -167,7 +165,7 @@ export const WeightBalanceCalculator = () => {
                              <div className={`text-xl font-bold ${isWeightOk ? 'text-slate-800 dark:text-slate-200' : 'text-rose-600'}`}>
                                  {totalWeight.toFixed(1)} <span className="text-sm text-slate-500">lbs</span>
                              </div>
-                             <div className="text-[10px] text-slate-400">Max: {activeAircraft.maxGrossWeight}</div>
+                             <div className="text-[10px] text-slate-400">Max: {activeAircraft.performance.maxGrossWeight}</div>
                         </div>
                         <div>
                              <div className="text-xs text-slate-400">Center of Gravity</div>

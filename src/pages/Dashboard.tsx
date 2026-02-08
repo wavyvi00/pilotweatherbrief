@@ -27,7 +27,7 @@ import { format, isWithinInterval } from 'date-fns';
 import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
 
-import type { WeatherWindow } from '../types/weather';
+
 
 export type ViewMode = 'timeline' | 'calendar' | 'map' | 'wb' | 'checklist';
 

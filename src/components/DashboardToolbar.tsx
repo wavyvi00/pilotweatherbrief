@@ -2,7 +2,6 @@
 import { useState, useRef } from 'react';
 import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, Scale, CheckSquare } from 'lucide-react';
 import clsx from 'clsx';
-import clsx from 'clsx';
 import { AirportSearch } from './AirportSearch';
 import { AircraftSelector } from './AircraftSelector';
 import { RouteSummary } from './RouteSummary';
@@ -23,13 +22,9 @@ interface DashboardToolbarProps {
     setActiveAircraftId: (id: string) => void;
     setIsAircraftManagerOpen: (open: boolean) => void;
     profiles: TrainingProfile[];
-    activeProfileId: string;
-    setActiveProfileId: (id: string) => void;
-    activeProfileId: string;
     setActiveProfileId: (id: string) => void;
     viewMode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist';
     setViewMode: (mode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist') => void;
-    selectedTime: Date | null;
     selectedTime: Date | null;
     onTimeChange: (time: Date | null) => void;
     onRefresh: () => void;

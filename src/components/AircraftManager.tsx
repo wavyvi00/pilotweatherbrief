@@ -32,6 +32,7 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
     const [editShip, setEditShip] = useState({
         registration: '',
         type: '',
+        name: '', // Added name
         cruiseSpeed: 110,
         fuelBurn: 9,
         requiredEndorsements: [] as string[],
@@ -53,11 +54,11 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
                 cruiseSpeed: Number(newShip.cruiseSpeed),
                 fuelBurn: Number(newShip.fuelBurn),
                 usableFuel: 40, // default
-                range: 0 // calc
+                range: 0, // calc
+                emptyWeight: Number(newShip.emptyWeight),
+                maxGrossWeight: Number(newShip.maxGrossWeight)
             },
             requiredEndorsements: newShip.requiredEndorsements,
-            emptyWeight: newShip.emptyWeight,
-            maxGrossWeight: newShip.maxGrossWeight,
             stations: newShip.stations.length > 0 ? newShip.stations : (DEFAULT_AIRCRAFT[0].stations || []),
             cgEnvelope: newShip.cgEnvelope.length > 0 ? newShip.cgEnvelope : (DEFAULT_AIRCRAFT[0].cgEnvelope || [])
         });
@@ -73,10 +74,12 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         setEditShip({
             registration: ship.registration,
             type: ship.type,
+            name: ship.name, // Added name
+            cruiseSpeed: ship.performance.cruiseSpeed, // Added cruiseSpeed
             fuelBurn: ship.performance.fuelBurn,
             requiredEndorsements: ship.requiredEndorsements || [],
-            emptyWeight: ship.emptyWeight || 1600,
-            maxGrossWeight: ship.maxGrossWeight || 2550,
+            emptyWeight: ship.performance.emptyWeight || 1600, // Fixed access
+            maxGrossWeight: ship.performance.maxGrossWeight || 2550, // Fixed access
             stations: ship.stations || [],
             cgEnvelope: ship.cgEnvelope || []
         });
@@ -89,16 +92,16 @@ export const AircraftManager = ({ isOpen, onClose, fleet, onAdd, onUpdate, onDel
         onUpdate(editingId, {
             registration: editShip.registration.toUpperCase(),
             type: editShip.type,
-            name: editShip.name || '', // Ensure name is preserved
+            name: editShip.name,
             performance: {
                 cruiseSpeed: Number(editShip.cruiseSpeed),
                 fuelBurn: Number(editShip.fuelBurn),
                 usableFuel: 40,
-                range: 0
+                range: 0,
+                emptyWeight: Number(editShip.emptyWeight),
+                maxGrossWeight: Number(editShip.maxGrossWeight)
             },
             requiredEndorsements: editShip.requiredEndorsements,
-            emptyWeight: Number(editShip.emptyWeight),
-            maxGrossWeight: Number(editShip.maxGrossWeight),
             stations: editShip.stations,
             cgEnvelope: editShip.cgEnvelope
         });
