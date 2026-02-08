@@ -22,6 +22,7 @@ interface DashboardToolbarProps {
     setActiveAircraftId: (id: string) => void;
     setIsAircraftManagerOpen: (open: boolean) => void;
     profiles: TrainingProfile[];
+    activeProfileId: string;
     setActiveProfileId: (id: string) => void;
     viewMode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist';
     setViewMode: (mode: 'calendar' | 'timeline' | 'map' | 'wb' | 'checklist') => void;
