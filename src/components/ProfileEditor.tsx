@@ -249,66 +249,30 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                         <h3 className="font-bold text-slate-800">Endorsements</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Pilot Holds */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-slate-700">Pilot Qualifications</h4>
-                            <p className="text-xs text-slate-500">Select the endorsements you hold.</p>
-                            <div className="space-y-2">
-                                {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
-                                    <label key={endo} className="flex items-center gap-2 cursor-pointer group">
-                                        <input
-                                            type="checkbox"
-                                            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                                            checked={profile.endorsements?.includes(endo)}
-                                            onChange={(e) => {
-                                                const current = profile.endorsements || [];
-                                                const newEndos = e.target.checked
-                                                    ? [...current, endo]
-                                                    : current.filter(x => x !== endo);
-                                                onUpdate({ ...profile, endorsements: newEndos });
-                                            }}
-                                        />
-                                        <span className="text-sm text-slate-700 group-hover:text-slate-900 capitalize">
-                                            {endo.replace('-', ' ')}
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Aircraft Requires */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-slate-700">Aircraft Requirements</h4>
-                            <p className="text-xs text-slate-500">Select endorsements required for this aircraft.</p>
-                            <div className="space-y-2">
-                                {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
-                                    <label key={`req-${endo}`} className="flex items-center gap-2 cursor-pointer group">
-                                        <input
-                                            type="checkbox"
-                                            className="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
-                                            checked={profile.aircraft?.requiredEndorsements?.includes(endo)}
-                                            onChange={(e) => {
-                                                const current = profile.aircraft?.requiredEndorsements || [];
-                                                const newReqs = e.target.checked
-                                                    ? [...current, endo]
-                                                    : current.filter(x => x !== endo);
-
-                                                onUpdate({
-                                                    ...profile,
-                                                    aircraft: {
-                                                        ...profile.aircraft!,
-                                                        requiredEndorsements: newReqs
-                                                    }
-                                                });
-                                            }}
-                                        />
-                                        <span className="text-sm text-slate-700 group-hover:text-slate-900 capitalize">
-                                            {endo.replace('-', ' ')}
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
+                    {/* Pilot Holds */}
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-slate-700">Pilot Qualifications</h4>
+                        <p className="text-xs text-slate-500">Select the endorsements you hold.</p>
+                        <div className="flex flex-wrap gap-4">
+                            {['complex', 'high-performance', 'tailwheel', 'high-altitude'].map(endo => (
+                                <label key={endo} className="flex items-center gap-2 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                                        checked={profile.endorsements?.includes(endo)}
+                                        onChange={(e) => {
+                                            const current = profile.endorsements || [];
+                                            const newEndos = e.target.checked
+                                                ? [...current, endo]
+                                                : current.filter(x => x !== endo);
+                                            onUpdate({ ...profile, endorsements: newEndos });
+                                        }}
+                                    />
+                                    <span className="text-sm text-slate-700 group-hover:text-slate-900 capitalize">
+                                        {endo.replace('-', ' ')}
+                                    </span>
+                                </label>
+                            ))}
                         </div>
                     </div>
                 </div>
