@@ -6,6 +6,7 @@ import './index.css';
 import { Dashboard } from './pages/Dashboard';
 import { LandingPage } from './pages/LandingPage';
 import { AuthPage } from './pages/Auth';
+import { AuthCallback } from './pages/AuthCallback';
 import { SettingsPage } from './pages/Settings';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { SupportPage } from './pages/Support';
@@ -117,6 +118,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
