@@ -5,113 +5,94 @@ import {
     Scale, 
     CheckSquare, 
     Wind, 
-    ArrowRight, 
     Map as MapIcon, 
-    ShieldCheck
+    ShieldCheck,
+    Plane,
+    Target
 } from 'lucide-react';
 
 export const LandingPage = () => {
     return (
-        <div className="flex flex-col min-h-[80vh]">
+        <div className="flex flex-col min-h-[80vh] bg-slate-900 text-slate-100 selection:bg-emerald-500/30">
             
-            {/* Hero Section */}
-            <section className="relative py-20 md:py-32 px-4 overflow-hidden">
+            {/* Hero Section - HUD/Cockpit Style */}
+            <section className="relative py-24 md:py-40 px-4 overflow-hidden">
+                
+                {/* Grid Background */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] pointer-events-none"></div>
+                
+                {/* Radar Sweep Effect */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-emerald-500/10 [mask-image:linear-gradient(transparent,black)] animate-[spin_10s_linear_infinite] pointer-events-none opacity-20">
+                    <div className="h-1/2 w-full bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
+                </div>
+
                 <div className="max-w-5xl mx-auto text-center relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-sm font-bold mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                        </span>
-                        v1.0 Now Available
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-emerald-500/30 bg-emerald-900/20 text-emerald-400 text-xs font-mono tracking-widest uppercase mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <Target className="w-3 h-3" />
+                        System Online • v1.0
                     </div>
                     
-                    <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 dark:text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-                        Flight Planning, <br />
-                        <span className="bg-gradient-to-r from-sky-400 to-indigo-500 bg-clip-text text-transparent">
-                            Reimagined.
-                        </span>
+                    <h1 className="text-5xl md:text-7xl font-mono font-bold text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                        FLIGHT<span className="text-emerald-500">SOLO</span>
                     </h1>
                     
-                    <p className="text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                        Smart weather briefings, weight & balance, and risk assessment tools designed for the modern pilot. 
-                        Go from "thinking" to "flying" in seconds.
+                    <p className="text-xl md:text-2xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 font-light">
+                        Precision flight planning tools. <br/>
+                        <span className="text-emerald-400 font-mono">Weather. Balance. Risk.</span>
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
                         <Link 
                             to="/dashboard" 
-                            className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-600 text-white text-lg font-bold rounded-xl transition-all shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 group"
+                            className="group relative w-full sm:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold tracking-wide transition-all clip-path-slant flex items-center justify-center gap-3 overflow-hidden"
+                            style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 20%)' }}
                         >
-                            Launch App 
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <Plane className="w-5 h-5 group-hover:-rotate-45 transition-transform duration-300" />
+                            INITIATE FLIGHT
                         </Link>
-                        <a 
-                            href="https://github.com/victorrodriguez/pilotweatherbrief" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-lg font-bold rounded-xl transition-all"
-                        >
-                            View on GitHub
-                        </a>
                     </div>
                 </div>
-                
-                {/* Background Decor */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/20 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
             </section>
 
-            {/* Features Grid */}
-            <section className="py-20 px-4 bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800">
+            {/* Features Grid - Technical/Dark */}
+            <section className="py-20 px-4 bg-slate-950 border-t border-slate-800">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-display font-bold text-slate-900 dark:text-white mb-4">Everything you need to Go.</h2>
-                        <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-                            Comprehensive tools packed into a fast, offline-capable interface.
-                        </p>
+                        <h2 className="text-2xl font-mono font-bold text-emerald-500 mb-4 tracking-wider uppercase">Mission Capabilities</h2>
+                        <div className="h-0.5 w-24 bg-emerald-500/30 mx-auto"></div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <FeatureCard 
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <TechCard 
                             icon={CloudSun}
                             title="Smart Briefings"
-                            description="Real-time METARs and TAFs decoded and scored against your personal minimums."
-                            color="text-amber-500"
-                            bg="bg-amber-500/10"
+                            description="Live METAR/TAF decoding with personal minimums scoring."
                         />
-                        <FeatureCard 
+                        <TechCard 
                             icon={Scale}
                             title="Weight & Balance"
-                            description="Interactive CG envelopes and load planning for your specific aircraft profiles."
-                            color="text-emerald-500"
-                            bg="bg-emerald-500/10"
+                            description="Dynamic CG envelopes with multi-station load planning."
                         />
-                        <FeatureCard 
+                        <TechCard 
                             icon={MapIcon}
-                            title="Route Weather"
-                            description="Visualize weather conditions along your entire flight path with dynamic mapping."
-                            color="text-sky-500"
-                            bg="bg-sky-500/10"
+                            title="Route Visualization"
+                            description="Interactive weather mapping along your flight path."
                         />
-                         <FeatureCard 
+                         <TechCard 
                             icon={CheckSquare}
-                            title="Smart Checklists"
-                            description="Voice-assisted emergency and normal checklists to keep your head in the cockpit."
-                            color="text-indigo-500"
-                            bg="bg-indigo-500/10"
+                            title="Voice Checklists"
+                            description="Audible callouts for hands-free cockpit operations."
                         />
-                         <FeatureCard 
+                         <TechCard 
                             icon={Wind}
-                            title="Runway Winds"
-                            description="Instant headwind and crosswind component calculations for any runway."
-                            color="text-rose-500"
-                            bg="bg-rose-500/10"
+                            title="Wind Components"
+                            description="Instant headwind/crosswind calculations for any runway."
                         />
-                         <FeatureCard 
+                         <TechCard 
                             icon={ShieldCheck}
-                            title="Offline Ready"
-                            description="Built as a PWA. Save to your home screen and access core features even without signal."
-                            color="text-slate-500"
-                            bg="bg-slate-500/10"
+                            title="Offline Capable"
+                            description="Fully functional PWA. Data persists without connection."
                         />
                     </div>
                 </div>
@@ -120,14 +101,20 @@ export const LandingPage = () => {
     );
 };
 
-function FeatureCard({ icon: Icon, title, description, color, bg }: any) {
+function TechCard({ icon: Icon, title, description }: any) {
     return (
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-            <div className={`w-12 h-12 ${bg} ${color} rounded-xl flex items-center justify-center mb-6`}>
-                <Icon className="w-6 h-6" />
+        <div className="bg-slate-900 p-6 border border-slate-800 hover:border-emerald-500/50 transition-colors group relative overflow-hidden">
+            {/* Corner Markers */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
+            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-slate-700 group-hover:border-emerald-500 transition-colors"></div>
+
+            <div className="mb-4 text-emerald-500/50 group-hover:text-emerald-400 transition-colors">
+                <Icon className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-            <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+            <h3 className="text-lg font-mono font-bold text-slate-200 mb-2 group-hover:text-emerald-400 transition-colors">{title}</h3>
+            <p className="text-slate-400 text-sm leading-relaxed border-l-2 border-slate-800 pl-3 group-hover:border-emerald-500/30 transition-colors">
                 {description}
             </p>
         </div>
