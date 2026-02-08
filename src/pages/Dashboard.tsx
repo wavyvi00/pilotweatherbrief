@@ -3,7 +3,7 @@ import { useWeather } from '../hooks/useWeather';
 import { RouteBriefing } from '../components/RouteBriefing';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
-import { useAircraft } from '../hooks/useAircraft';
+
 import { useSettings } from '../hooks/useSettings';
 import { useAirportData } from '../hooks/useAirportData';
 import { AircraftManager } from '../components/AircraftManager';
