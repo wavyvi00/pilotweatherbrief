@@ -91,28 +91,17 @@ export const SuitabilityCard: React.FC<SuitabilityCardProps> = ({ result, compac
                 <div className="flex items-center gap-2 mb-1">
                     <h2 className={clsx("text-xl font-bold font-display", config.text)}>– {config.label}</h2>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1">
-                    Conditions meet all personal minimums for this profile.
-                </p>
-            </div>
-
-            {/* Data Grid (Mocked for visual match based on reference, normally would pull from result/window) */}
-            <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 -mx-5 px-5 -mb-5 pb-4 rounded-b-xl">
-                <div>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">WINDS</span> <span className="text-slate-500 dark:text-slate-400">350° @ 8 KT</span>
-                </div>
-                <div>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">CLOUDS</span> <span className="text-slate-500 dark:text-slate-400">UNLIMITED</span>
-                </div>
-                <div>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">VISIBILITY</span> <span className="text-slate-500 dark:text-slate-400">10SM</span>
-                </div>
-                <div>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">TEXT</span> <span className="text-slate-500 dark:text-slate-400">10 SM</span>
-                </div>
-                <div className="col-span-2 flex items-center justify-between pt-1">
-                    <span className="font-bold text-slate-800 dark:text-slate-200">PRECIPITATION</span> <span className="text-slate-500 dark:text-slate-400 uppercase">NONE</span>
-                </div>
+                {result.reasons.length > 0 ? (
+                    <ul className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1 space-y-0.5">
+                        {result.reasons.map((reason, i) => (
+                            <li key={i}>• {reason}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1">
+                        Conditions meet all personal minimums for this profile.
+                    </p>
+                )}
             </div>
 
         </div>
