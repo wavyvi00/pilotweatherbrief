@@ -28,10 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // Redirect to password reset page on recovery
+            if (event === 'PASSWORD_RECOVERY') {
+                window.location.href = '/reset-password';
+            }
         });
 
         return () => subscription.unsubscribe();

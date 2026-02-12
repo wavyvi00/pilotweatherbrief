@@ -24,6 +24,16 @@ export const AuthCallback = () => {
 
                 // Check if we have an access token (successful auth)
                 const accessToken = hashParams.get('access_token');
+                const tokenType = hashParams.get('type');
+
+                if (accessToken && tokenType === 'recovery') {
+                    // Password recovery — set session then redirect to reset page
+                    setStatus('success');
+                    setMessage('Verified! Redirecting to password reset...');
+                    setTimeout(() => navigate('/reset-password'), 1500);
+                    return;
+                }
+
                 if (accessToken) {
                     // Session will be automatically picked up by onAuthStateChange
                     setStatus('success');

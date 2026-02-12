@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Calendar, Settings, Moon, Sun, LogIn, LogOut, User, Menu, X } from 'lucide-react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Calendar, Settings, Moon, Sun, LogIn, LogOut, User, Menu, X, Zap } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { RevenueCatProvider } from './contexts/RevenueCatContext';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
 import { LandingPage } from './pages/LandingPage';
 import { AuthPage } from './pages/Auth';
 import { AuthCallback } from './pages/AuthCallback';
+import { ResetPassword } from './pages/ResetPassword';
 import { SettingsPage } from './pages/Settings';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { SupportPage } from './pages/Support';
+import { SubscriptionPage } from './pages/SubscriptionPage';
 import { Footer } from './components/Footer';
 import clsx from 'clsx';
 import flightSoloLogo from './assets/flightsolo_icon.png';
@@ -126,6 +130,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           <div className="hidden md:flex items-center gap-2">
             <NavLink to="/dashboard" icon={Calendar} label="Dashboard" />
             <NavLink to="/settings" icon={Settings} label="Profile" />
+            <NavLink to="/subscription" icon={Zap} label="Go Pro" />
             <ThemeToggle />
             <AuthButton />
           </div>
@@ -145,6 +150,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex flex-col gap-2">
               <MobileNavLink to="/dashboard" icon={Calendar} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
               <MobileNavLink to="/settings" icon={Settings} label="Profile" onClick={() => setMobileMenuOpen(false)} />
+              <MobileNavLink to="/subscription" icon={Zap} label="Go Pro" onClick={() => setMobileMenuOpen(false)} />
               <div className="border-t border-white/10 my-2" />
               <div className="flex items-center justify-between px-4 py-2">
                 <span className="text-sm text-slate-400">Theme</span>
@@ -174,10 +180,12 @@ function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/subscription" element={<SubscriptionPage />} />
       </Routes>
     </Layout>
   );
@@ -185,11 +193,15 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <RevenueCatProvider>
+            <AppRoutes />
+          </RevenueCatProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type Theme = 'light' | 'dark';
+
+const THEME_EVENT = 'theme-change';
 
 export const useTheme = () => {
     const [theme, setTheme] = useState<Theme>(() => {
@@ -12,6 +14,7 @@ export const useTheme = () => {
         return 'light';
     });
 
+    // Apply theme to DOM and localStorage
     useEffect(() => {
         const root = window.document.documentElement;
         if (theme === 'dark') {
@@ -22,9 +25,24 @@ export const useTheme = () => {
         localStorage.setItem('theme', theme);
     }, [theme]);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
+    // Listen for theme changes from other component instances
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const newTheme = (e as CustomEvent<Theme>).detail;
+            setTheme(newTheme);
+        };
+        window.addEventListener(THEME_EVENT, handler);
+        return () => window.removeEventListener(THEME_EVENT, handler);
+    }, []);
+
+    const toggleTheme = useCallback(() => {
+        setTheme(prev => {
+            const next = prev === 'light' ? 'dark' : 'light';
+            // Notify all other useTheme instances
+            window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: next }));
+            return next;
+        });
+    }, []);
 
     return { theme, toggleTheme };
 };

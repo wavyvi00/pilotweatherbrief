@@ -2,8 +2,68 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
+import { useRevenueCat } from '../contexts/RevenueCatContext';
 import { ProfileEditor } from '../components/ProfileEditor';
-import { Settings as SettingsIcon, Home, Plane, User, ChevronDown } from 'lucide-react';
+import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, CreditCard, Zap, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const SubscriptionSection = () => {
+    const { isPro, presentCustomerCenter, currentCustomerInfo } = useRevenueCat();
+    const navigate = useNavigate();
+
+    return (
+        <GlassCard className="p-4 sm:p-6 md:p-8 mb-6 md:mb-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Zap className="w-32 h-32 text-sky-500" />
+            </div>
+            
+            <div className="relative z-10">
+                <div className="mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
+                    <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-3">
+                        Subscription
+                        {isPro && <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded-full border border-emerald-500/20">ACTIVE</span>}
+                    </h1>
+                    <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl">
+                        Manage your Flight Solo subscription and billing.
+                    </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                            {isPro ? 'Flight Solo Pro' : 'Free Plan'}
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {isPro 
+                                ? `Renews: ${currentCustomerInfo?.latestExpirationDate ? new Date(currentCustomerInfo.latestExpirationDate).toLocaleDateString() : 'Unknown'}`
+                                : 'Upgrade to unlock advanced features.'}
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                         {isPro ? (
+                            <button 
+                                onClick={() => presentCustomerCenter()}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                <CreditCard className="w-4 h-4" />
+                                Manage Subscription
+                            </button>
+                         ) : (
+                            <button 
+                                onClick={() => navigate('/subscription')}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold shadow-lg shadow-sky-500/20 hover:from-sky-400 hover:to-indigo-500 transition-all"
+                            >
+                                <Zap className="w-4 h-4" />
+                                Upgrade to Pro
+                            </button>
+                         )}
+                    </div>
+                </div>
+            </div>
+        </GlassCard>
+    );
+};
 
 export const SettingsPage = () => {
     const { activeProfile, updateProfile, resetProfiles, profiles } = useProfiles();
@@ -17,6 +77,9 @@ export const SettingsPage = () => {
                 <SettingsIcon className="w-5 h-5" />
                 <span className="font-medium text-sm uppercase tracking-wider">Configuration</span>
             </div>
+
+            {/* Subscription Section */}
+            <SubscriptionSection />
 
             {/* Defaults Section */}
             <GlassCard className="p-4 sm:p-6 md:p-8 mb-6 md:mb-8">

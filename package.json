@@ -10,6 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/ios": "^8.0.2",
+    "@revenuecat/purchases-capacitor": "^12.1.1",
+    "@revenuecat/purchases-capacitor-ui": "^12.1.1",
+    "@revenuecat/purchases-js": "^1.25.0",
+    "@stripe/stripe-js": "^8.7.0",
     "@supabase/supabase-js": "^2.95.3",
     "@types/leaflet": "^1.9.21",
     "@types/react-helmet-async": "^1.0.1",
