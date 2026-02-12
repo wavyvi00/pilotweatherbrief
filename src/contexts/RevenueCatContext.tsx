@@ -1,6 +1,5 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { CustomerInfo } from '@revenuecat/purchases-capacitor';
 import { Purchases as PurchasesWeb } from '@revenuecat/purchases-js';
 import { useAuth } from './AuthContext';
 
