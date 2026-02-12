@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { PurchasesPackage, CustomerInfo } from '@revenuecat/purchases-capacitor';
+import type { CustomerInfo } from '@revenuecat/purchases-capacitor';
 import { Purchases as PurchasesWeb } from '@revenuecat/purchases-js';
 import { useAuth } from './AuthContext';
 
@@ -72,16 +72,16 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
 
                     try {
                         const info = await Purchases.getCustomerInfo();
-                        updateCustomerInfo(info.customerInfo);
+                        updateCustomerInfo((info as any).customerInfo ?? info);
                     } catch (e) {
                         console.error("[RC:INIT] Error fetching customer info (Native)", e);
                     }
 
                     await loadOfferingsNative(Purchases);
 
-                    Purchases.addCustomerInfoUpdateListener((info) => {
+                    (Purchases as any).addCustomerInfoUpdateListener((info: any) => {
                         rcLog('ENTITLEMENT', 'Customer info updated (listener)');
-                        updateCustomerInfo(info.customerInfo);
+                        updateCustomerInfo(info.customerInfo ?? info);
                     });
 
                 } else {
@@ -123,13 +123,13 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                     
                     // Attach listener
                     const sharedInstance = PurchasesWeb.getSharedInstance();
-                    if (sharedInstance && typeof sharedInstance.addCustomerInfoUpdateListener === 'function') {
-                         sharedInstance.addCustomerInfoUpdateListener((info: any) => {
+                    if (sharedInstance && typeof (sharedInstance as any).addCustomerInfoUpdateListener === 'function') {
+                         (sharedInstance as any).addCustomerInfoUpdateListener((info: any) => {
                             rcLog('ENTITLEMENT', 'Customer info updated (listener)');
                             updateCustomerInfo(info);
                         });
-                    } else if (typeof purchases.addCustomerInfoUpdateListener === 'function') {
-                        purchases.addCustomerInfoUpdateListener((info: any) => {
+                    } else if (typeof (purchases as any).addCustomerInfoUpdateListener === 'function') {
+                        (purchases as any).addCustomerInfoUpdateListener((info: any) => {
                             rcLog('ENTITLEMENT', 'Customer info updated (listener)');
                             updateCustomerInfo(info);
                         });

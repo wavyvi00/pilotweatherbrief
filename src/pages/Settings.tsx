@@ -4,7 +4,7 @@ import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
 import { useRevenueCat } from '../contexts/RevenueCatContext';
 import { ProfileEditor } from '../components/ProfileEditor';
-import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, CreditCard, Zap, CheckCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, CreditCard, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SubscriptionSection = () => {

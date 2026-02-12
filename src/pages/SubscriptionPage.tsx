@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRevenueCat } from '../contexts/RevenueCatContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Shield, Sparkles, Cloud, Plane, Map, Download, Headphones, Star, LogIn } from 'lucide-react';
+import { Shield, Sparkles, Cloud, Plane, Map, Download, Headphones, LogIn } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import clsx from 'clsx';
 
