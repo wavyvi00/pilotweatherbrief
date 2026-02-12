@@ -37,6 +37,14 @@ export const Dashboard = () => {
 
     const [stationId, setStationId] = useState(settings.defaultAirport || 'KMCI');
 
+    // Sync stationId when settings load from cloud (fixes race condition)
+    useEffect(() => {
+        if (settings.defaultAirport && settings.defaultAirport !== stationId) {
+            setStationId(settings.defaultAirport);
+            setRoute(createSimpleRoute(settings.defaultAirport, ''));
+        }
+    }, [settings.defaultAirport]);
+
     // Wrapper to persist station changes
     const handleStationChange = (id: string) => {
         setStationId(id);
