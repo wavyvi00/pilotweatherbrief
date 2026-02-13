@@ -55,14 +55,14 @@ export const AviationWeatherService = {
             raw_text: raw.rawOb,
             station_id: raw.icaoId,
             observation_time: raw.obsTime || new Date().toISOString(), // Fallback
-            temp_c: raw.temp,
-            dewpoint_c: raw.dewp,
-            wind_dir_degrees: raw.wdir,
-            wind_speed_kt: raw.wspd,
-            wind_gust_kt: raw.wgst,
-            visibility_statute_mi: raw.visib,
-            altim_in_hg: raw.altim,
-            sea_level_pressure_mb: raw.slp,
+            temp_c: typeof raw.temp === 'number' ? raw.temp : parseFloat(raw.temp || '0'),
+            dewpoint_c: typeof raw.dewp === 'number' ? raw.dewp : parseFloat(raw.dewp || '0'),
+            wind_dir_degrees: typeof raw.wdir === 'number' ? raw.wdir : parseInt(raw.wdir || '0', 10),
+            wind_speed_kt: typeof raw.wspd === 'number' ? raw.wspd : parseInt(raw.wspd || '0', 10),
+            wind_gust_kt: typeof raw.wgst === 'number' ? raw.wgst : parseInt(raw.wgst || '0', 10),
+            visibility_statute_mi: typeof raw.visib === 'number' ? raw.visib : parseFloat(raw.visib || '10'),
+            altim_in_hg: typeof raw.altim === 'number' ? raw.altim : parseFloat(raw.altim || '29.92'),
+            sea_level_pressure_mb: raw.slp ? parseFloat(raw.slp) : undefined,
             flight_category: raw.flightCat, // VFR, MVFR, IFR, LIFR
             sky_condition: sky_condition,
         };

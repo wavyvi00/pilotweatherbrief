@@ -74,7 +74,7 @@ export const WeatherDetailsModal: React.FC<WeatherDetailsModalProps> = ({ window
                                 <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                     <div className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mb-1 tracking-wider">Visibility</div>
                                     <div className="text-xl font-bold text-slate-900 dark:text-slate-100 font-display">
-                                        {window.visibility.toFixed(1)} sm
+                                        {Number(window.visibility).toFixed(1)} sm
                                     </div>
                                 </div>
 
