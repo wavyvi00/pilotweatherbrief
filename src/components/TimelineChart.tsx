@@ -38,6 +38,11 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({ windows, profile, 
                                 {/* Tooltip on hover */}
                                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block bg-white dark:bg-slate-800 p-3 rounded-lg text-xs whitespace-nowrap z-50 w-32 border border-slate-200 dark:border-slate-700 shadow-xl">
                                     <div className="font-bold text-slate-800 dark:text-slate-200 mb-1">{dayLabel} {timeLabel}</div>
+                                    <div className="text-slate-500 dark:text-slate-400 text-[10px] space-y-0.5 mb-1">
+                                        <div>Wind: <span className="text-slate-700 dark:text-slate-300 font-mono">{win.wind.speed}{win.wind.gust > win.wind.speed + 5 ? `G${win.wind.gust}` : ''}kt</span></div>
+                                        <div>Cig: <span className="text-slate-700 dark:text-slate-300 font-mono">{win.ceiling > 20000 ? 'Unlim' : win.ceiling}</span></div>
+                                        <div>Vis: <span className="text-slate-700 dark:text-slate-300 font-mono">{win.visibility.toFixed(1)}sm</span></div>
+                                    </div>
                                     <div className="text-slate-500 dark:text-slate-400">Score: <span className="text-slate-900 dark:text-slate-100 font-bold">{result.score}</span></div>
                                     <div className={clsx("text-xs font-bold uppercase mt-1",
                                         result.status === 'GO' ? 'text-emerald-600 dark:text-emerald-400' :

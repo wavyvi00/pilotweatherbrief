@@ -4,7 +4,11 @@ import type { Aircraft } from '../types/aircraft';
 import { ScoringEngine, type SuitabilityResult } from './scoring';
 
 export interface GroupedEventResource extends SuitabilityResult {
-    // We can add more specific fields here if needed in the future
+    // Aggregated stats for the group
+    maxWind: number;
+    maxGust: number;
+    minCeiling: number;
+    minVisibility: number;
 }
 
 export interface SmartCalendarEvent {
@@ -21,6 +25,11 @@ interface GroupAccumulator {
     scoreSum: number;
     count: number;
     resource: SuitabilityResult;
+    // Track extremes
+    maxWind: number;
+    maxGust: number;
+    minCeiling: number;
+    minVisibility: number;
 }
 
 /**
@@ -47,6 +56,13 @@ export function groupWeatherWindows(windows: WeatherWindow[], profile: TrainingP
                 currentGroup.end = win.endTime;
                 currentGroup.scoreSum += result.score;
                 currentGroup.count += 1;
+
+                // Update extremes
+                currentGroup.maxWind = Math.max(currentGroup.maxWind, win.wind.speed);
+                currentGroup.maxGust = Math.max(currentGroup.maxGust, win.wind.gust);
+                currentGroup.minCeiling = Math.min(currentGroup.minCeiling, win.ceiling);
+                currentGroup.minVisibility = Math.min(currentGroup.minVisibility, win.visibility);
+
                 continue;
             } else {
                 // Commit the finished group
@@ -62,7 +78,11 @@ export function groupWeatherWindows(windows: WeatherWindow[], profile: TrainingP
             status: result.status,
             scoreSum: result.score,
             count: 1,
-            resource: result
+            resource: result,
+            maxWind: win.wind.speed,
+            maxGust: win.wind.gust,
+            minCeiling: win.ceiling,
+            minVisibility: win.visibility
         };
     }
 
@@ -89,7 +109,11 @@ function finalizeGroup(group: GroupAccumulator): SmartCalendarEvent {
         end: group.end,
         resource: {
             ...group.resource,
-            score: avgScore
+            score: avgScore,
+            maxWind: group.maxWind,
+            maxGust: group.maxGust,
+            minCeiling: group.minCeiling,
+            minVisibility: group.minVisibility
         },
     };
 }
