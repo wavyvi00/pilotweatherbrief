@@ -17,12 +17,12 @@ export const useProfiles = () => {
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
-            
+
             if (user) {
                 try {
                     // Fetch from Supabase
                     const cloudProfiles = await fetchUserProfiles(user.id);
-                    
+
                     if (cloudProfiles.length > 0) {
                         setProfiles(cloudProfiles);
                         setActiveProfileId(cloudProfiles[0].id);
@@ -46,10 +46,10 @@ export const useProfiles = () => {
                 setProfiles(localProfiles);
                 setActiveProfileId(localStorage.getItem(ACTIVE_KEY) || localProfiles[0]?.id || '');
             }
-            
+
             setLoading(false);
         };
-        
+
         loadData();
     }, [user]);
 
@@ -82,13 +82,25 @@ export const useProfiles = () => {
     const updateProfile = useCallback(async (updated: TrainingProfile) => {
         setProfiles(prev => {
             const newProfiles = prev.map(p => p.id === updated.id ? updated : p);
-            
+
             if (user) {
                 syncProfilesToSupabase(user.id, newProfiles).catch(err =>
                     console.error('Failed to sync profiles to cloud:', err)
                 );
             }
-            
+
+            return newProfiles;
+        });
+    }, [user]);
+
+    const addProfile = useCallback(async (profile: TrainingProfile) => {
+        setProfiles(prev => {
+            const newProfiles = [...prev, profile];
+            if (user) {
+                syncProfilesToSupabase(user.id, newProfiles).catch(err =>
+                    console.error('Failed to sync profiles to cloud:', err)
+                );
+            }
             return newProfiles;
         });
     }, [user]);
@@ -96,7 +108,7 @@ export const useProfiles = () => {
     const resetProfiles = useCallback(async () => {
         setProfiles(DEFAULT_PROFILES);
         setActiveProfileId(DEFAULT_PROFILES[0].id);
-        
+
         if (user) {
             try {
                 await syncProfilesToSupabase(user.id, DEFAULT_PROFILES);
@@ -112,6 +124,7 @@ export const useProfiles = () => {
         activeProfileId,
         setActiveProfileId,
         updateProfile,
+        addProfile,
         resetProfiles,
         loading
     };

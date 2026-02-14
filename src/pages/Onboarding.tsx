@@ -1,33 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useRevenueCat } from '../contexts/RevenueCatContext';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
 import {
-    ChevronRight,
     Plane,
-    User,
-    MapPin,
     CheckCircle2,
-    Loader2,
     ShieldCheck,
-    ArrowRight,
     Search
 } from 'lucide-react';
 import { AIRPORTS } from '../data/airports';
 import clsx from 'clsx';
-import { createId } from '../hooks/useProfiles';
+
+// Helper for IDs
+const createId = () => Math.random().toString(36).substring(2, 9);
 
 type Step = 'welcome' | 'profile' | 'aircraft' | 'base' | 'analyzing' | 'paywall';
 
 export const Onboarding = () => {
     const navigate = useNavigate();
-    const { user } = useAuth(); // If we want to save to user account immediately
-    const { isPro } = useRevenueCat();
     const { addProfile, setActiveProfileId } = useProfiles();
-    const { addAircraft, setActiveAircraftId } = useAircraft();
+    const { addAircraft } = useAircraft();
     const { updateSetting } = useSettings();
 
     const [currentStep, setCurrentStep] = useState<Step>('welcome');
@@ -53,28 +46,33 @@ export const Onboarding = () => {
         }
     };
 
-    const completeSetup = () => {
+    const completeSetup = async () => {
         // 1. Create Aircraft
-        // In a real app we'd map this to real performance templates
-        const newAircraftId = `ac_${Date.now()}`;
         const template = getAircraftTemplate(aircraftType);
 
-        addAircraft({
-            id: newAircraftId,
+        await addAircraft({
             registration: 'N' + Math.floor(100 + Math.random() * 900) + 'OD', // Fake tail number
             type: aircraftType,
+            name: aircraftType, // Added required name field
             performance: template.performance,
-            equipment: 'G1000'
+            stations: template.stations,
+            cgEnvelope: template.cgEnvelope,
+            requiredEndorsements: []
         });
-        setActiveAircraftId(newAircraftId);
 
         // 2. Create Profile
         const newProfileId = createId();
         addProfile({
             id: newProfileId,
             name: `${pilotLevel} Profile`,
-            minimums: getProfileDefaults(pilotLevel),
-            aircraftId: newAircraftId
+            description: `Auto-generated profile for ${pilotLevel}`, // Added required description
+            limits: getProfileDefaults(pilotLevel), // Changed minimums to limits
+            endorsements: [], // Added required endorsements
+            aircraft: {
+                cruiseSpeed: template.performance.cruiseSpeed,
+                fuelBurn: template.performance.fuelBurn,
+                range: template.performance.range
+            }
         });
         setActiveProfileId(newProfileId);
 
@@ -336,32 +334,71 @@ function getAircraftTemplate(type: string): any {
         performance: {
             cruiseSpeed: type === 'SR22' ? 170 : type === 'C182' ? 145 : type === 'C172' ? 115 : 100,
             fuelBurn: type === 'SR22' ? 18 : type === 'C172' ? 8 : 10,
-        }
+            usableFuel: type === 'SR22' ? 56 : 40,
+            range: type === 'SR22' ? 800 : 500,
+            emptyWeight: 1600,
+            emptyArm: 40,
+            maxGrossWeight: 2550
+        },
+        stations: [],
+        cgEnvelope: []
     };
 }
 
 function getProfileDefaults(level: string): any {
+    // Default base structure
+    const base = {
+        maxWind: 20,
+        maxGust: 10,
+        maxCrosswind: 10,
+        minCeiling: 2000,
+        minVisibility: 3,
+        allowIfr: false,
+        maxPrecipProb: 30,
+        minTempSpread: 3,
+        maxDensityAltitude: 5000,
+        minRunwayLength: 2000,
+        minFreezingLevel: 5000,
+        allowNight: false,
+        minFuelReserve: 45
+    };
+
     if (level === 'Student Pilot') {
         return {
-            ceiling: 3000,
-            visibility: 5,
-            crosswind: 8,
-            gusts: 5
+            ...base,
+            maxWind: 15,
+            maxGust: 5,
+            maxCrosswind: 8,
+            minCeiling: 3000,
+            minVisibility: 5,
+            allowNight: false
         };
     }
     if (level === 'Private Pilot') {
         return {
-            ceiling: 1500,
-            visibility: 3,
-            crosswind: 12,
-            gusts: 10
+            ...base,
+            maxWind: 25,
+            maxGust: 15,
+            maxCrosswind: 12,
+            minCeiling: 1500,
+            minVisibility: 3,
+            allowNight: true
         };
     }
-    // Default/Advanced
+    // Commercial/ATP/Instrument
     return {
-        ceiling: 1000,
-        visibility: 2,
-        crosswind: 15,
-        gusts: 15
+        ...base,
+        maxWind: 35,
+        maxGust: 25,
+        maxCrosswind: 20,
+        minCeiling: 500,
+        minVisibility: 1,
+        allowIfr: true,
+        maxPrecipProb: 80,
+        minTempSpread: 0,
+        maxDensityAltitude: 10000,
+        minRunwayLength: 1500,
+        minFreezingLevel: 0,
+        allowNight: true
     };
 }

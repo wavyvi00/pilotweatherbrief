@@ -19,12 +19,12 @@ export const useAircraft = () => {
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
-            
+
             if (user) {
                 try {
                     // Fetch from Supabase
                     const cloudFleet = await fetchUserAircraft(user.id);
-                    
+
                     if (cloudFleet.length > 0) {
                         setFleet(cloudFleet);
                         setActiveAircraftId(cloudFleet[0].id);
@@ -59,10 +59,10 @@ export const useAircraft = () => {
                 setActiveAircraftId(localStorage.getItem(ACTIVE_KEY) || localFleet[0]?.id || '');
                 setSynced(false);
             }
-            
+
             setLoading(false);
         };
-        
+
         loadData();
     }, [user]);
 
@@ -99,10 +99,10 @@ export const useAircraft = () => {
             ...aircraft,
             id: `ac-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
         };
-        
+
         setFleet(prev => [...prev, newAircraft]);
         setActiveAircraftId(newAircraft.id);
-        
+
         if (user) {
             try {
                 await saveUserAircraft(user.id, newAircraft);
@@ -110,21 +110,22 @@ export const useAircraft = () => {
                 console.error('Failed to save aircraft to cloud:', error);
             }
         }
+        return newAircraft.id;
     }, [user]);
 
     const updateAircraft = useCallback(async (id: string, updates: Partial<Aircraft>) => {
         setFleet(prev => {
             const updated = prev.map(a => a.id === id ? { ...a, ...updates } : a);
-            
+
             if (user) {
                 const updatedAircraft = updated.find(a => a.id === id);
                 if (updatedAircraft) {
-                    saveUserAircraft(user.id, updatedAircraft).catch(err => 
+                    saveUserAircraft(user.id, updatedAircraft).catch(err =>
                         console.error('Failed to update aircraft in cloud:', err)
                     );
                 }
             }
-            
+
             return updated;
         });
     }, [user]);
@@ -134,14 +135,14 @@ export const useAircraft = () => {
             alert("You must have at least one aircraft.");
             return;
         }
-        
+
         setFleet(prev => prev.filter(a => a.id !== id));
-        
+
         if (activeAircraftId === id) {
             const remaining = fleet.filter(a => a.id !== id);
             if (remaining.length > 0) setActiveAircraftId(remaining[0].id);
         }
-        
+
         if (user) {
             try {
                 await deleteUserAircraft(id);
