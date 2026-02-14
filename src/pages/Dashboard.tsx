@@ -27,6 +27,7 @@ import { WeatherMap } from '../components/WeatherMap';
 import { format, isWithinInterval } from 'date-fns';
 import { Loader, AlertCircle, Plane, RotateCcw, Flag, MapPin, Fuel } from 'lucide-react';
 import type { WeatherWindow } from '../types/weather';
+import { GatedFeature } from '../components/GatedFeature';
 
 
 
@@ -112,7 +113,7 @@ export const Dashboard = () => {
         wp1Airport?.lat || 0,
         wp1Airport?.lon || 0
     );
-    
+
     // Fetch fuel price for primary station
     const { price: fuelPrice } = useFuelPrice(stationId);
 
@@ -219,7 +220,7 @@ export const Dashboard = () => {
                             </div>
 
                         )}
-                        
+
                         {/* Fuel Price Badge */}
                         {fuelPrice && searchMode === 'single' && (
                             <div className="flex flex-col items-start sm:items-end ml-2 sm:ml-4 pl-2 sm:pl-4 border-l border-slate-200 dark:border-slate-700">
@@ -269,12 +270,14 @@ export const Dashboard = () => {
             {/* Route Briefing Panel */}
             {
                 searchMode === 'route' && hasValidDestination(route) && (
-                    <RouteBriefing
-                        from={routeCompat.from}
-                        to={routeCompat.to!}
-                        profile={activeProfile}
-                        aircraft={activeAircraft}
-                    />
+                    <GatedFeature>
+                        <RouteBriefing
+                            from={routeCompat.from}
+                            to={routeCompat.to!}
+                            profile={activeProfile}
+                            aircraft={activeAircraft}
+                        />
+                    </GatedFeature>
                 )
             }
 
@@ -437,7 +440,9 @@ export const Dashboard = () => {
                                 ) : (
                                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 min-h-[400px] transition-colors">
                                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 font-display">48-Hour Training Outlook</h3>
-                                        <TimelineChart windows={weatherData} profile={activeProfile} aircraft={activeAircraft} onSelectWindow={setSelectedWindow} />
+                                        <GatedFeature blur={true}>
+                                            <TimelineChart windows={weatherData} profile={activeProfile} aircraft={activeAircraft} onSelectWindow={setSelectedWindow} />
+                                        </GatedFeature>
                                     </div>
                                 )}
                             </div>

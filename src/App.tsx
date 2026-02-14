@@ -8,6 +8,7 @@ import { RevenueCatProvider } from './contexts/RevenueCatContext';
 import './index.css';
 import { Dashboard } from './pages/Dashboard';
 import { LandingPage } from './pages/LandingPage';
+import { Onboarding } from './pages/Onboarding';
 import { AuthPage } from './pages/Auth';
 import { AuthCallback } from './pages/AuthCallback';
 import { ResetPassword } from './pages/ResetPassword';
@@ -113,57 +114,61 @@ function AuthButton({ onNavigate }: { onNavigate?: () => void }) {
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isOnboarding = location.pathname === '/onboarding';
 
   return (
     <div className="min-h-screen flex flex-col bg-deep selection:bg-sky-500/30">
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
-        <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between py-3 md:py-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 md:gap-3 font-display font-bold text-lg md:text-xl tracking-tight">
-            <img src={flightSoloLogo} alt="FlightSolo" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-            <span className="bg-gradient-to-r from-sky-200 to-indigo-300 bg-clip-text text-transparent">
-              FlightSolo
-            </span>
-          </Link>
+      {!isOnboarding && (
+        <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-xl">
+          <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between py-3 md:py-4">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 md:gap-3 font-display font-bold text-lg md:text-xl tracking-tight">
+              <img src={flightSoloLogo} alt="FlightSolo" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
+              <span className="bg-gradient-to-r from-sky-200 to-indigo-300 bg-clip-text text-transparent">
+                FlightSolo
+              </span>
+            </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
-            <NavLink to="/dashboard" icon={Calendar} label="Dashboard" />
-            <NavLink to="/settings" icon={Settings} label="Profile" />
-            <NavLink to="/subscription" icon={Zap} label="Go Pro" />
-            <ThemeToggle />
-            <AuthButton />
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-2">
+              <NavLink to="/dashboard" icon={Calendar} label="Dashboard" />
+              <NavLink to="/settings" icon={Settings} label="Profile" />
+              <NavLink to="/subscription" icon={Zap} label="Go Pro" />
+              <ThemeToggle />
+              <AuthButton />
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-[#0f172a]/95 backdrop-blur-xl border-b border-white/5 p-4 animate-fade-in">
-            <div className="flex flex-col gap-2">
-              <MobileNavLink to="/dashboard" icon={Calendar} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
-              <MobileNavLink to="/settings" icon={Settings} label="Profile" onClick={() => setMobileMenuOpen(false)} />
-              <MobileNavLink to="/subscription" icon={Zap} label="Go Pro" onClick={() => setMobileMenuOpen(false)} />
-              <div className="border-t border-white/10 my-2" />
-              <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-sm text-slate-400">Theme</span>
-                <ThemeToggle />
-              </div>
-              <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-sm text-slate-400">Account</span>
-                <AuthButton onNavigate={() => setMobileMenuOpen(false)} />
+          {/* Mobile Menu Overlay */}
+          {mobileMenuOpen && (
+            <div className="md:hidden absolute top-full left-0 right-0 bg-[#0f172a]/95 backdrop-blur-xl border-b border-white/5 p-4 animate-fade-in">
+              <div className="flex flex-col gap-2">
+                <MobileNavLink to="/dashboard" icon={Calendar} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
+                <MobileNavLink to="/settings" icon={Settings} label="Profile" onClick={() => setMobileMenuOpen(false)} />
+                <MobileNavLink to="/subscription" icon={Zap} label="Go Pro" onClick={() => setMobileMenuOpen(false)} />
+                <div className="border-t border-white/10 my-2" />
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-sm text-slate-400">Theme</span>
+                  <ThemeToggle />
+                </div>
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-sm text-slate-400">Account</span>
+                  <AuthButton onNavigate={() => setMobileMenuOpen(false)} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </nav>
+          )}
+        </nav>
+      )}
       <main className="flex-1 py-4 md:py-6 relative">
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none"></div>
         {children}
@@ -178,6 +183,7 @@ function AppRoutes() {
     <Layout>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/reset-password" element={<ResetPassword />} />
