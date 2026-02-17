@@ -8,56 +8,45 @@ import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, CreditCard, Z
 import { useNavigate } from 'react-router-dom';
 
 const SubscriptionSection = () => {
-    const { isPro, presentCustomerCenter, currentCustomerInfo } = useRevenueCat();
-    const navigate = useNavigate();
+    // We are now forcing isPro to true in the context, but we want to show a specific "Donation" UI here.
+    // For now, let's just assume isPro is true (since we forced it).
 
     return (
         <GlassCard className="p-4 sm:p-6 md:p-8 mb-6 md:mb-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Zap className="w-32 h-32 text-sky-500" />
             </div>
-            
+
             <div className="relative z-10">
                 <div className="mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
                     <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-3">
                         Subscription
-                        {isPro && <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded-full border border-emerald-500/20">ACTIVE</span>}
+                        <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded-full border border-emerald-500/20">UNLOCKED</span>
                     </h1>
                     <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl">
-                        Manage your Flight Solo subscription and billing.
+                        FlightSolo is currently free to use. Enjoy!
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                            {isPro ? 'Flight Solo Pro' : 'Free Plan'}
+                            Community Edition
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {isPro 
-                                ? `Renews: ${currentCustomerInfo?.latestExpirationDate ? new Date(currentCustomerInfo.latestExpirationDate).toLocaleDateString() : 'Unknown'}`
-                                : 'Upgrade to unlock advanced features.'}
+                            All features are unlocked.
                         </p>
                     </div>
 
                     <div className="flex gap-3">
-                         {isPro ? (
-                            <button 
-                                onClick={() => presentCustomerCenter()}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                            >
-                                <CreditCard className="w-4 h-4" />
-                                Manage Subscription
-                            </button>
-                         ) : (
-                            <button 
-                                onClick={() => navigate('/subscription')}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold shadow-lg shadow-sky-500/20 hover:from-sky-400 hover:to-indigo-500 transition-all"
-                            >
-                                <Zap className="w-4 h-4" />
-                                Upgrade to Pro
-                            </button>
-                         )}
+                        <a
+                            href="https://buymeacoffee.com/Ly333"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FFDD00] text-black font-bold hover:bg-[#FFDD00]/90 transition-colors shadow-sm"
+                        >
+                            ☕ Buy us a Coffee
+                        </a>
                     </div>
                 </div>
             </div>

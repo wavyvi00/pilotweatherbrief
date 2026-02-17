@@ -33,16 +33,22 @@ const RevenueCatContext = createContext<RevenueCatContextType | undefined>(undef
 
 export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) => {
     const { user } = useAuth();
-    const [isPro, setIsPro] = useState(false);
+    const [isPro, setIsPro] = useState(true); // Default to TRUE for free access
     const [currentCustomerInfo, setCurrentCustomerInfo] = useState<any | null>(null);
     const [packages, setPackages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const updateCustomerInfo = (info: any) => { 
+    const updateCustomerInfo = (info: any) => {
         setCurrentCustomerInfo(info);
         const activeEntitlements = Object.keys(info?.entitlements?.active || {});
         rcLog('ENTITLEMENT', 'Active entitlements:', activeEntitlements);
-        
+
+        // FORCE PRO ACCESS
+        setIsPro(true);
+        rcLog('ENTITLEMENT', '✅ Pro access GRANTED (Forced Free)');
+
+        // Original logic kept for reference:
+        /*
         if (info?.entitlements?.active?.['Flight Solo Pro'] || info?.entitlements?.active?.['pro']) {
             setIsPro(true);
             rcLog('ENTITLEMENT', '✅ Pro access GRANTED');
@@ -50,6 +56,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
             setIsPro(false);
             rcLog('ENTITLEMENT', '❌ No pro access');
         }
+        */
     };
 
     useEffect(() => {
@@ -59,7 +66,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                     // --- NATIVE (iOS/Android) ---
                     rcLog('INIT', 'Initializing for NATIVE platform');
                     const { Purchases, LOG_LEVEL } = await import('@revenuecat/purchases-capacitor');
-                    
+
                     await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
                     await Purchases.configure({ apiKey: API_KEY_NATIVE });
                     rcLog('INIT', 'Native SDK configured');
@@ -87,7 +94,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                     // --- WEB (Stripe via RevenueCat Web Billing) ---
                     rcLog('INIT', 'Initializing for WEB platform');
                     rcLog('INIT', `API key prefix: ${API_KEY_WEB.substring(0, 8)}...`);
-                    
+
                     if (API_KEY_WEB.includes('CHANGE_THIS')) {
                         console.warn("[RC:INIT] RevenueCat Web API Key not set yet.");
                         setLoading(false);
@@ -119,11 +126,11 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
 
                     // Load offerings
                     await loadOfferingsWeb(purchases);
-                    
+
                     // Attach listener
                     const sharedInstance = PurchasesWeb.getSharedInstance();
                     if (sharedInstance && typeof (sharedInstance as any).addCustomerInfoUpdateListener === 'function') {
-                         (sharedInstance as any).addCustomerInfoUpdateListener((info: any) => {
+                        (sharedInstance as any).addCustomerInfoUpdateListener((info: any) => {
                             rcLog('ENTITLEMENT', 'Customer info updated (listener)');
                             updateCustomerInfo(info);
                         });
@@ -133,7 +140,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                             updateCustomerInfo(info);
                         });
                     } else {
-                         rcLog('INIT', '⚠️ addCustomerInfoUpdateListener not available');
+                        rcLog('INIT', '⚠️ addCustomerInfoUpdateListener not available');
                     }
                 }
             } catch (error) {
@@ -145,17 +152,17 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
 
         init();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.id]); 
+    }, [user?.id]);
 
     // --- NATIVE Offerings ---
     const loadOfferingsNative = async (Purchases: any) => {
         try {
             rcLog('OFFERING', 'Fetching native offerings...');
             const offerings = await Purchases.getOfferings();
-            
+
             if (offerings.offerings?.current?.availablePackages?.length > 0) {
                 const pkgs = offerings.offerings.current.availablePackages;
-                rcLog('OFFERING', `✅ Found ${pkgs.length} packages in current offering`, 
+                rcLog('OFFERING', `✅ Found ${pkgs.length} packages in current offering`,
                     pkgs.map((p: any) => ({ id: p.identifier, product: p.product?.identifier }))
                 );
                 setPackages(pkgs);
@@ -172,32 +179,32 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
         try {
             rcLog('OFFERING', 'Fetching web offerings...');
             const offerings = await purchasesInstance.getOfferings();
-            
+
             // Log all available offerings
             const allOfferingIds = Object.keys(offerings.all || {});
             rcLog('OFFERING', `Available offerings: [${allOfferingIds.join(', ')}]`);
-            
+
             // Priority: try default_web first, then fall back to current
             let selectedOffering = offerings.all?.['default_web'] || offerings.current;
             const selectedId = offerings.all?.['default_web'] ? 'default_web' : (offerings.current?.identifier || 'current');
-            
+
             if (selectedOffering && selectedOffering.availablePackages.length > 0) {
                 const pkgs = selectedOffering.availablePackages;
                 rcLog('OFFERING', `✅ Using offering "${selectedId}" with ${pkgs.length} packages:`);
-                
+
                 // Log detailed package info
                 pkgs.forEach((pkg: any, i: number) => {
                     const product = pkg.rcBillingProduct || pkg.webBillingProduct || pkg.product || {};
                     const price = product.currentPrice?.formattedPrice || product.priceString || 'N/A';
                     const period = product.normalPeriodDuration || product.subscriptionPeriod || 'N/A';
-                    const trial = product.defaultSubscriptionOption?.freePhase 
+                    const trial = product.defaultSubscriptionOption?.freePhase
                         || product.freeTrialPhase
                         || pkg.product?.introPrice
                         || null;
                     rcLog('OFFERING', `  Package ${i + 1}: ${pkg.identifier} | ${price} | period: ${period} | trial: ${trial ? JSON.stringify(trial) : 'none'}`);
                 });
-                
-                setPackages(pkgs); 
+
+                setPackages(pkgs);
             } else {
                 rcLog('OFFERING', '⚠️ No packages found in any offering', { allOfferingIds, current: offerings.current });
             }
@@ -209,7 +216,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     const purchasePackage = async (pack: any) => {
         const productId = pack?.rcBillingProduct?.identifier || pack?.product?.identifier || pack?.identifier || 'unknown';
         rcLog('PURCHASE', `Initiating purchase for: ${productId}`);
-        
+
         try {
             if (Capacitor.isNativePlatform()) {
                 const { Purchases } = await import('@revenuecat/purchases-capacitor');
@@ -218,7 +225,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                 rcLog('PURCHASE', '✅ Purchase complete (Native)');
                 updateCustomerInfo(customerInfo);
             } else {
-                const purchases = PurchasesWeb.getSharedInstance(); 
+                const purchases = PurchasesWeb.getSharedInstance();
                 rcLog('PURCHASE', 'Opening Stripe checkout...');
                 const { customerInfo } = await purchases.purchasePackage(pack);
                 rcLog('PURCHASE', '✅ Purchase complete (Web/Stripe)');
@@ -226,7 +233,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
             }
         } catch (error: any) {
             const isCancelled = error.userCancelled || (error.code === 1) || (error.message && error.message.includes('User cancelled'));
-            
+
             if (!isCancelled) {
                 console.error("[RC:PURCHASE] ❌ Purchase failed:", error);
             } else {
@@ -258,8 +265,8 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     const presentCustomerCenter = async () => {
         try {
             if (Capacitor.isNativePlatform()) {
-                 const { RevenueCatUI } = await import('@revenuecat/purchases-capacitor-ui');
-                 await RevenueCatUI.presentCustomerCenter();
+                const { RevenueCatUI } = await import('@revenuecat/purchases-capacitor-ui');
+                await RevenueCatUI.presentCustomerCenter();
             } else {
                 alert("Please manage your subscription via the Stripe portal sent to your email.");
             }

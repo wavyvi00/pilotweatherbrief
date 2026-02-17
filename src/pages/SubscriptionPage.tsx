@@ -18,16 +18,16 @@ export function SubscriptionPage() {
     const result: Record<string, any> = {};
     for (const pkg of packages) {
       const product = pkg?.rcBillingProduct || pkg?.webBillingProduct || pkg?.product || {};
-      const period = product?.normalPeriodDuration 
-        || product?.subscriptionPeriod 
+      const period = product?.normalPeriodDuration
+        || product?.subscriptionPeriod
         || '';
-      const priceStr = product?.currentPrice?.formattedPrice 
-        || product?.priceString 
+      const priceStr = product?.currentPrice?.formattedPrice
+        || product?.priceString
         || '';
-      const priceAmount = product?.currentPrice?.amount 
-        || product?.price 
+      const priceAmount = product?.currentPrice?.amount
+        || product?.price
         || 0;
-      
+
       // Extract trial info from the package/product
       const trialPhase = product?.defaultSubscriptionOption?.freePhase
         || product?.freeTrialPhase
@@ -43,7 +43,7 @@ export function SubscriptionPage() {
         else if (dur === 'P1M') trialDays = 30;
         else if (dur.startsWith('P') && dur.endsWith('D')) trialDays = parseInt(dur.slice(1, -1)) || 0;
       }
-      
+
       if (period === 'P1M') {
         result.monthly = { pkg, priceStr, priceAmount, period: 'month', hasTrial, trialDays };
       } else if (period === 'P1Y') {
@@ -85,7 +85,7 @@ export function SubscriptionPage() {
       <div className={clsx("min-h-screen py-12 px-4 flex flex-col items-center justify-center",
         isDark ? '' : 'bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50'
       )}
-           style={isDark ? { background: 'linear-gradient(135deg, #0a101f 0%, #0d1b2a 40%, #112240 100%)' } : undefined}>
+        style={isDark ? { background: 'linear-gradient(135deg, #0a101f 0%, #0d1b2a 40%, #112240 100%)' } : undefined}>
         <div className="relative">
           <div className={clsx("absolute -inset-6 rounded-3xl blur-2xl",
             isDark ? "bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-sky-500/20 opacity-60" : "bg-gradient-to-r from-sky-300/20 via-indigo-300/20 to-sky-300/20 opacity-40"
@@ -93,12 +93,12 @@ export function SubscriptionPage() {
           <div className={clsx("relative rounded-3xl p-10 max-w-md w-full text-center border",
             isDark ? "border-white/10" : "border-slate-200 shadow-xl"
           )}
-               style={isDark
-                 ? { background: 'linear-gradient(145deg, rgba(16,32,56,0.9) 0%, rgba(10,20,40,0.95) 100%)', backdropFilter: 'blur(20px)' }
-                 : { background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }
-               }>
+            style={isDark
+              ? { background: 'linear-gradient(145deg, rgba(16,32,56,0.9) 0%, rgba(10,20,40,0.95) 100%)', backdropFilter: 'blur(20px)' }
+              : { background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }
+            }>
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
-                 style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
               <LogIn className="w-10 h-10 text-white" />
             </div>
             <h1 className={clsx("text-3xl font-bold mb-3", isDark ? "text-white" : "text-slate-900")}>
@@ -131,46 +131,65 @@ export function SubscriptionPage() {
     );
   }
 
+  // --- FORCE SHOW FREE / DONATION VIEW (since isPro is forced true) ---
   if (isPro) {
     return (
-      <div className={clsx("min-h-screen flex flex-col items-center justify-center p-4", 
+      <div className={clsx("min-h-screen flex flex-col items-center justify-center p-4",
         isDark ? '' : 'bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50')}
-           style={isDark ? { background: 'linear-gradient(135deg, #0a101f 0%, #0d1b2a 40%, #112240 100%)' } : undefined}>
+        style={isDark ? { background: 'linear-gradient(135deg, #0a101f 0%, #0d1b2a 40%, #112240 100%)' } : undefined}>
         {/* Subtle glow behind the card */}
         <div className="relative">
           <div className={clsx("absolute -inset-6 rounded-3xl blur-2xl",
-            isDark 
+            isDark
               ? "bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-emerald-500/20 opacity-60"
               : "bg-gradient-to-r from-sky-300/30 via-indigo-300/30 to-emerald-300/30 opacity-40"
           )} />
           <div className={clsx("relative rounded-3xl p-10 max-w-md w-full text-center",
-            isDark 
-              ? "border border-white/10" 
+            isDark
+              ? "border border-white/10"
               : "border border-slate-200 shadow-xl"
           )}
-               style={isDark 
-                 ? { background: 'linear-gradient(145deg, rgba(16,32,56,0.9) 0%, rgba(10,20,40,0.95) 100%)', backdropFilter: 'blur(20px)' }
-                 : { background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }
-               }>
+            style={isDark
+              ? { background: 'linear-gradient(145deg, rgba(16,32,56,0.9) 0%, rgba(10,20,40,0.95) 100%)', backdropFilter: 'blur(20px)' }
+              : { background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }
+            }>
             {/* Animated checkmark circle */}
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 relative"
-                 style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>
+              style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>
               <Shield className="w-10 h-10 text-white" />
               <div className="absolute inset-0 rounded-full animate-ping opacity-20"
-                   style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }} />
+                style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }} />
             </div>
+
             <h1 className={clsx("text-3xl font-bold mb-3", isDark ? "text-white" : "text-slate-900")}>
-              You're a Pro! 🎉
+              FlightSolo is Free! 🎉
             </h1>
-            <p className={clsx("mb-8 leading-relaxed", isDark ? "text-slate-400" : "text-slate-500")}>
-              Thank you for supporting FlightSolo. You now have full access to all premium features.
+
+            <p className={clsx("mb-6 leading-relaxed", isDark ? "text-slate-400" : "text-slate-500")}>
+              We've made FlightSolo completely free for everyone. Enjoy full access to all premium features on us.
             </p>
-            
+
+            <div className={clsx("p-4 rounded-xl mb-8 text-left",
+              isDark ? "bg-slate-800/50 border border-white/5" : "bg-sky-50 border border-sky-100"
+            )}>
+              <p className={clsx("text-sm mb-3", isDark ? "text-slate-300" : "text-slate-700")}>
+                Building and maintaining this app takes time and coffee. If you find it useful, consider supporting us!
+              </p>
+              <a
+                href="https://buymeacoffee.com/Ly333"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-full py-3 rounded-lg bg-[#FFDD00] text-black font-bold hover:bg-[#FFDD00]/90 transition-all shadow-md"
+              >
+                ☕ Buy us a Coffee
+              </a>
+            </div>
+
             {/* Feature highlights */}
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {['Weather Briefings', 'Flight Planning', 'Airport Database', 'Offline Mode'].map((f) => (
                 <span key={f} className={clsx("text-xs px-3 py-1.5 rounded-full border",
-                  isDark 
+                  isDark
                     ? "bg-sky-500/10 text-sky-300 border-sky-500/20"
                     : "bg-sky-50 text-sky-600 border-sky-200"
                 )}>
@@ -179,19 +198,19 @@ export function SubscriptionPage() {
               ))}
             </div>
 
-            <button 
+            <button
               onClick={() => window.location.href = '/'}
               className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold text-base shadow-lg shadow-sky-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Go to Dashboard
             </button>
-            <button 
+            <button
               onClick={() => window.location.href = '/profile'}
               className={clsx("mt-3 text-sm font-medium transition-colors",
                 isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"
               )}
             >
-              Manage Subscription
+              Settings
             </button>
           </div>
         </div>
