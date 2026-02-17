@@ -105,7 +105,7 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
                     if (!user?.id) {
                         rcLog('INIT', '⏳ No user logged in — skipping web SDK init');
                         setPackages([]);
-                        setIsPro(false);
+                        // setIsPro(false); // DISABLED: Free for now, keep unlocked
                         setCurrentCustomerInfo(null);
                         setLoading(false);
                         return;

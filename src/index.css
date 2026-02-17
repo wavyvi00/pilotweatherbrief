@@ -2,61 +2,67 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Premium Light Palette */
+  /* Apple / FlightSolo Minimalist Palette */
 
   /* Backgrounds */
-  --bg-deep: #f8fafc;
-  /* Slate 50 - Main Background */
+  --bg-deep: #f5f5f7;
+  /* Apple Light Gray background */
   --bg-surface: #ffffff;
-  /* White - Cards/Surface */
-  --bg-glass: rgba(255, 255, 255, 0.7);
-  /* Frosted Glass */
+  --bg-glass: rgba(255, 255, 255, 0.85);
 
-  /* Accents */
-  --primary: #0ea5e9;
-  /* Sky 500 - Primary Action */
-  --secondary: #6366f1;
-  /* Indigo 500 - Secondary */
-  --accent: #f43f5e;
-  /* Rose 500 - Highlight */
+  /* Accents - Minimal & Functional */
+  --primary: #000000;
+  /* Primary actions often black in Apple design */
+  --accent: #2997ff;
+  /* Apple System Blue */
 
-  /* Text */
-  --text-main: #0f172a;
-  /* Slate 900 - Headings */
-  --text-body: #334155;
-  /* Slate 700 - Body */
-  --text-muted: #64748b;
-  /* Slate 500 - Muted */
+  /* Status Colors (Soft & Clear) */
+  --status-flyable: #34c759;
+  /* Apple Green */
+  --status-flyable-bg: #ecfdf5;
+  --status-warning: #ff9f0a;
+  /* Apple Orange */
+  --status-nofly: #ff3b30;
+  /* Apple Red */
+  --status-nofly-bg: #fff1f2;
 
-  /* Status */
-  --status-success: #10b981;
-  /* Emerald 500 */
-  --status-warning: #f59e0b;
-  /* Amber 500 */
-  --status-danger: #ef4444;
-  /* Red 500 */
-  --status-info: #3b82f6;
-  /* Blue 500 */
+  /* Typography Colors */
+  --text-main: #1d1d1f;
+  /* Almost Black */
+  --text-body: #424245;
+  /* Dark Gray */
+  --text-muted: #86868b;
+  /* Light Gray */
+
+  /* Borders & Dividers */
+  --border-subtle: #d2d2d7;
+  --border-light: #e6e6eb;
 
   /* Fonts */
-  --font-display: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 4px 24px -6px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
   /* Dark Mode Palette */
-  --bg-deep: #0f172a;
-  /* Slate 900 */
-  --bg-surface: #1e293b;
-  /* Slate 800 */
-  --bg-glass: rgba(30, 41, 59, 0.7);
+  --bg-deep: #000000;
+  --bg-surface: #1c1c1e;
+  --bg-glass: rgba(28, 28, 30, 0.85);
 
-  --text-main: #f8fafc;
-  /* Slate 50 */
-  --text-body: #cbd5e1;
-  /* Slate 300 */
-  --text-muted: #94a3b8;
-  /* Slate 400 */
+  --text-main: #f5f5f7;
+  --text-body: #a1a1a6;
+  --text-muted: #86868b;
+
+  --border-subtle: #38383a;
+  --border-light: #2c2c2e;
+
+  --status-flyable-bg: rgba(52, 199, 89, 0.1);
+  --status-nofly-bg: rgba(255, 59, 48, 0.1);
 }
 
 body {
@@ -64,17 +70,9 @@ body {
   color: var(--text-main);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.05), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.05), transparent 25%);
-  background-attachment: fixed;
+  /* Remove the noisy gradient for a cleaner look */
+  background-image: none;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.dark body {
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.1), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.1), transparent 25%);
 }
 
 h1,
@@ -83,40 +81,40 @@ h3,
 h4,
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
+  /* Tighter tracking for display text */
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism Utilities - More subtle */
 .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .dark .glass-panel {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-subtle);
 }
 
 .glass-card {
   background: var(--bg-surface);
-  /* Use variable instead of hardcoded white */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+  border-radius: 18px;
+  /* Larger radius */
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dark .glass-card {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  border-color: rgba(14, 165, 233, 0.3);
+  box-shadow: var(--shadow-float);
 }
 
 /* Custom Scrollbar */

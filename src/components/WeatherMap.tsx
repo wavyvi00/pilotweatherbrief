@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline, CircleMarker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AIRPORTS } from '../data/airports';
+import type { Route } from '../types/route';
+import { getRouteIcaos } from '../types/route';
 import { Icon, DivIcon } from 'leaflet';
 import { useMapStatus, type StatusColor } from '../hooks/useMapStatus';
 import { useProfiles } from '../hooks/useProfiles';
@@ -119,10 +121,7 @@ const RouteFitter = ({ from, to }: { from: { lat: number, lon: number }, to: { l
 interface WeatherMapProps {
     currentStation: string;
     onSelect: (icao: string) => void;
-    route?: {
-        from: string;
-        to: string | null;
-    };
+    route?: Route; // Use the full Route type
 }
 
 export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps) => {
@@ -139,9 +138,8 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
     const activeAirport = AIRPORTS.find(a => a.icao === currentStation) || AIRPORTS[0];
 
     // Route logic
-    const fromAirport = route?.from ? AIRPORTS.find(a => a.icao === route.from) : null;
-    const toAirport = route?.to ? AIRPORTS.find(a => a.icao === route.to) : null;
-    const hasRoute = !!(fromAirport && toAirport);
+    const routeWaypoints = route ? getRouteIcaos(route).map(icao => AIRPORTS.find(a => a.icao === icao)).filter(Boolean) as typeof AIRPORTS : [];
+    const hasRoute = routeWaypoints.length >= 2;
 
     return (
         <div className="h-[400px] md:h-[600px] w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 z-0 relative bg-slate-100">
@@ -164,15 +162,12 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
                 />
 
                 {!hasRoute && <RecenterMap lat={activeAirport.lat} lon={activeAirport.lon} />}
-                {hasRoute && <RouteFitter from={fromAirport!} to={toAirport!} />}
+                {hasRoute && <RouteFitter from={routeWaypoints[0]} to={routeWaypoints[routeWaypoints.length - 1]} />}
 
                 {/* Draw Route Line */}
                 {hasRoute && (
                     <Polyline
-                        positions={[
-                            [fromAirport!.lat, fromAirport!.lon],
-                            [toAirport!.lat, toAirport!.lon]
-                        ]}
+                        positions={routeWaypoints.map(wp => [wp.lat, wp.lon])}
                         pathOptions={{ color: '#0ea5e9', weight: 4, opacity: 0.6, dashArray: '10, 10' }}
                     />
                 )}

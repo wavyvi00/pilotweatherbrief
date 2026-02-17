@@ -21,6 +21,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 45
         },
         endorsements: [],
+        totalHours: 20,
         aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 400, requiredEndorsements: [] }
     },
     {
@@ -65,6 +66,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 30
         },
         endorsements: ['complex', 'high-performance'], // Instructor assumed to have these
+        totalHours: 500,
         aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600, requiredEndorsements: [] }
     },
     {
@@ -87,6 +89,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 60 // 45 min + extra cushion
         },
         endorsements: ['instrument'],
+        totalHours: 150,
         aircraft: { cruiseSpeed: 120, fuelBurn: 10, range: 600, requiredEndorsements: [] }
     },
     {
@@ -131,6 +134,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 45
         },
         endorsements: ['commercial'],
+        totalHours: 250,
         aircraft: { cruiseSpeed: 130, fuelBurn: 12, range: 600, requiredEndorsements: ['complex'] }
     },
     {
@@ -153,6 +157,7 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 60
         },
         endorsements: [],
+        totalHours: 50,
         aircraft: { cruiseSpeed: 100, fuelBurn: 8, range: 300, requiredEndorsements: [] }
     }
 ];

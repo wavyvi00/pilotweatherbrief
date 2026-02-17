@@ -1,6 +1,6 @@
 import React from 'react';
 import { type TrainingProfile, type TrainingLimits } from '../types/profile';
-import { Wind, Eye, CloudRain, Cloud, AlertTriangle, Plane, Thermometer, Moon, Fuel, Gauge } from 'lucide-react';
+import { Wind, Eye, CloudRain, Cloud, AlertTriangle, Plane, Thermometer, Moon, Fuel, Gauge, Clock } from 'lucide-react';
 
 
 interface ProfileEditorProps {
@@ -239,6 +239,28 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onUpdate,
                     </div>
                 </div>
 
+                {/* Pilot Experience Section */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6 md:col-span-2">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="p-1.5 bg-blue-50 rounded-md text-blue-600">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-bold text-slate-800">Pilot Experience</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <LimitInput
+                            label="Total Flight Hours"
+                            value={profile.totalHours || 0}
+                            unit="hours"
+                            icon={Clock}
+                            onChange={(v) => onUpdate({ ...profile, totalHours: v })}
+                        />
+                        <div className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100 italic">
+                            Used to adjust safety margins. Low time pilots (&lt;100h) trigger stricter scoring for marginal conditions.
+                        </div>
+                    </div>
+                </div>
 
                 {/* Endorsements Section */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6 md:col-span-2">

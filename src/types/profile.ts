@@ -20,6 +20,7 @@ export interface TrainingProfile {
     description: string;
     limits: TrainingLimits;
     endorsements: string[]; // Endorsements held by the pilot in this profile
+    totalHours: number; // Total flight experience in hours
     aircraft?: {
         cruiseSpeed: number; // knots TAS
         fuelBurn: number; // gph

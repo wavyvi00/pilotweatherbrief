@@ -24,8 +24,8 @@ export const RouteSummary = ({ route, onClick, isOpen }: RouteSummaryProps) => {
     const getRouteDisplay = () => {
         if (!hasValidDestination(route)) {
             return (
-                <span className="text-slate-400 dark:text-slate-500">
-                    Select route...
+                <span className="text-slate-500 dark:text-slate-400 italic">
+                    Tap to plan route...
                 </span>
             );
         }

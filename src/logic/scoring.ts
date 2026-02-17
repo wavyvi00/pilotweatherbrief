@@ -165,6 +165,25 @@ export const ScoringEngine = {
             }
         }
 
+        // 12. Pilot Experience Score Adjustment (Adaptive Scoring)
+        // If totalHours is low (<100), we act more conservatively
+        const totalHours = profile.totalHours || 0;
+        if (totalHours < 100) {
+            // If already marginal (score < 80), push it down further
+            if (score > 0 && score < 80) {
+                score -= 15;
+                reasons.push(`Low Experience (<100h) Caution`);
+            }
+
+            // Stricter Crosswind for Students (<50h)
+            if (totalHours < 50 && context?.runwayHeading !== undefined) {
+                if (effectiveCrosswind > 8 && effectiveCrosswind <= limits.maxCrosswind) {
+                    score -= 20;
+                    reasons.push(`Student Crosswind Caution (>8kts)`);
+                }
+            }
+        }
+
         // Determine Status
         let status: 'GO' | 'MARGINAL' | 'NO_GO' = 'GO';
         if (score < 50) status = 'NO_GO';
