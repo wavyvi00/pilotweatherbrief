@@ -2,10 +2,8 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { useProfiles } from '../hooks/useProfiles';
 import { useAircraft } from '../hooks/useAircraft';
 import { useSettings } from '../hooks/useSettings';
-import { useRevenueCat } from '../contexts/RevenueCatContext';
 import { ProfileEditor } from '../components/ProfileEditor';
-import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, CreditCard, Zap } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Settings as SettingsIcon, Home, Plane, User, ChevronDown, Zap } from 'lucide-react';
 
 const SubscriptionSection = () => {
     // We are now forcing isPro to true in the context, but we want to show a specific "Donation" UI here.
