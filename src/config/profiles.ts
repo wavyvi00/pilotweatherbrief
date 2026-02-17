@@ -44,8 +44,9 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 45
         },
         endorsements: [],
+        totalHours: 40,
         aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500, requiredEndorsements: [] }
-    },
+    }, ,
     {
         id: 'instruction-dual',
         name: 'Dual Instruction',
@@ -112,8 +113,9 @@ export const DEFAULT_PROFILES: TrainingProfile[] = [
             minFuelReserve: 45
         },
         endorsements: [],
+        totalHours: 100,
         aircraft: { cruiseSpeed: 110, fuelBurn: 9, range: 500, requiredEndorsements: [] }
-    },
+    }, ,
     {
         id: 'commercial-maneuvers',
         name: 'Commercial Maneuvers',

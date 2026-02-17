@@ -23,10 +23,10 @@ export async function fetchUserAircraft(userId: string): Promise<Aircraft[]> {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
-    
+
     if (error) throw error;
     if (!data || data.length === 0) return [];
-    
+
     return (data as AircraftRow[]).map(row => ({
         id: row.id,
         registration: row.registration,
@@ -72,7 +72,7 @@ export async function syncAircraftToSupabase(userId: string, fleet: Aircraft[]):
         cg_envelope: aircraft.cgEnvelope,
         color: aircraft.color || null,
     }));
-    
+
     const { error } = await supabase.from('aircraft').upsert(rows);
     if (error) throw error;
 }
@@ -95,16 +95,17 @@ export async function fetchUserProfiles(userId: string): Promise<TrainingProfile
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
-    
+
     if (error) throw error;
     if (!data || data.length === 0) return [];
-    
+
     return (data as TrainingProfileRow[]).map(row => ({
         id: row.id,
         name: row.name,
         description: row.description || '',
         limits: row.limits as TrainingLimits,
         endorsements: row.endorsements || [],
+        totalHours: 0, // Fallback until DB schema is updated
     }));
 }
 
@@ -117,15 +118,15 @@ export async function syncProfilesToSupabase(userId: string, profiles: TrainingP
         limits: profile.limits,
         endorsements: profile.endorsements,
     }));
-    
+
     const { error } = await supabase.from('training_profiles').upsert(rows);
     if (error) throw error;
 }
 
 // ============ USER PROFILE / SETTINGS ============
 
-export async function fetchUserSettings(userId: string): Promise<{ 
-    defaultAirport: string; 
+export async function fetchUserSettings(userId: string): Promise<{
+    defaultAirport: string;
     theme: string;
     defaultAircraftId: string | null;
     defaultProfileId: string | null;
@@ -135,7 +136,7 @@ export async function fetchUserSettings(userId: string): Promise<{
         .select('default_airport, theme, default_aircraft_id, default_profile_id')
         .eq('id', userId)
         .single();
-    
+
     if (error) return null;
     return {
         defaultAirport: data?.default_airport || 'KMCI',
@@ -145,8 +146,8 @@ export async function fetchUserSettings(userId: string): Promise<{
     };
 }
 
-export async function updateUserSettings(userId: string, settings: { 
-    defaultAirport?: string; 
+export async function updateUserSettings(userId: string, settings: {
+    defaultAirport?: string;
     theme?: string;
     defaultAircraftId?: string | null;
     defaultProfileId?: string | null;
@@ -156,7 +157,7 @@ export async function updateUserSettings(userId: string, settings: {
     if (settings.theme !== undefined) updates.theme = settings.theme;
     if (settings.defaultAircraftId !== undefined) updates.default_aircraft_id = settings.defaultAircraftId;
     if (settings.defaultProfileId !== undefined) updates.default_profile_id = settings.defaultProfileId;
-    
+
     const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
     if (error) throw error;
 }

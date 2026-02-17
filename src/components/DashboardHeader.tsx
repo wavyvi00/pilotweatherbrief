@@ -1,23 +1,18 @@
-import { ChevronRight, Settings } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { Aircraft } from '../types/aircraft';
-import type { TrainingProfile } from '../types/profile';
 import clsx from 'clsx';
 
 interface DashboardHeaderProps {
     stationId: string;
-    onStationClick?: () => void; // Optional now
     searchMode: 'single' | 'route';
     setSearchMode: (mode: 'single' | 'route') => void;
-    activeProfile: TrainingProfile;
     activeAircraft: Aircraft | undefined;
 }
 
 export const DashboardHeader = ({
     stationId,
-    onStationClick,
     searchMode,
     setSearchMode,
-    activeProfile,
     activeAircraft
 }: DashboardHeaderProps) => {
 

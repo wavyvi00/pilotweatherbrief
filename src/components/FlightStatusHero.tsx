@@ -1,8 +1,8 @@
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import type { ScoringResult } from '../logic/scoring';
+import type { SuitabilityResult } from '../logic/scoring';
 
 interface FlightStatusHeroProps {
-    result: ScoringResult | null;
+    result: SuitabilityResult | null;
     className?: string;
 }
 

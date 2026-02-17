@@ -3,21 +3,21 @@ import type { WeatherWindow } from '../types/weather';
 
 interface WeatherMetricsBarProps {
     window: WeatherWindow | null;
-    stationElevation: number;
+    stationElevation: number | undefined;
     className?: string;
 }
 
 export const WeatherMetricsBar = ({ window, stationElevation, className = '' }: WeatherMetricsBarProps) => {
     if (!window) return null;
 
-    const { wind, visibility, pressure, temperature } = window;
+    const { wind, visibility, altimeter, temperature } = window;
 
     // Calculate Density Altitude
     let daDisplay = '---';
 
     // Ensure we have all necessary data points
-    if (stationElevation !== undefined && pressure && temperature !== undefined) {
-        const pressureAlt = stationElevation + (29.92 - pressure) * 1000;
+    if (stationElevation !== undefined && altimeter && temperature !== undefined) {
+        const pressureAlt = stationElevation + (29.92 - altimeter) * 1000;
         const stdTemp = 15 - (2 * (stationElevation / 1000));
         const da = Math.round(pressureAlt + (120 * (temperature - stdTemp)));
         daDisplay = da.toLocaleString();

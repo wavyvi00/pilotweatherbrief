@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, Scale, CheckSquare, Search } from 'lucide-react';
+import { LayoutList, Calendar as CalendarIcon, Map, RefreshCw, ChevronDown, CheckSquare } from 'lucide-react';
 import clsx from 'clsx';
 import { AirportSearch } from './AirportSearch';
 import { AircraftSelector } from './AircraftSelector';

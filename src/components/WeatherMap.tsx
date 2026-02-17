@@ -176,8 +176,8 @@ export const WeatherMap = ({ currentStation, onSelect, route }: WeatherMapProps)
                 {visibleAirports.map((airport) => {
                     const status = statuses[airport.icao] || 'gray';
                     const isSelected = airport.icao === currentStation;
-                    const isStart = route?.from === airport.icao;
-                    const isEnd = route?.to === airport.icao;
+                    const isStart = route && route.length > 0 && route[0].icao === airport.icao;
+                    const isEnd = route && route.length > 1 && route[route.length - 1].icao === airport.icao;
                     const isImportant = isSelected || isStart || isEnd;
 
                     // Color Mapping

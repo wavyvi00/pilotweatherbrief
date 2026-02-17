@@ -6,11 +6,11 @@ import { useAircraft } from '../hooks/useAircraft';
 
 import { useSettings } from '../hooks/useSettings';
 import { useAirportData } from '../hooks/useAirportData';
-import { useFuelPrice } from '../hooks/useFuelPrice';
+// import { useFuelPrice } from '../hooks/useFuelPrice';
 import { AircraftManager } from '../components/AircraftManager';
 import { DashboardToolbar } from '../components/DashboardToolbar';
 import { CalendarView } from '../components/CalendarView';
-import { WeightBalanceCalculator } from '../components/WeightBalanceCalculator';
+// import { WeightBalanceCalculator } from '../components/WeightBalanceCalculator';
 import { ChecklistViewer } from '../components/ChecklistViewer';
 import { WeatherDetailsModal } from '../components/WeatherDetailsModal';
 import { TimelineChart } from '../components/TimelineChart';
@@ -21,9 +21,9 @@ import { createSimpleRoute, hasValidDestination, getRouteIcaos } from '../types/
 
 import { WeatherMap } from '../components/WeatherMap';
 import { format, isWithinInterval } from 'date-fns';
-import { Loader, AlertCircle, Plane, Calendar, Map as MapIcon, ChevronRight, MapPin, Fuel } from 'lucide-react';
+import { Loader, AlertCircle, Plane, MapPin } from 'lucide-react';
 import { ScoringEngine } from '../logic/scoring';
-import { SuitabilityCard } from '../components/SuitabilityCard';
+// import { SuitabilityCard } from '../components/SuitabilityCard';
 import { RawWxViewer } from '../components/RawWxViewer';
 import { RunwayWindCalculator } from '../components/RunwayWindCalculator';
 import type { WeatherWindow } from '../types/weather';
@@ -119,7 +119,7 @@ export const Dashboard = () => {
     );
 
     // Fetch fuel price for primary station
-    const { price: fuelPrice } = useFuelPrice(stationId);
+    // const { price: fuelPrice } = useFuelPrice(stationId);
 
     const wp2 = routeWaypointIcaos[1] || '';
     const wp2Airport = AIRPORTS.find(a => a.icao === wp2);
@@ -147,7 +147,7 @@ export const Dashboard = () => {
     }, [wp1, wp1Weather, wp1Loading, wp1Error, wp2, wp2Weather, wp2Loading, wp2Error, wp3, wp3Weather, wp3Loading, wp3Error]);
 
     // Determine if we're in LIVE mode
-    const isLive = selectedTime === null;
+    // const isLive = selectedTime === null;
 
     // Find the weather window matching the selected time
     const getWindowForTime = (time: Date | null) => {
@@ -189,7 +189,6 @@ export const Dashboard = () => {
                 stationId={stationId}
                 searchMode={searchMode}
                 setSearchMode={setSearchMode}
-                activeProfile={activeProfile}
                 activeAircraft={activeAircraft}
             />
 

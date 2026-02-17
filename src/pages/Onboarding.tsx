@@ -72,7 +72,8 @@ export const Onboarding = () => {
                 cruiseSpeed: template.performance.cruiseSpeed,
                 fuelBurn: template.performance.fuelBurn,
                 range: template.performance.range
-            }
+            },
+            totalHours: 0
         });
         setActiveProfileId(newProfileId);
 
